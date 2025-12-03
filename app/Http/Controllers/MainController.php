@@ -136,7 +136,6 @@ class MainController extends Controller
     $grade6Count = DB::table('schedules')->where('grade_id', '6')->count();
 
 
-    // ✅ Get only specific columns
    $view_grade1 = DB::table('schedules')
     ->join('teacher', 'teacher.teachers_id', '=', 'schedules.teachers_id')
     ->join('subject', 'subject.subject_id', '=', 'schedules.subject_id')
