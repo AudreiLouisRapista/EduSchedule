@@ -27,6 +27,7 @@ Route::post('/authenticate', [MainController::class, 'auth_user'])->name('auth_u
 Route::post('/save_teacher', [MainController::class, 'save_teacher'])->name('save_teacher');
 Route::post('/save_schedule', [MainController::class, 'save_schedule'])->name('save_schedule');
 Route::post('/save_subjects', [MainController::class, 'save_subjects'])->name('save_subjects');
+Route::post('/save_section', [MainController::class, 'save_section'])->name('save_section');
 Route::post('/deact_teacher', [MainController::class, 'deact_teacher'])->name('deact_teacher');
 Route::post('/delete_schedule', [MainController::class, 'delete_schedule'])->name('delete_schedule');
 Route::post('/update_schedule', [MainController::class, 'update_schedule'])->name('update_schedule');
@@ -43,7 +44,7 @@ Route::get('/dashboard', [MainController::class, 'dashboard'])->name('dashboard'
 Route::get('/profile', [MainController::class, 'profile'])->name('profile');
 Route::get('/schedule', [MainController::class, 'schedule'])->name('schedule');
 Route::get('/subject', [MainController::class, 'subject'])->name('subject');
-Route::get('/section', [MainController::class, 'section'])->name('section');
+Route::get('/view_section', [MainController::class, 'view_section'])->name('view_section');
 Route::get('/TeacherUI', [MainController::class, 'TeacherUI'])->name('TeacherUI');
 Route::get('/view_subject', [MainController::class, 'view_subject'])->name('view_subject');
 Route::get('/teachers', [MainController::class, 'teachers'])->name('teachers');

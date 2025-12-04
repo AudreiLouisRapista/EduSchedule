@@ -185,10 +185,54 @@ class MainController extends Controller
 
 
 
-    public function section(){
+   public function save_section(Request $request){
 
-        return view('section');
+
+       // 1. Validate input
+    // $request->validate([
+    //     'subject_code' => 'required|string|max:255',
+    //     'subject_name' => 'required|string|max:255',
+    //     'subject_gradelevel' => 'required|string|max:255',
+    //     // 'subject_status' => 'required|exists:teacher,teachers_id',
+    // ]);
+
+    
+
+    // 2. Save the new subject
+   $save_section = DB::table('section')->insert([
+        'section_name' => $request->section_name,
+        'grade_id' => $request->grade_id,
+        'section_capacity' => $request-> section_capacity, 
+        
+    ]);
+
+ 
+
+    return redirect()->back()->with('success', 'Section added successfully!');
+
+
     }
+
+     public function view_section() {
+
+
+       $view_section = DB::table('section')
+            ->leftJoin('grade_level', 'grade_level.grade_id', '=', 'section.grade_id')
+             ->select(
+            'section.section_name',
+            'section.section_capacity',
+            'grade_level.grade_title',
+        )
+            ->get();
+
+
+
+
+            
+    return view('section', compact('view_section'));
+
+    
+}
 
    
 
@@ -422,8 +466,11 @@ public function save_schedule(Request $request)
     //     ],
     // ]);
     // Get data from the form
+
+     
     $teacher_id = $request->teachers_id;  // Can be empty or "0"
     $subject_id = $request->subject_id;
+    $section_id = $request->section_id;
     $newday = $request->days;
     $dayString = implode('-', $newday);
     $start = $request->sub_Stime;
@@ -492,6 +539,7 @@ public function save_schedule(Request $request)
     try {
         DB::table('schedules')->insert([
             'subject_id' => $subject_id,
+            'section_id' => $section_id,
             'grade_id' => $grade_id,
             'teachers_id' => $teacher_id ?: null,
             'sub_date' => $dayString,
@@ -500,10 +548,14 @@ public function save_schedule(Request $request)
             'sched_year' => $sched_year,
             'sched_status' => $sched_status,
         ]);
+
+
     } catch (\Exception $e) {
         // If insert fails, show the error
         return back()->with('error', 'Failed to save schedule: ' . $e->getMessage());
     }
+
+   
 
     // Step 6: Try to update teacher status (only if assigned)
     if ($teacher_id && $teacher_id != "0") {
@@ -549,6 +601,7 @@ public function update_schedule(Request $request) {
             
             'subject_id'    => $request->subject_id,
             'teachers_id'     => $request->teachers_id,
+            'section_id'     => $request->section_id,
             'sub_date'     =>  $days,
             'sub_Stime'      => $request->sub_Stime,
             'sub_Etime'    => $request->sub_Etime,
@@ -598,11 +651,13 @@ public function update_schedule(Request $request) {
         ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
         ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id') 
         ->Join ('status', 'status.status_id', '=', 'schedules.sched_status')
+        ->Join ('section', 'schedules.section_id', '=', 'section.section_id')
         
         ->select(
             'schedules.*',
             'teacher.name as teacher_name',
             'subject.subject_name as sub_name',
+            'section.section_name as sec_name',
             'status.status_name',
 
         )
@@ -618,7 +673,11 @@ public function update_schedule(Request $request) {
         ->select('subject_id', 'subject_name') // All subject
         ->get();
 
-    return view('schedule', compact('view_schedule','subject', 'teachers'));
+      $section = DB::table('section')
+        ->select('section_id', 'section_name') // All subject
+        ->get();
+
+    return view('schedule', compact('view_schedule','subject', 'teachers','section'));
 }
 
 

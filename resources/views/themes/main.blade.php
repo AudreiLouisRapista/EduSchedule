@@ -23,7 +23,7 @@
         @include('layout.partials.sidebar')
 
         {{-- 4. CONTENT WRAPPER: This is where the extending page content goes --}}
-        <div class="content-wrapper">
+        <div class="content-wrapper" >
             {{-- @yield('content_header') is often used here for the breadcrumbs --}}
             @yield('content_header') 
             

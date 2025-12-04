@@ -69,6 +69,21 @@
                                                                 @error('subject_id') <span class="text-danger small">{{ $message }}</span> @enderror
                                                             </div>
 
+
+                                                              <!-- Assigned Section -->
+                                                         <div class="mb-3">
+                                                                <label for="section_id" class="form-label">Assigned Section</label>
+                                                                <select class="form-select" id="section_id" name="section_id" required>
+                                                                    <option value="">-- Select Section --</option>
+                                                                    @foreach($section as $sec)
+                                                                        <option value="{{ $sec->section_id }}" >
+                                                                            {{ $sec->section_name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                                @error('section_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                                                            </div>
+
                                                         <div class="mb-3">
                                                             <label class="form-label">Select Days</label>
                                                             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
@@ -159,6 +174,7 @@
                                 <tr>
                                 <th>Assigned Teacher</th>
                                 <th>Subject</th>
+                                <th>Section</th>
                                 <th>Date</th>
                                  <th>Time</th>
                                  <th>School Year</th>
@@ -173,6 +189,7 @@
                                     <tr>
                                          <td>{{ $sched->teacher_name }}</td>
                                         <td>{{ $sched->sub_name }}</td>
+                                        <td>{{ $sched->sec_name }}</td>
                                          <td>{{ $sched->sub_date }}</td>
                                        <td>{{ date('g:i A', strtotime($sched->sub_Stime)) }} - {{ date('g:i A', strtotime($sched->sub_Etime)) }}</td>
                                          <td>{{ $sched->sched_year }}</td>
@@ -255,6 +272,19 @@
                                                             @endforeach
                                                         </select>
                                                         @error('subject_id') <span class="text-danger small">{{ $message }}</span> @enderror
+                                                    </div>
+
+
+                                                     <!-- Assigned Section -->
+                                                    <div class="mb-3">
+                                                        <label for="section_id" class="form-label">Assigned Subject</label>
+                                                        <select class="form-select" id="section_id" name="section_id" required>
+                                                            <option value="{{ $sched->section_id }}">{{ $sched->sec_name }}</option>
+                                                            @foreach($section as $sec)
+                                                                <option value="{{ $sec->section_id }}">{{ $sec->section_id }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('section_id') <span class="text-danger small">{{ $message }}</span> @enderror
                                                     </div>
 
                                                     <!-- Select Days -->

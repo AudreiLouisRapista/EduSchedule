@@ -1,36 +1,85 @@
-<aside class="main-sidebar elevation-4 sidebar-light-primary style="width:260px; background:#fff; border-right:1px solid #ffffffff; min-height:100vh;">
+<style>
+  /* Hide the title text when collapsed */
+/* Hide brand text when collapsed */
+.sidebar-collapse .brand-text {
+    display: none !important;
+}
 
-    {{-- Brand / User Section --}}
-    <div class="text-center py-4">
-        <div style="
-            width:60px; 
-            height:60px; 
-            border-radius:50%; 
-            overflow:hidden; 
-            margin:auto;
-        ">
-          @if(session('profile'))
-    <img src="{{ asset('storage/' . session('profile')) }}"
-         class="img-circle elevation-2"
-         alt="User Image"
-         style="width:100%; height:100%; object-fit:cover;">
-          @else
-              <img src="{{ asset('dist/img/default.png') }}"
-                  class="img-circle elevation-2"
-                  alt="Default Image">
-          @endif
+/* Center logo when collapsed */
+.sidebar-collapse .sidebar-brand {
+    justify-content: center !important;
+}
 
+/* Hide menu text when collapsed */
+.sidebar-collapse .nav-sidebar .nav-link {
+    justify-content: center !important; /* Center icon */
+}
+
+.sidebar-collapse .nav-sidebar .nav-link i {
+    margin-right: 0 !important; /* Remove gap */
+}
+
+/* Hide the text of menu items */
+.sidebar-collapse .nav-sidebar .nav-link {
+    font-size: 0 !important; /* HIDE TEXT */
+}
+
+.sidebar-collapse .nav-sidebar .nav-link i {
+    font-size: 18px !important; /* KEEP ICON VISIBLE */
+}
+/* Collapse Logout text — keep icon only */
+
+.sidebar-collapse a[ href*="logout" ] {
+    justify-content: center !important;
+    font-size: 0 !important;   /* hide text */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.sidebar-collapse a[ href*="logout" ] i {
+    font-size: 20px !important; /* keep icon visible */
+    margin-right: 0 !important;
+}
+
+h5{
+  text-align: center;
+  margin-bottom: 50px;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.sidebar-collapse h5{
+  opacity: 0;      /* Makes it invisible */
+  visibility: hidden; /* Ensures it doesn’t take up space */
+  margin-bottom: 0;
+}
+</style>
+
+
+
+
+
+
+
+<aside id="mainSidebar" class="main-sidebar sidebar-light-primary elevation-4">
+    
+    <!-- Brand / User -->
+    <div class="sidebar-brand d-flex align-items-center justify-content-center py-3">
+        <div class="brand-logo" 
+             style="width:80px; height:80px; border-radius:50%; overflow:hidden;">
+             
+            <img src="{{ session('profile') 
+                ? asset('storage/' . session('profile')) 
+                : asset('dist/img/default.png') }}" 
+                style="width:100%; height:100%; object-fit:cover;">
         </div>
-        <h5 class="mt-3 mb-0 fw-bold" style="color:#333;">EduSchedule</h5>
-        <small style="color:gray;">{{ session ('role')}}</small>
     </div>
-
+     <h5> EduSchedule</h5>
       <!-- Sidebar -->
-      <div class="sidebar  style="font-size:12px; font-weight:700; color:#999;">
+      <div class="sidebar"  style="font-size:12px; font-weight:700; color:#999;">
         
         <!-- Sidebar Menu -->
         <nav class="mt-2">
-          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false style= padding-left:15px; padding-right:15px; gap:10px;">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style= " padding-right:15px; gap:10px;">
             
           {{-- Dashboard --}}
           <li class="nav-item">
@@ -54,8 +103,8 @@
 
             {{-- Sections  --}}
             <li class="nav-item">
-                <a href="{{ route('section') }}"
-                   class="nav-link {{ Route::is('section') ? 'active' : '' }}"
+                <a href="{{ route('view_section') }}"
+                   class="nav-link {{ Route::is('view_section') ? 'active' : '' }}"
                    style="
                      display:flex; 
                      align-items:center; 
@@ -63,9 +112,9 @@
                      padding:10px 15px;
                      border-radius:30px;
                      font-weight:500;
-                     color:{{ Route::is('section') ? '#fff' : '#333' }};
-                     background:{{ Route::is('section') ? '#6366F1' : 'transparent' }};
-                     box-shadow:{{ Route::is('section') ? '0 5px 12px rgba(99,102,241,0.4)' : 'none' }};
+                     color:{{ Route::is('view_section') ? '#fff' : '#333' }};
+                     background:{{ Route::is('view_section') ? '#6366F1' : 'transparent' }};
+                     box-shadow:{{ Route::is('view_section') ? '0 5px 12px rgba(99,102,241,0.4)' : 'none' }};
                    ">
                     <i class="far fa-calendar-alt"></i>
                     Sections 

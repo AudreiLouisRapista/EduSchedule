@@ -24,21 +24,7 @@
                 <h1 class="m-0">Dashboard</h1>
             </div>
 
-                 <!-- <div class="col-sm-6 d-flex justify-content-end align-items-center">
-                    <div class="btn-group me-3">
-                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" 
-                    style= " background:linear-gradient(135deg, #ab9bffff, #8200fbff);
-                    color: white;">
-                         Choose School Year
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start">
-                        <li><button class="dropdown-item" type="button">2023-2024</button></li>
-                        <li><button class="dropdown-item" type="button">2024-2025</button></li>
-                        <li><button class="dropdown-item" type="button">2025-2026</button></li>
-                    </ul>
-                </div> -->
-
-            
+                 
 
 
             <div class="col-sm-6">
@@ -56,13 +42,13 @@
 @section('content')
 
 
-<div class="row" style="background-color: #ffffffff; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+<div class="row bg-white rounded mb-2 p-2">
 
 
 
 
     <div class="col-lg-3 col-6" >
-        <div class="small-box " style="height: 190px; border-radius: 10px; background: #fff;">
+        <div class="small-box " style="height: 100px; width: 290px; border-radius: 10px; background: #fff;">
             <div class="inner">
                 <p style = "font-size: 15px;">Total Teachers</p>
                <div style="display: flex; align-items: baseline; gap: 8px;">
@@ -77,7 +63,7 @@
                         border-radius:50%;
                         display:flex;
                         align-items:center;
-                        justify-content:center;
+                        justify-content:center; 
                         color:#fff;
                         font-size:18px;
                         ">
@@ -182,7 +168,7 @@
     
 
 
-<!-- GRADE 1-2  -->
+<!-- GRADE 7-8  -->
 <div style="display: flex; align-items: baseline; gap: 150px;">
                         <!-- GRADE 1 BOX -->
                             <div class="col-lg-3 col-6">
@@ -195,7 +181,7 @@
                                     
                                     <!-- Flex container for Grade and Icon -->
                                     <div style="display:flex; align-items:center; gap:90px;">
-                                        <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 1</h3>
+                                        <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 7</h3>
 
                                         <!-- Icon beside Grade -->
                                         <div style="
@@ -219,7 +205,7 @@
                     <div class="modal-dialog">
                          <div class="modal-content" style="width: 800px;">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="unassignedModalLabel">GRADE 1 </h5>
+                            <h5 class="modal-title" id="unassignedModalLabel">GRADE 7</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
@@ -252,7 +238,7 @@
     </div>
 
 
-                <!-- GRADE 2 BOX -->
+                <!-- GRADE 8 BOX -->
   <div class="col-lg-3 col-6">
     <div class="grade2-box"
          data-bs-toggle="modal"
@@ -262,7 +248,7 @@
         <div class="inner">
             <!-- Flex container for Grade and Icon -->
             <div style="display:flex; align-items:center; gap:90px;">
-                <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 2</h3>
+                <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 8</h3>
 
                 <!-- Icon beside Grade -->
                 <div style="
@@ -285,7 +271,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content" style="width: 800px;">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="unassignedModalLabel">GRADE 2 </h5>
+                            <h5 class="modal-title" id="unassignedModalLabel">GRADE 8 </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
@@ -322,10 +308,10 @@
 
 
 
-<!-- GRADE 3-4  -->
-<div style="display: flex; align-items: baseline; gap: 150px;">
+<!-- GRADE 9-10  -->
+<div class="row g-3 align-items-baseline">
                         <!-- GRADE 3 BOX -->
-                            <div class="col-lg-3 col-6">
+                           <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="grade-box"
                                     data-bs-toggle="modal"
                                     data-bs-target="#unassignedModal"
@@ -335,7 +321,7 @@
                                     
                                     <!-- Flex container for Grade and Icon -->
                                     <div style="display:flex; align-items:center; gap:90px;">
-                                        <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 3</h3>
+                                        <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 9</h3>
 
                                         <!-- Icon beside Grade -->
                                         <div style="
@@ -384,7 +370,7 @@
         <div class="inner">
             <!-- Flex container for Grade and Icon -->
             <div style="display:flex; align-items:center; gap:90px;">
-                <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 4</h3>
+                <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 10</h3>
 
                 <!-- Icon beside Grade -->
                 <div style="
@@ -426,7 +412,7 @@
    
 
 
-<!-- GRADE 6-5  -->
+<!-- GRADE 11-12  -->
 <div style="display: flex; align-items: baseline; gap: 150px;">
                         <!-- GRADE 5 BOX -->
                             <div class="col-lg-3 col-6">
@@ -439,7 +425,7 @@
                                     
                                     <!-- Flex container for Grade and Icon -->
                                     <div style="display:flex; align-items:center; gap:90px;">
-                                        <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 5</h3>
+                                        <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 11</h3>
 
                                         <!-- Icon beside Grade -->
                                         <div style="
@@ -488,7 +474,7 @@
         <div class="inner">
             <!-- Flex container for Grade and Icon -->
             <div style="display:flex; align-items:center; gap:90px;">
-                <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 6</h3>
+                <h3 style="font-size:30px; margin:0; font-weight:600;">Grade 12</h3>
 
                 <!-- Icon beside Grade -->
                 <div style="

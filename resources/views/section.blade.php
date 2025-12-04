@@ -5,78 +5,157 @@
 
 {{-- 2. DEFINE CONTENT HEADER (Breadcrumbs) --}}
 @section('content_header')
-<div class="content-header">
-    {{-- Left Column: User Card/Image --}}
-    <div class="col-md-3">
-        <div class="card card-primary card-outline">
-            <div class="card-body box-profile">
-                <div class="text-center">
-                    {{-- Assuming user profile image exists --}}
-                    <img class="profile-user-img img-fluid img-circle"
-                         src="{{ asset('dist/img/user4-128x128.jpg') }}"
-                         alt="User profile picture">
+<div class="header">
+     <h1 class="title" style="margin-left: 50px; ">Section Management</h1>
+     <p style="margin-left: 50px;">Manage Section and their class assignments</p>
+</div>
+   
+<section class="content" style = "width: 1400 px; margin-left: 20px; margin-top: 20px;">
+      <div class="container-fluid;">
+        <div class="row">
+          <div class="col-12">
+            <div class="card" style=" border-radius: 30px; background:#fff; padding:20px">
+              <div class="card-header" style="background:#fff;">
+                <h3 class="card-title">Section list</h3>
+                    <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal" style="float: right;">
+                           Add Section
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Section</h1>
+
+                                </div>
+                                                <div class="modal-body">
+                                                <h4 class="mb-4 text-center">Section information</h4>
+
+                                                <form method="POST" action="{{ route('save_section') }}" enctype="multipart/form-data">
+                                                    @csrf
+
+                                                  
+
+                                                    <!-- section name -->
+                                                        <div class="mb-3">
+                                                            <label for="section_name" class="form-label">Section Name:</label>
+                                                            <input type="text" name="section_name" id="section_name" class="form-control" placeholder="Enter Section name" value="{{ old('section_name') }}" required>
+                                                            @error('section_name') <span class="text-danger small">{{ $message }}</span> @enderror
+                                                            </div>
+                                                      
+
+
+                                                            <!-- Section capacity -->
+                                                            <div class="mb-3">
+                                                                <label for="section_capacity" class="form-label">Enter the capacity of the Room:</label>
+                                                                <input type="number" name="section_capacity" id="section_capacity" class="form-control" placeholder="Enter the capacity" value="{{ old('section_capacity') }}" required>
+                                                                @error('section_capacity') <span class="text-danger small">{{ $message }}</span> @enderror
+                                                                </div>
+                                                           
+
+
+                                                    <!-- Grade Level -->
+                                                    <div class="mb-3">
+                                                    <label for="grade_id" class="form-label">Grade Level</label>
+                                                    <select type="text" class="form-control" id="grade_id" name="grade_id" placeholder="Grade Level" required>
+                                                        <option value="">-- Select Grade Level --</option>
+                                                        <option value="7">Grade 7</option>
+                                                        <option value="8">Grade 8</option>
+                                                        <option value="9">Grade 9</option>
+                                                        <option value="10">Grade 10</option>
+                                                        <option value="11">Grade 11</option>
+                                                        <option value="12">Grade 12</option>
+                                                    </select>
+                                                    @error('grade_id')
+                                                        <span class="text-danger small">{{ $message }}</span>
+                                                    @enderror
+                                                    </div>
+        
+                                                    <!-- Submit -->
+                                                    <div class="text-center mt-4">
+                                                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                                                    </div>
+                                                </form>
+                                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                 
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+    
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+               <table id="example2" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                <th>Section Name</th>
+                                <th>Section Capacity</th>
+                                <th>Grade Level</th>
+                                <!-- <th>ACtion</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                              @foreach ($view_section as $sec)
+                                    <tr>
+                                        <td>{{ $sec->section_name }}</td>
+                                        <td>{{ $sec->section_capacity }}</td>
+                                        <td>{{ $sec->grade_title }}</td>
+                                       
+                                    </tr>
+                                @endforeach
+
+                            </tbody>
+                            </table>
+
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-5">
+                        <div class="dataTables_info" id="example2_info" role="status" aria-live="polite">Showing 11 to 20 of 57 entries
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-7">
+                        <div class="dataTables_paginate paging_simple_numbers" id="example2_paginate">
+                            <ul class="pagination"><li class="paginate_button page-item previous" id="example2_previous">
+                                <a href="#" aria-controls="example2" data-dt-idx="0" tabindex="0" class="page-link">Previous</a>
+                            </li><li class="paginate_button page-item ">
+                                <a href="#" aria-controls="example2" data-dt-idx="1" tabindex="0" class="page-link">1</a>
+                            </li>
+                            <li class="paginate_button page-item active">
+                                <a href="#" aria-controls="example2" data-dt-idx="2" tabindex="0" class="page-link">2</a>
+                            </li>
+                            <li class="paginate_button page-item ">
+                                <a href="#" aria-controls="example2" data-dt-idx="3" tabindex="0" class="page-link">3</a>
+                            </li>
+                            <li class="paginate_button page-item ">
+                                <a href="#" aria-controls="example2" data-dt-idx="4" tabindex="0" class="page-link">4</a>
+                            </li>
+                            <li class="paginate_button page-item ">
+                                <a href="#" aria-controls="example2" data-dt-idx="5" tabindex="0" class="page-link">5</a>
+                            </li>
+                            <li class="paginate_button page-item ">
+                                <a href="#" aria-controls="example2" data-dt-idx="6" tabindex="0" class="page-link">6</a>
+                            </li>
+                            <li class="paginate_button page-item next" id="example2_next">
+                                <a href="#" aria-controls="example2" data-dt-idx="7" tabindex="0" class="page-link">Next</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-
-                <h3 class="profile-username text-center">Alexander Pierce</h3>
-                <p class="text-muted text-center">Software Engineer</p>
-
-                <ul class="list-group list-group-unbordered mb-3">
-                    <li class="list-group-item">
-                        <b>Followers</b> <a class="float-right">1,322</a>
-                    </li>
-                    <li class="list-group-item">
-                        <b>Projects</b> <a class="float-right">15</a>
-                    </li>
-                </ul>
-
-                <a href="#" class="btn btn-primary btn-block"><b>Update Status</b></a>
             </div>
-            </div>
-        </div>
-    {{-- Right Column: Account Settings Tabs --}}
-    <div class="col-md-9">
-        <div class="card">
-            <div class="card-header p-2">
-                <ul class="nav nav-pills">
-                    <li class="nav-item"><a class="nav-link active" href="#settings" data-toggle="tab">Settings</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#activity" data-toggle="tab">Activity</a></li>
-                </ul>
-            </div><div class="card-body">
-                <div class="tab-content">
-                    {{-- Settings Tab --}}
-                    <div class="tab-pane active" id="settings">
-                        <form class="form-horizontal">
-                            <div class="form-group row">
-                                <label for="inputName" class="col-sm-2 col-form-label">Name</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputName" placeholder="Name" value="Alexander Pierce">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-                                <div class="col-sm-10">
-                                    <input type="email" class="form-control" id="inputEmail" placeholder="Email" value="alex@example.com">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="inputSkills" class="col-sm-2 col-form-label">Skills</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputSkills" placeholder="e.g. PHP, Laravel, Blade" value="Coding, UI/UX, Teaching">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="offset-sm-2 col-sm-10">
-                                    <button type="submit" class="btn btn-success">Save Changes</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    {{-- Activity Tab (You can add your activity feed here) --}}
-                    <div class="tab-pane" id="activity">
-                        <p>No recent activity to show.</p>
-                    </div>
-                    </div>
-                </div></div>
-        </div>
     </div>
+              <!-- /.card-body -->
+ </div>
+
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+</section>
 @endsection
