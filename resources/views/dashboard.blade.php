@@ -16,7 +16,7 @@
   }
   
 </style>
-<div class="row" style="background-color: #ffffffff; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+<div class="row" style="background-color: #ffffffff;  border-radius: 10px; margin-bottom: 20px;">
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2" >
@@ -42,30 +42,34 @@
 @section('content')
 
 
-<div class="row bg-white rounded mb-2 p-2">
+<div class="row bg-white rounded mb-2 p-2 g-3">
 
 
 
 
     <div class="col-lg-3 col-6" >
-        <div class="small-box " style="height: 100px; width: 290px; border-radius: 10px; background: #fff;">
+        <div class="small-box " style="height: 165px;  border-radius: 10px; background: #fff;">
             <div class="inner">
+                <div class="icon">
+                    <i class="bi bi-person"></i>
+                </div>
                 <p style = "font-size: 15px;">Total Teachers</p>
                <div style="display: flex; align-items: baseline; gap: 8px;">
                     <h3 style="font-size: 40px; margin: 0; font-weight: 700;">{{$totalteachers}}</h3>
                     <span style="font-size: 15px;">Teachers in system</span>
-                 </div>
+                </div>
+                 
                    <div style="
                         background:linear-gradient(135deg,#7b61ff,#9333ea);
-                        width:40px;
-                        height:40px;
-                        margin-top: 40px;
+                        width:35px;
+                        height:35px;
+                        margin-top: 20px;
                         border-radius:50%;
                         display:flex;
                         align-items:center;
                         justify-content:center; 
                         color:#fff;
-                        font-size:18px;
+                        font-size:15px;
                         ">
                         <i class="bi bi-person"></i>
                      </div>
@@ -75,24 +79,27 @@
     </div>
     
    <div class="col-lg-3 col-6" >
-        <div class="small-box " style="height: 190px; border-radius: 10px; background: #fff;">
+        <div class="small-box " style="height: 165px; border-radius: 10px; background: #fff;">
             <div class="inner">
-                <p style = "font-size: 15px;">Assigned</p>
+                 <div class="icon">
+                    <i class="bi bi-person-check"></i>
+                </div>
+                <p style = "font-size: 15px;">Total Assigned</p>
                <div style="display: flex; align-items: baseline; gap: 8px;">
                     <h3 style="font-size: 40px; margin: 0; font-weight: 700;">{{$assigned_teachers}}</h3>
-                    <span style="font-size: 15px;">Assigned</span>
+                    <span style="font-size: 15px;">Assigned Teachers</span>
                  </div>
                    <div style="
                       background: linear-gradient(135deg, #22c55e, #16a34a);
-                        width:40px;
-                        height:40px;
-                        margin-top: 40px;
+                         width:35px;
+                        height:35px;
+                        margin-top: 20px;
                         border-radius:50%;
                         display:flex;
                         align-items:center;
                         justify-content:center;
                         color:#fff;
-                        font-size:18px;
+                        font-size:15px;
                         ">
                            <i class="bi bi-person-check"></i>
                      </div>
@@ -101,8 +108,11 @@
         </div>
     </div>
     <div class="col-lg-3 col-6" >
-        <div class="small-box " style="height: 190px; border-radius: 10px; background: #fff;">
+        <div class="small-box " style="height: 165px; border-radius: 10px; background: #fff;">
             <div class="inner">
+                <div class="icon">
+                        <i class="bi bi-book-half"></i>
+                </div>
                 <p style = "font-size: 15px;">Total Classes</p>
                <div style="display: flex; align-items: baseline; gap: 8px;">
                     <h3 style="font-size: 40px; margin: 0; font-weight: 700;">{{$view_schedule}}</h3>
@@ -110,15 +120,15 @@
                  </div>
                    <div style="
                         background:linear-gradient(135deg,#7b61ff,#9333ea);
-                        width:40px;
-                        height:40px;
-                        margin-top: 40px;
+                        width:35px;
+                        height:35px;
+                        margin-top: 20px;
                         border-radius:50%;
                         display:flex;
                         align-items:center;
                         justify-content:center;
                         color:#fff;
-                        font-size:18px;
+                        font-size:15px;
                         ">
                         <i class="bi bi-book-half"></i>
                      </div>
@@ -132,24 +142,27 @@
 
 
     <div class="col-lg-3 col-6">
-          <div class="small-box " style="height: 190px; border-radius: 10px; background: #fff;">
+          <div class="small-box " style="height: 165px; border-radius: 10px; background: #fff;">
             <div class="inner">
-                <p style = "font-size: 15px;">Unassigned Teachers</p>
+                  <div class="icon">
+                        <i class="bi bi-person-exclamation"></i>
+                </div>
+                <p style = "font-size: 15px;">Total Unassigned</p>
                <div style="display: flex; align-items: baseline; gap: 8px;">
                     <h3 style="font-size: 40px; margin: 0; font-weight: 700;">{{$unassigned_teachers}}</h3>
-                    <span style="font-size: 15px;"> Unassigned</span>
+                    <span style="font-size: 15px;"> Unassigned Teachers</span>
                  </div>
                    <div style="
                        background: linear-gradient(135deg, #ff4d4d, #cc0000);
-                        width:40px;
-                        height:40px;
-                        margin-top: 40px;
+                        width:35px;
+                        height:35px;
+                        margin-top: 20px;
                         border-radius:50%;
                         display:flex;
                         align-items:center;
                         justify-content:center;
                         color:#fff;
-                        font-size:18px;
+                        font-size:15px;
                         ">
                         <i class="bi bi-person-exclamation"></i>
                      </div>
@@ -159,12 +172,12 @@
     </div>
 
                 <section class="content" style = "width: 700px;">
-                    <div class="container-fluid" style = "margin-left: 1px;">
-                        <div class="row g-3" style = "margin-left: 1px;">
+                    <div class="container-fluid" >
+                        <div class="row g-3" >
                         <div class="col-12">
                             <div class="card" style= "border-radius: 10px; padding:20px;  ">
                                 <h3 class="card-title" style = 'margin-left: 2px; margin-top: 10px; font-size: 25px;'>  Class Schedules</h3>
-                                <p style = 'margin-left: 20px; margin-top: 2px'>Click on a grade to view teacher schedules</p>
+                                <p style = 'margin-left: 2px; margin-top: 2px'>Click on a grade to view teacher schedules</p>
     
 
 
@@ -309,7 +322,8 @@
 
 
 <!-- GRADE 9-10  -->
-<div class="row g-3 align-items-baseline">
+<div style="display: flex; align-items: baseline; gap: 150px;">
+
                         <!-- GRADE 3 BOX -->
                            <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="grade-box"
@@ -360,8 +374,8 @@
                 </div>
  
 
-                <!-- GRADE 4 BOX -->
- <div class="col-lg-3 col-6">
+                <!-- GRADE 10 BOX -->
+<div class="col-lg-3 col-md-4 col-sm-6">
     <div class="grade-box"
          data-bs-toggle="modal"
          data-bs-target="#unassignedModal"
@@ -388,6 +402,7 @@
         </div>
     </div>
  </div>
+ 
 
                               
                     <!-- Modal -->

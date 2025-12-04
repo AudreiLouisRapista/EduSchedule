@@ -12,7 +12,7 @@
 
 /* Hide menu text when collapsed */
 .sidebar-collapse .nav-sidebar .nav-link {
-    justify-content: center !important; /* Center icon */
+    justify-content: center;  /* Center icon */
 }
 
 .sidebar-collapse .nav-sidebar .nav-link i {
@@ -21,7 +21,7 @@
 
 /* Hide the text of menu items */
 .sidebar-collapse .nav-sidebar .nav-link {
-    font-size: 0 !important; /* HIDE TEXT */
+    font-size: 0 !important; 
 }
 
 .sidebar-collapse .nav-sidebar .nav-link i {
@@ -65,7 +65,7 @@ h5{
     <!-- Brand / User -->
     <div class="sidebar-brand d-flex align-items-center justify-content-center py-3">
         <div class="brand-logo" 
-             style="width:80px; height:80px; border-radius:50%; overflow:hidden;">
+             style="width:90px; height:80px; border-radius:50%; overflow:hidden;">
              
             <img src="{{ session('profile') 
                 ? asset('storage/' . session('profile')) 
@@ -75,7 +75,7 @@ h5{
     </div>
      <h5> EduSchedule</h5>
       <!-- Sidebar -->
-      <div class="sidebar"  style="font-size:12px; font-weight:700; color:#999;">
+      <div class="sidebar"  style="font-size:16px; font-weight:700; color:#999;">
         
         <!-- Sidebar Menu -->
         <nav class="mt-2">
