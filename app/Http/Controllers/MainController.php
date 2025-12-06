@@ -19,12 +19,12 @@ class MainController extends Controller
     /**
      * Show the registration form view.
      */
-   
-    
+
+
     /**
      * Handle an incoming registration request and save the new user.
      */
-  
+
     /**
      * Handle user authentication (login).
      */
@@ -79,7 +79,7 @@ class MainController extends Controller
         Session::put('role', 'teacher');
 
         return redirect()->route('TeacherUI');
-    }   
+    }
 }
 
     public function TeacherUI(){
@@ -101,14 +101,14 @@ class MainController extends Controller
 
 
 
-            
+
         )
             ->get();
 
-            
+
     return view('TeacherUI', compact('teacher_ui'));
 
-      
+
     }
 
     /**
@@ -128,18 +128,18 @@ class MainController extends Controller
     // $view_subject = DB::table('subject')->count();
 
     // Count subjects per grade level
-    $grade1Count = DB::table('schedules')->where('grade_id', '1')->count();
-    $grade2Count = DB::table('schedules')->where('grade_id', '2')->count();
-    $grade3Count = DB::table('schedules')->where('grade_id', '3')->count();
-    $grade4Count = DB::table('schedules')->where('grade_id', '4')->count();
-    $grade5Count = DB::table('schedules')->where('grade_id', '5')->count();
-    $grade6Count = DB::table('schedules')->where('grade_id', '6')->count();
+    $grade1Count = DB::table('schedules')->where('grade_id', '7')->count();
+    $grade2Count = DB::table('schedules')->where('grade_id', '8')->count();
+    $grade3Count = DB::table('schedules')->where('grade_id', '9')->count();
+    $grade4Count = DB::table('schedules')->where('grade_id', '10')->count();
+    $grade5Count = DB::table('schedules')->where('grade_id', '11')->count();
+    $grade6Count = DB::table('schedules')->where('grade_id', '12')->count();
 
 
    $view_grade1 = DB::table('schedules')
     ->join('teacher', 'teacher.teachers_id', '=', 'schedules.teachers_id')
     ->join('subject', 'subject.subject_id', '=', 'schedules.subject_id')
-    ->where('schedules.grade_id', 1)
+    ->where('schedules.grade_id', 7)
     ->select(
         'subject.subject_name as sub_name',
         'teacher.name as teacher_name',
@@ -147,14 +147,14 @@ class MainController extends Controller
         'schedules.sub_Stime',
         'schedules.sub_Etime'
     )
-     
+
     ->get();
 
 //  dd(DB::table('schedules')->first());
    $view_grade2 = DB::table('schedules')
         ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
         ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
-        ->where('schedules.grade_id', 2)
+        ->where('schedules.grade_id', 8)
         ->select(
             'subject.subject_name as sub_name',
             'teacher.name as teacher_name',
@@ -163,8 +163,8 @@ class MainController extends Controller
              'schedules.sub_Etime'
         )
         ->get();
-         
-     
+
+
     return view('dashboard', compact(
         'totaladmin',
         'totalteachers',
@@ -196,17 +196,17 @@ class MainController extends Controller
     //     // 'subject_status' => 'required|exists:teacher,teachers_id',
     // ]);
 
-    
+
 
     // 2. Save the new subject
    $save_section = DB::table('section')->insert([
         'section_name' => $request->section_name,
         'grade_id' => $request->grade_id,
-        'section_capacity' => $request-> section_capacity, 
-        
+        'section_capacity' => $request-> section_capacity,
+
     ]);
 
- 
+
 
     return redirect()->back()->with('success', 'Section added successfully!');
 
@@ -228,13 +228,13 @@ class MainController extends Controller
 
 
 
-            
+
     return view('section', compact('view_section'));
 
-    
+
 }
 
-   
+
 
 
 
@@ -243,7 +243,7 @@ class MainController extends Controller
 
     // SUBJECTS
 
- public function save_subjects(Request $request){
+public function save_subjects(Request $request){
 
 
        // 1. Validate input
@@ -254,17 +254,17 @@ class MainController extends Controller
     //     // 'subject_status' => 'required|exists:teacher,teachers_id',
     // ]);
 
-    
+
 
     // 2. Save the new subject
    $save_subjects = DB::table('subject')->insert([
         'subject_name' => $request->sub_name,
         'grade_id' => $request->grade_id,
-        'subject_status' => $request->t_status, 
-        
+        'subject_status' => $request->t_status,
+
     ]);
 
- 
+
 
     return redirect()->back()->with('success', 'Subject added and teacher status updated!');
 
@@ -287,10 +287,10 @@ class MainController extends Controller
 
 
 
-            
+
     return view('subject', compact('view_subject'));
 
-    
+
 }
 
 
@@ -355,11 +355,11 @@ class MainController extends Controller
             'profile' => $profile,
         ]);
 
-  
+
 
     //  session()->flash('successMessage','Teacher added successfully');
      session()->flash('save','Teacher added successfully');
-   
+
       // 3. Redirect back with success message
     return redirect()->back()->with('save', 'Teacher added successfully!');
 }
@@ -377,20 +377,20 @@ public function deact_teacher(Request $request) {
         ]);
 
     session()->flash('success', 'Teacher deactivated successfully.');
-    return redirect()->back(); 
+    return redirect()->back();
 
     }
 
 
 public function update_teacher(Request $request) {
-    $teachers_id = $request->teachers_id; 
+    $teachers_id = $request->teachers_id;
 
-    
+
 
     DB::table('teacher')
         ->where('teachers_id', $teachers_id)
         ->update([
-            
+
             'email'    => $request->email,
             'name'     => $request->name,
             'gender'     => $request->gender,
@@ -412,7 +412,7 @@ public function update_teacher(Request $request) {
     public function view_teachers() {
     // Get all records from 'teacher' table
 
-    
+
 
     $view_teachers = DB::table('teacher')
             ->join('status', 'status.status_id', '=', 'teacher.t_status')
@@ -433,11 +433,11 @@ public function update_teacher(Request $request) {
 
 
 
-            
+
     return view('teachers', compact('view_teachers'));
 }
 
-    
+
 
 
 
@@ -467,7 +467,7 @@ public function save_schedule(Request $request)
     // ]);
     // Get data from the form
 
-     
+
     $teacher_id = $request->teachers_id;  // Can be empty or "0"
     $subject_id = $request->subject_id;
     $section_id = $request->section_id;
@@ -494,11 +494,11 @@ public function save_schedule(Request $request)
     foreach ($existingSchedules as $sched) {
         $existingDay = explode('-', $sched->sub_date);
         $dayConflict = array_intersect($newday, $existingDay);
-        
+
         if (!empty($dayConflict)) {
             $existingStart = $sched->sub_Stime;
             $existingEnd = $sched->sub_Etime;
-            
+
             if ($start < $existingEnd && $end > $existingStart) {
                 return back()->with(
                     'errorMessage',
@@ -517,11 +517,11 @@ public function save_schedule(Request $request)
         foreach ($teacherSchedules as $sched) {
             $existingDay = explode('-', $sched->sub_date);
             $dayConflict = array_intersect($newday, $existingDay);
-            
+
             if (!empty($dayConflict)) {
                 $existingStart = $sched->sub_Stime;
                 $existingEnd = $sched->sub_Etime;
-                
+
                 if ($start < $existingEnd && $end > $existingStart) {
                     return back()->with(
                         'error',
@@ -555,7 +555,7 @@ public function save_schedule(Request $request)
         return back()->with('error', 'Failed to save schedule: ' . $e->getMessage());
     }
 
-   
+
 
     // Step 6: Try to update teacher status (only if assigned)
     if ($teacher_id && $teacher_id != "0") {
@@ -577,13 +577,13 @@ public function save_schedule(Request $request)
 
        // Delete Schedule
 public function delete_schedule(Request $request) {
-    
+
     DB::table('schedules')
         ->where('schedule_id', $request->schedule_id)
         ->delete();
 
     session()->flash('success', 'Schedule Deleted successfully.');
-    return redirect()->back(); 
+    return redirect()->back();
 
     }
 
@@ -591,14 +591,14 @@ public function delete_schedule(Request $request) {
 
     //Update Schedule
 public function update_schedule(Request $request) {
-    $schedule_id = $request->schedule_id; 
+    $schedule_id = $request->schedule_id;
 
     $days = implode('-', $request->days);
 
     DB::table('schedules')
         ->where('schedule_id', $schedule_id)
         ->update([
-            
+
             'subject_id'    => $request->subject_id,
             'teachers_id'     => $request->teachers_id,
             'section_id'     => $request->section_id,
@@ -622,7 +622,7 @@ public function update_schedule(Request $request) {
 
 
 
-    public function updateTeacherStatus($teachers_id) {   
+    public function updateTeacherStatus($teachers_id) {
 
         $count = DB::table('schedules')
         ->where('teachers_id', $teachers_id)
@@ -633,7 +633,7 @@ public function update_schedule(Request $request) {
         ->update([
             't_status' => ($count > 0) ? 1 : 0 // 1 = Assigned, 0 = Unassigned
         ]);
-        
+
     }
 
 
@@ -649,10 +649,10 @@ public function update_schedule(Request $request) {
 
     $view_schedule = DB::table('schedules')
         ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
-        ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id') 
+        ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
         ->Join ('status', 'status.status_id', '=', 'schedules.sched_status')
         ->Join ('section', 'schedules.section_id', '=', 'section.section_id')
-        
+
         ->select(
             'schedules.*',
             'teacher.name as teacher_name',
@@ -694,8 +694,8 @@ public function update_subject(Request $request) {
         ->where('teacher-id', $request->teacher_id)
         ->where('sub_id', '!=', $request->sub_id)
         ->count();
-        
-        
+
+
         if($update_subject >= 5) {
             return redirect()->back()->with('error', 'This teacher is already assigned to another subject.');
         }
@@ -710,7 +710,7 @@ public function update_subject(Request $request) {
             'sub_Stime' => $request->sub_Stime,
             'sub_Etime' => $request->sub_Etime,
         ]);
-    return redirect()->back()->with('success', 'Subject updated successfully.'); 
+    return redirect()->back()->with('success', 'Subject updated successfully.');
 
 }
 
@@ -731,11 +731,11 @@ public function update_subject(Request $request) {
 
      }
 
-       
+
 
 
         // TEACHERS STATUS
-   
+
      public function teacher_status() {
         $teacher_status = DB::table('teacher')
             ->join('status', 'status.status_id', '=', 'teacher.t_status')
@@ -748,15 +748,15 @@ public function update_subject(Request $request) {
         )
             // ->where('t_status', 1) // Assuming 1 indicates 'active' status
             ->get();
-            
+
         return view('teachers', compact('teacher_status'));
     }
 
 
-        // LOG OUT 
+        // LOG OUT
 
         public function logout(){
-         Session::flush(); 
+         Session::flush();
            return redirect('/');// Clear all session data
         }
 
