@@ -3,6 +3,7 @@
     /* Hide brand text when collapsed */
     .sidebar-collapse .brand-text {
         display: none !important;
+
     }
 
     /* Center logo when collapsed - Ensure no vertical shift */
@@ -147,8 +148,8 @@
                      padding:10px 15px;
                      border-radius:30px;
                      font-weight:500;
-                     color:{{ Route::is('dashboard') ? '#333' : '#fff' }}; /* Suggested: Dark text for active (white bg), white for inactive (gradient bg) */
-                     background:{{ Route::is('dashboard') ? '#fff' : 'transparent' }}; /* Changed active to white */
+                     color:{{ Route::is('dashboard') ? '#333' : '#fff' }}; 
+                     background:{{ Route::is('dashboard') ? '#fff' : 'transparent' }}; 
                      box-shadow:{{ Route::is('dashboard') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
                    ">
                         <i class="fas fa-th-large"></i>
