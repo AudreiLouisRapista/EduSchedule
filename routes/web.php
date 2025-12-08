@@ -43,6 +43,7 @@ Route::get('/dashboard', [MainController::class, 'dashboard'])->name('dashboard'
 // NEW ROUTE: Added the named route for the Profile page
 Route::get('/profile', [MainController::class, 'profile'])->name('profile');
 Route::get('/schedule', [MainController::class, 'schedule'])->name('schedule');
+Route::get('/activity-log', [MainController::class, 'activityLogPage']);
 Route::get('/subject', [MainController::class, 'subject'])->name('subject');
 Route::get('/view_section', [MainController::class, 'view_section'])->name('view_section');
 Route::get('/TeacherUI', [MainController::class, 'TeacherUI'])->name('TeacherUI');

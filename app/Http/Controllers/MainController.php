@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; // For direct database queries
 use Illuminate\Validation\Rule;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Session; // For session usage
 class MainController extends Controller
 {
@@ -82,6 +83,17 @@ class MainController extends Controller
     }
 }
 
+
+private function logActivity($action, $description)
+{
+    ActivityLog::create([
+        'admin_id' => Session::get('id'), // or Auth::id() if using Auth
+        'action' => $action,
+        'description' => $description,
+    ]);
+}
+
+
     public function TeacherUI(){
 
      $teacherId = session ('teachers_id');
@@ -89,13 +101,18 @@ class MainController extends Controller
     $teacher_ui = DB::table('schedules')
             ->leftjoin('teacher', 'teacher.teachers_id', '=', 'schedules.teachers_id')
             ->leftjoin('subject', 'subject.subject_id', '=', 'schedules.subject_id')
+            ->leftjoin('grade_level', 'grade_level.grade_id', '=', 'schedules.grade_id')
+            ->leftjoin('section', 'section.section_id', '=', 'schedules.section_id')
             ->where('schedules.teachers_id', $teacherId)
              ->select(
 
             'teacher.teachers_id',
             'subject.subject_name',
+            'grade_level.grade_title',
+            'section.section_name',
             // 'subject.subject_gradelevel',
             'schedules.sub_date',
+            'schedules.sched_year',
             'schedules.sub_Stime',
             'schedules.sub_Etime',
 
@@ -117,7 +134,7 @@ class MainController extends Controller
    public function dashboard()
 {
     // dd(session()->all());
-
+    $logs = ActivityLog::latest()->take(10)->get();
     // Count data
     $totaladmin = DB::table('admin')->count();
     $totalteachers = DB::table('teacher')->count();
@@ -164,6 +181,10 @@ class MainController extends Controller
         )
         ->get();
 
+            $logs = ActivityLog::whereIn('action', ['added','updated','deleted'])
+                   ->latest()
+                   ->take(10)
+                   ->get();
 
     return view('dashboard', compact(
         'totaladmin',
@@ -179,8 +200,11 @@ class MainController extends Controller
         'grade6Count',
         'view_grade1',
         'view_grade2',
+        'logs',
         'view_schedule'
+        
     ));
+    
 }
 
 
@@ -264,7 +288,10 @@ public function save_subjects(Request $request){
 
     ]);
 
-
+    $this->logActivity(
+    'added',
+    'Added subject: ' . $request->sub_name . ' for Grade ' . $request->grade_id
+);
 
     return redirect()->back()->with('success', 'Subject added and teacher status updated!');
 
@@ -376,6 +403,10 @@ public function deact_teacher(Request $request) {
             't_status' => 0 // Deactivated
         ]);
 
+        $this->logActivity(
+        'updated',
+        'Deactivated teacher ID ' . $request->teachers_id
+    );
     session()->flash('success', 'Teacher deactivated successfully.');
     return redirect()->back();
 
@@ -398,6 +429,10 @@ public function update_teacher(Request $request) {
             'phone'    => $request->phone,
         ]);
 
+         $this->logActivity(
+        'updated',
+        'Updated teacher ID ' . $teachers_id . ': ' . $request->name
+    );
     session()->flash('update', 'Teacher updated successfully.');
     return redirect()->back();
 }
@@ -468,30 +503,53 @@ public function save_schedule(Request $request)
     // Get data from the form
 
 
-    $teacher_id = $request->teachers_id;  // Can be empty or "0"
-    $subject_id = $request->subject_id;
-    $section_id = $request->section_id;
-    $newday = $request->days;
-    $dayString = implode('-', $newday);
-    $start = $request->sub_Stime;
-    $end = $request->sub_Etime;
-    $sched_year = $request->sched_year;
+  $teacher_id = $request->teachers_id;  // Can be empty or "0"
+$subject_id = $request->subject_id;
+$section_id = $request->section_id;
+$newday = $request->days;
+$dayString = implode('-', $newday);
+$start = $request->sub_Stime;
+$end = $request->sub_Etime;
+$sched_year = $request->sched_year;
 
-    // Step 1: Get the grade from the subject
-    $grade_id = DB::table('subject')
-        ->where('subject_id', $subject_id)
-        ->value('grade_id');
+// Step 1: Get the grade from the subject
+$grade_id = DB::table('subject')
+    ->where('subject_id', $subject_id)
+    ->value('grade_id');
 
-    if (!$grade_id) {
-        return back()->with('error', 'Subject not found. Please check your selection.');
+if (!$grade_id) {
+    return back()->with('error', 'Subject not found. Please check your selection.');
+}
+
+// Step 2: Check for conflicts in the same grade
+$existingSchedules = DB::table('schedules')
+    ->where('grade_id', $grade_id)
+    ->get();
+
+foreach ($existingSchedules as $sched) {
+    $existingDay = explode('-', $sched->sub_date);
+    $dayConflict = array_intersect($newday, $existingDay);
+
+    if (!empty($dayConflict)) {
+        $existingStart = $sched->sub_Stime;
+        $existingEnd = $sched->sub_Etime;
+
+        if ($start < $existingEnd && $end > $existingStart) {
+            return back()->with(
+                'errorMessage',
+                'Conflict! Grade ' . $grade_id . ' has a class on ' . implode(', ', $dayConflict) . ' at this time.'
+            );
+        }
     }
+}
 
-    // Step 2: Check for conflicts in the same grade
-    $existingSchedules = DB::table('schedules')
-        ->where('grade_id', $grade_id)
+// Step 3: Check for teacher conflicts (only if assigned)
+if ($teacher_id && $teacher_id != "0") {
+    $teacherSchedules = DB::table('schedules')
+        ->where('teachers_id', $teacher_id)
         ->get();
 
-    foreach ($existingSchedules as $sched) {
+    foreach ($teacherSchedules as $sched) {
         $existingDay = explode('-', $sched->sub_date);
         $dayConflict = array_intersect($newday, $existingDay);
 
@@ -502,35 +560,35 @@ public function save_schedule(Request $request)
             if ($start < $existingEnd && $end > $existingStart) {
                 return back()->with(
                     'errorMessage',
-                    'Conflict! Grade ' . $grade_id . ' has a class on ' . implode(', ', $dayConflict) . ' at this time.'
+                    'Conflict! Teacher is busy on ' . implode(', ', $dayConflict) . ' at this time.'
                 );
             }
         }
     }
+}
 
-    // Step 3: Check for teacher conflicts (only if assigned)
-    if ($teacher_id && $teacher_id != "0") {
-        $teacherSchedules = DB::table('schedules')
-            ->where('teachers_id', $teacher_id)
-            ->get();
+// Step 4: Check for section conflicts
+$sectionSchedules = DB::table('schedules')
+    ->where('section_id', $section_id)
+    ->get();
 
-        foreach ($teacherSchedules as $sched) {
-            $existingDay = explode('-', $sched->sub_date);
-            $dayConflict = array_intersect($newday, $existingDay);
+foreach ($sectionSchedules as $sched) {
+    $existingDay = explode('-', $sched->sub_date);
+    $dayConflict = array_intersect($newday, $existingDay);
 
-            if (!empty($dayConflict)) {
-                $existingStart = $sched->sub_Stime;
-                $existingEnd = $sched->sub_Etime;
+    if (!empty($dayConflict)) {
+        $existingStart = $sched->sub_Stime;
+        $existingEnd = $sched->sub_Etime;
 
-                if ($start < $existingEnd && $end > $existingStart) {
-                    return back()->with(
-                        'error',
-                        'Conflict! Teacher is busy on ' . implode(', ', $dayConflict) . ' at this time.'
-                    );
-                }
-            }
+        if ($start < $existingEnd && $end > $existingStart) {
+            return back()->with(
+                'errorMessage',
+                'Conflict! Section ' . $section_id . ' has a class on ' . implode(', ', $dayConflict) . ' at this time.'
+            );
         }
     }
+}
+
 
     // Step 4: Set status
     $sched_status = ($teacher_id && $teacher_id != "0") ? 1 : 0;
@@ -569,6 +627,22 @@ public function save_schedule(Request $request)
         }
     }
 
+
+// Fetch teacher name
+// Get teacher name
+$teacher = DB::table('teacher')->where('teachers_id', $teachers_id)->first();
+$teacher_name = $teacher ? $teacher->name : 'unassigned';
+
+// Get subject name
+$subject = DB::table('subject')->where('subject_id', $subject_id)->first();
+$subject_name = $subject ? $subject->subject_name : 'unassigned';
+
+// Log activity
+$this->logActivity(
+    'added',
+    'Added schedule for teacher name ' . $teacher_name . ', subject name ' . $subject_name
+);
+
     // Success!
     session()->flash('save', 'Schedule saved successfully!');
     return redirect()->back();
@@ -578,14 +652,39 @@ public function save_schedule(Request $request)
        // Delete Schedule
 public function delete_schedule(Request $request) {
 
-    DB::table('schedules')
-        ->where('schedule_id', $request->schedule_id)
-        ->delete();
+    // Fetch the schedule first
+    $schedule = DB::table('schedules')->where('schedule_id', $request->schedule_id)->first();
 
-    session()->flash('success', 'Schedule Deleted successfully.');
-    return redirect()->back();
+    if ($schedule) {
+        // Get teacher and subject IDs from the schedule
+        $teachers_id = $schedule->teachers_id;
+        $subject_id = $schedule->subject_id;
 
+        // Fetch teacher name
+        $teacher = DB::table('teacher')->where('teachers_id', $teachers_id)->first();
+        $teacher_name = $teacher ? $teacher->name : 'unassigned';
+
+        // Fetch subject name
+        $subject = DB::table('subject')->where('subject_id', $subject_id)->first();
+        $subject_name = $subject ? $subject->subject_name : 'unassigned';
+
+        // Delete the schedule
+        DB::table('schedules')->where('schedule_id', $request->schedule_id)->delete();
+
+        // Log activity
+        $this->logActivity(
+            'deleted',
+            'Deleted schedule for teacher name ' . $teacher_name . ', subject name ' . $subject_name
+        );
+
+        session()->flash('success', 'Schedule deleted successfully.');
+    } else {
+        session()->flash('error', 'Schedule not found.');
     }
+
+    return redirect()->back();
+}
+
 
 
 
@@ -608,6 +707,11 @@ public function update_schedule(Request $request) {
             'sched_year'    => $request->sched_year,
 
         ]);
+
+        $this->logActivity(
+        'updated',
+        'Updated schedule ID ' . $schedule_id . ' for teacher ID ' . $request->teachers_id
+    );
 
     session()->flash('update', 'Teacher updated successfully.');
     return redirect()->back();
@@ -649,13 +753,16 @@ public function update_schedule(Request $request) {
 
     $view_schedule = DB::table('schedules')
         ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
+        ->leftJoin('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
         ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
         ->Join ('status', 'status.status_id', '=', 'schedules.sched_status')
         ->Join ('section', 'schedules.section_id', '=', 'section.section_id')
+        
 
         ->select(
             'schedules.*',
             'teacher.name as teacher_name',
+            'grade_level.grade_title as grade_name',
             'subject.subject_name as sub_name',
             'section.section_name as sec_name',
             'status.status_name',
@@ -710,6 +817,10 @@ public function update_subject(Request $request) {
             'sub_Stime' => $request->sub_Stime,
             'sub_Etime' => $request->sub_Etime,
         ]);
+        $this->logActivity(
+    'updated',
+    'Updated subject ID ' . $request->sub_id . ' to ' . $request->sub_name
+);
     return redirect()->back()->with('success', 'Subject updated successfully.');
 
 }
@@ -752,6 +863,7 @@ public function update_subject(Request $request) {
         return view('teachers', compact('teacher_status'));
     }
 
+   
 
         // LOG OUT
 
@@ -759,6 +871,7 @@ public function update_subject(Request $request) {
          Session::flush();
            return redirect('/');// Clear all session data
         }
+
 
 
 }
