@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="{{ asset('plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/calendar.css') }}">
     <link rel="stylesheet" href="{{ asset('scss/table.scss') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin_dp.css') }}">
+
 
 
     <!-- ✅ Add this line -->

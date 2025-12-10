@@ -10,7 +10,7 @@ class DashboardController extends Controller
     {
         // Fetch all users. We use select() to explicitly exclude the 'password' column 
         // for security, even though we won't print it.
-        $users = User::select('id', 'name', 'email', 'age', 'course', 'role', 'profile', 'created_at')
+        $users = User::select('urs_id', 'name', 'email', 'age', 'role', 'profile', 'created_at', 'updated_at')
             ->get();
 
         // Pass the $users collection to the 'dashboard' view

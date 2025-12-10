@@ -92,6 +92,8 @@
         /* Make inner sidebar transparent to show gradient */
     }
 
+
+
     h5 {
         text-align: center;
         margin-bottom: 50px;
@@ -123,13 +125,16 @@
 
     <!-- Brand / User -->
     <div class="sidebar-brand d-flex align-items-center justify-content-center py-3">
-        <div class="brand-logo" style="width:90px; height:80px; border-radius:50%; overflow:hidden;">
+        <div class="brand-logo"
+            style="width:80px; height:80px; border-radius:50%; overflow:hidden; box-shadow:rgba(88, 10, 121, 0.847)">
 
             <img src="{{ session('profile') ? asset('storage/' . session('profile')) : asset('dist/img/default.png') }}"
                 style="width:100%; height:100%; object-fit:cover;">
         </div>
     </div>
-    <h5> {{ session('role') }}</h5>
+    <h5>
+        {{ session('user_role') }}
+    </h5>
     <!-- Sidebar -->
     <div class="sidebar" style="font-size:16px; font-weight:700; color:#999;">
 
@@ -140,7 +145,8 @@
 
                 {{-- Dashboard --}}
                 <li class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link {{ Route::is('dashboard') ? 'active' : '' }}"
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="nav-link {{ Route::is('admin.dashboard') ? 'active' : '' }}"
                         style="
                      display:flex; 
                      align-items:center; 
@@ -148,16 +154,35 @@
                      padding:10px 15px;
                      border-radius:30px;
                      font-weight:500;
-                     color:{{ Route::is('dashboard') ? '#333' : '#fff' }}; 
-                     background:{{ Route::is('dashboard') ? '#fff' : 'transparent' }}; 
-                     box-shadow:{{ Route::is('dashboard') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
+                     color:{{ Route::is('admin.dashboard') ? '#333' : '#fff' }}; 
+                     background:{{ Route::is('admin.dashboard') ? '#fff' : 'transparent' }}; 
+                     box-shadow:{{ Route::is('admin.dashboard') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
                    ">
                         <i class="fas fa-th-large"></i>
                         Dashboard
                     </a>
                 </li>
 
-                {{-- Sections  --}}
+                {{-- adpin profile --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin_profile') }}"
+                        class="nav-link {{ Route::is('admin_profile') ? 'active' : '' }}"
+                        style="
+                     display:flex; 
+                     align-items:center; 
+                     gap:10px; 
+                     padding:10px 15px;
+                     border-radius:30px;
+                     font-weight:500;
+                     color:{{ Route::is('admin_profile') ? '#333' : '#fff' }}; /* Suggested: Dark text for active, white for inactive */
+                     background:{{ Route::is('admin_profile') ? '#fff' : 'transparent' }}; /* Changed active to white */
+                     box-shadow:{{ Route::is('admin_profile') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
+                   ">
+                        <i class="fas fa-user-cog"></i>
+                        Admin Profile
+                    </a>
+
+                    {{-- Sections  --}}
                 <li class="nav-item">
                     <a href="{{ route('view_section') }}"
                         class="nav-link {{ Route::is('view_section') ? 'active' : '' }}"
@@ -237,6 +262,28 @@
                     </a>
                 </li>
 
+
+
+                {{-- Student  --}}
+                <li class="nav-item">
+                    <a href="{{ route('view_student') }}"
+                        class="nav-link {{ Route::is('view_student') ? 'active' : '' }}"
+                        style="
+                     display:flex; 
+                     align-items:center; 
+                     gap:10px; 
+                     padding:10px 15px;
+                     border-radius:30px;
+                     font-weight:500;
+                     color:{{ Route::is('view_student') ? '#333' : '#fff' }}; /* Suggested: Dark text for active, white for inactive */
+                     background:{{ Route::is('view_student') ? '#fff' : 'transparent' }}; /* Changed active to white */
+                     box-shadow:{{ Route::is('view_student') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
+                   ">
+                        <i class="bi bi-person-add"></i>
+                        Student
+                    </a>
+                </li>
+
             </ul>
         </nav>
 
@@ -256,7 +303,7 @@
               background:rgba(121, 10, 10, 0.5);
               border-radius:30px;
               font-weight:600;
-              margin-top: 250px;
+              margin-top: 150px;
            ">
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="logout-text">Log Out</span>

@@ -160,22 +160,34 @@
 
                                                 <!-- School Year -->
                                                 <div class="mb-3">
-                                                    <label for="sched_year" class="form-label">School Year:</label>
-                                                    <select name="sched_year" id="sched_year" class="form-select" required>
+                                                    <label for="schoolyear_id" class="form-label">School Year:</label>
+                                                    <select name="schoolyear_id" id="schoolyear_id" class="form-select"
+                                                        required>
                                                         <option value="">-- Select School Year --</option>
+
                                                         @php
-                                                            $startYear = date('Y'); // current year
-                                                            $endYear = $startYear + 5; // next 5 years
+                                                            $startYear = date('Y');
+                                                            $endYear = $startYear + 2;
                                                         @endphp
 
                                                         @for ($year = $startYear; $year <= $endYear; $year++)
-                                                            <option value="{{ $year . '-' . ($year + 1) }}"
-                                                                {{ old('sched_year') == $year . '-' . ($year + 1) ? 'selected' : '' }}>
-                                                                {{ $year . '-' . ($year + 1) }}
+                                                            @php
+                                                                $schoolyear_name = $year . '-' . ($year + 1);
+
+                                                                $existingYear = DB::table('school_year')
+                                                                    ->where('schoolyear_name', $schoolyear_name)
+                                                                    ->first();
+                                                            @endphp
+
+                                                            <option value="{{ $schoolyear_name }}"
+                                                                {{ old('schoolyear_name', $sched->schoolyear_name ?? '') == $schoolyear_name ? 'selected' : '' }}>
+                                                                {{ $schoolyear_name }}
                                                             </option>
                                                         @endfor
                                                     </select>
-                                                    @error('sched_year')
+
+
+                                                    @error('schoolyear_id')
                                                         <span class="text-danger small">{{ $message }}</span>
                                                     @enderror
                                                 </div>
@@ -220,7 +232,7 @@
                                             <td>{{ $sched->sub_date }}</td>
                                             <td>{{ date('g:i A', strtotime($sched->sub_Stime)) }} -
                                                 {{ date('g:i A', strtotime($sched->sub_Etime)) }}</td>
-                                            <td>{{ $sched->sched_year }}</td>
+                                            <td>{{ $sched->schoolyear_name }}</td>
                                             <td>{{ $sched->status_name }}</td>
                                             <td class ="text-center">
                                                 <button class="btn btn-danger btn-sm" data-toggle="modal"
@@ -419,9 +431,9 @@
 
                                                             <!-- School Year -->
                                                             <div class="mb-3">
-                                                                <label for="sched_year" class="form-label">School
+                                                                <label for="schoolyear_id" class="form-label">School
                                                                     Year:</label>
-                                                                <select name="sched_year" id="sched_year"
+                                                                <select name="schoolyear_id" id="schoolyear_id"
                                                                     class="form-select" required>
                                                                     <option value="">-- Select School Year --
                                                                     </option>
@@ -431,12 +443,12 @@
                                                                     @endphp
                                                                     @for ($year = $startYear; $year <= $endYear; $year++)
                                                                         <option value="{{ $year . '-' . ($year + 1) }}"
-                                                                            {{ $sched->sched_year == $year . '-' . ($year + 1) ? 'selected' : '' }}>
+                                                                            {{ $sched->schoolyear_id == $year . '-' . ($year + 1) ? 'selected' : '' }}>
                                                                             {{ $year . '-' . ($year + 1) }}
                                                                         </option>
                                                                     @endfor
                                                                 </select>
-                                                                @error('sched_year')
+                                                                @error('schoolyear_id')
                                                                     <span class="text-danger small">{{ $message }}</span>
                                                                 @enderror
                                                             </div>
@@ -456,51 +468,7 @@
                                 </tbody>
                             </table>
 
-                            <div class="row">
-                                <div class="col-sm-12 col-md-5">
-                                    <div class="dataTables_info" id="example2_info" role="status" aria-live="polite">
-                                        Showing 11 to 20 of 57 entries
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-7">
-                                    <div class="dataTables_paginate paging_simple_numbers" id="example2_paginate">
-                                        <ul class="pagination">
-                                            <li class="paginate_button page-item previous" id="example2_previous">
-                                                <a href="#" aria-controls="example2" data-dt-idx="0"
-                                                    tabindex="0" class="page-link">Previous</a>
-                                            </li>
-                                            <li class="paginate_button page-item ">
-                                                <a href="#" aria-controls="example2" data-dt-idx="1"
-                                                    tabindex="0" class="page-link">1</a>
-                                            </li>
-                                            <li class="paginate_button page-item active">
-                                                <a href="#" aria-controls="example2" data-dt-idx="2"
-                                                    tabindex="0" class="page-link">2</a>
-                                            </li>
-                                            <li class="paginate_button page-item ">
-                                                <a href="#" aria-controls="example2" data-dt-idx="3"
-                                                    tabindex="0" class="page-link">3</a>
-                                            </li>
-                                            <li class="paginate_button page-item ">
-                                                <a href="#" aria-controls="example2" data-dt-idx="4"
-                                                    tabindex="0" class="page-link">4</a>
-                                            </li>
-                                            <li class="paginate_button page-item ">
-                                                <a href="#" aria-controls="example2" data-dt-idx="5"
-                                                    tabindex="0" class="page-link">5</a>
-                                            </li>
-                                            <li class="paginate_button page-item ">
-                                                <a href="#" aria-controls="example2" data-dt-idx="6"
-                                                    tabindex="0" class="page-link">6</a>
-                                            </li>
-                                            <li class="paginate_button page-item next" id="example2_next">
-                                                <a href="#" aria-controls="example2" data-dt-idx="7"
-                                                    tabindex="0" class="page-link">Next</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                         <!-- /.card-body -->
                     </div>

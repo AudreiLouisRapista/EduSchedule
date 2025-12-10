@@ -5,61 +5,74 @@
 
 {{-- 2. DEFINE CONTENT HEADER (Breadcrumbs) --}}
 @section('content_header')
-<div class="header">
-     <h1 class="title" style="margin-left: 50px; ">Section Management</h1>
-     <p style="margin-left: 50px;">Manage Section and their class assignments</p>
-</div>
-   
-<section class="content" style = "width: 1400 px; margin-left: 20px; margin-top: 20px;">
-      <div class="container-fluid;">
-        <div class="row">
-          <div class="col-12">
-            <div class="card" style=" border-radius: 30px; background:#fff; padding:20px">
-              <div class="card-header" style="background:#fff;">
-                <h3 class="card-title">Section list</h3>
-                    <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal" style="float: right;">
-                           Add Section
+    <div class="header">
+        <h1 class="title" style="margin-left: 50px; ">Section Management</h1>
+        <p style="margin-left: 50px;">Manage Section and their class assignments</p>
+    </div>
+
+    <section class="content" style = "width: 1400 px; margin-left: 20px; margin-top: 20px;">
+        <div class="container-fluid;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card" style=" border-radius: 30px; background:#fff; padding:20px">
+                        <div class="card-header" style="background:#fff;">
+                            <h3 class="card-title">Section list</h3>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal" style="float: right;">
+                                Add Section
                             </button>
 
                             <!-- Modal -->
-                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Section</h1>
+                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Section</h1>
 
-                                </div>
-                                                <div class="modal-body">
-                                                <h4 class="mb-4 text-center">Section information</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h4 class="mb-4 text-center">Section information</h4>
 
-                                                <form method="POST" action="{{ route('save_section') }}" enctype="multipart/form-data">
-                                                    @csrf
-
-                                                  
-
-                                                    <!-- section name -->
-                                                        <div class="mb-3">
-                                                            <label for="section_name" class="form-label">Section Name:</label>
-                                                            <input type="text" name="section_name" id="section_name" class="form-control" placeholder="Enter Section name" value="{{ old('section_name') }}" required>
-                                                            @error('section_name') <span class="text-danger small">{{ $message }}</span> @enderror
-                                                            </div>
-                                                      
+                                            <form method="POST" action="{{ route('save_section') }}"
+                                                enctype="multipart/form-data">
+                                                @csrf
 
 
-                                                            <!-- Section capacity -->
-                                                            <div class="mb-3">
-                                                                <label for="section_capacity" class="form-label">Enter the capacity of the Room:</label>
-                                                                <input type="number" name="section_capacity" id="section_capacity" class="form-control" placeholder="Enter the capacity" value="{{ old('section_capacity') }}" required>
-                                                                @error('section_capacity') <span class="text-danger small">{{ $message }}</span> @enderror
-                                                                </div>
-                                                           
+
+                                                <!-- section name -->
+                                                <div class="mb-3">
+                                                    <label for="section_name" class="form-label">Section Name:</label>
+                                                    <input type="text" name="section_name" id="section_name"
+                                                        class="form-control" placeholder="Enter Section name"
+                                                        value="{{ old('section_name') }}" required>
+                                                    @error('section_name')
+                                                        <span class="text-danger small">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
 
 
-                                                    <!-- Grade Level -->
-                                                    <div class="mb-3">
+
+                                                <!-- Section capacity -->
+                                                <div class="mb-3">
+                                                    <label for="section_capacity" class="form-label">Enter the capacity of
+                                                        the Room:</label>
+                                                    <input type="number" name="section_capacity" id="section_capacity"
+                                                        class="form-control" placeholder="Enter the capacity"
+                                                        value="{{ old('section_capacity') }}" required>
+                                                    @error('section_capacity')
+                                                        <span class="text-danger small">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+
+
+                                                <!-- Grade Level -->
+                                                <div class="mb-3">
                                                     <label for="grade_id" class="form-label">Grade Level</label>
-                                                    <select type="text" class="form-control" id="grade_id" name="grade_id" placeholder="Grade Level" required>
+                                                    <select type="text" class="form-control" id="grade_id"
+                                                        name="grade_id" placeholder="Grade Level" required>
                                                         <option value="">-- Select Grade Level --</option>
                                                         <option value="7">Grade 7</option>
                                                         <option value="8">Grade 8</option>
@@ -71,91 +84,124 @@
                                                     @error('grade_id')
                                                         <span class="text-danger small">{{ $message }}</span>
                                                     @enderror
-                                                    </div>
-        
-                                                    <!-- Submit -->
-                                                    <div class="text-center mt-4">
-                                                    <button type="submit" class="btn btn-primary w-100">Register</button>
-                                                    </div>
-                                                </form>
                                                 </div>
 
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                 
-                                </div>
-                                </div>
-                            </div>
-                            </div>
-    
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-               <table id="example2" class="table table-bordered table-hover">
-                            <thead>
-                                <tr>
-                                <th>Section Name</th>
-                                <th>Section Capacity</th>
-                                <th>Grade Level</th>
-                                <!-- <th>ACtion</th> -->
-                                </tr>
-                            </thead>
-                            <tbody>
-                              @foreach ($view_section as $sec)
-                                    <tr>
-                                        <td>{{ $sec->section_name }}</td>
-                                        <td>{{ $sec->section_capacity }}</td>
-                                        <td>{{ $sec->grade_title }}</td>
-                                       
-                                    </tr>
-                                @endforeach
+                                                <div class="mb-3">
+                                                    <label for="section_strand" class="form-label">Grade Level</label>
+                                                    <select type="text" class="form-control" id="section_strand"
+                                                        name="section_strand" placeholder="Section Strand" required>
+                                                        <option value="">-- Select Strand --</option>
+                                                        <option value="None">None</option>
+                                                        <option value="AMB">AMB</option>
+                                                        <option value="GAS">GAS</option>
+                                                        <option value="STEM">STEM</option>
+                                                        <option value="HUMSS">HUMSS</option>
+                                                        <option value="TVL">TVL</option>
+                                                    </select>
+                                                    @error('section_strand')
+                                                        <span class="text-danger small">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
 
-                            </tbody>
+                                                <!-- Submit -->
+                                                <div class="text-center mt-4">
+                                                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <table id="example1" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Section Name</th>
+                                        <th>Section Capacity</th>
+                                        <th>Grade Level</th>
+                                        <th>Section Strand</th>
+
+                                        <!-- <th>ACtion</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($view_section as $sec)
+                                        <tr>
+                                            <td>{{ $sec->section_name }}</td>
+                                            <td>{{ $sec->section_capacity }}</td>
+                                            <td>{{ $sec->grade_title }}</td>
+                                            <td>{{ $sec->section_strand }}</td>
+
+
+                                        </tr>
+                                    @endforeach
+
+                                </tbody>
                             </table>
 
 
-                <div class="row">
-                    <div class="col-sm-12 col-md-5">
-                        <div class="dataTables_info" id="example2_info" role="status" aria-live="polite">Showing 11 to 20 of 57 entries
+                            {{-- <div class="row">
+                                <div class="col-sm-12 col-md-5">
+                                    <div class="dataTables_info" id="example2_info" role="status" aria-live="polite">
+                                        Showing 11 to 20 of 57 entries
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-7">
+                                    <div class="dataTables_paginate paging_simple_numbers" id="example2_paginate">
+                                        <ul class="pagination">
+                                            <li class="paginate_button page-item previous" id="example2_previous">
+                                                <a href="#" aria-controls="example2" data-dt-idx="0"
+                                                    tabindex="0" class="page-link">Previous</a>
+                                            </li>
+                                            <li class="paginate_button page-item ">
+                                                <a href="#" aria-controls="example2" data-dt-idx="1"
+                                                    tabindex="0" class="page-link">1</a>
+                                            </li>
+                                            <li class="paginate_button page-item active">
+                                                <a href="#" aria-controls="example2" data-dt-idx="2"
+                                                    tabindex="0" class="page-link">2</a>
+                                            </li>
+                                            <li class="paginate_button page-item ">
+                                                <a href="#" aria-controls="example2" data-dt-idx="3"
+                                                    tabindex="0" class="page-link">3</a>
+                                            </li>
+                                            <li class="paginate_button page-item ">
+                                                <a href="#" aria-controls="example2" data-dt-idx="4"
+                                                    tabindex="0" class="page-link">4</a>
+                                            </li>
+                                            <li class="paginate_button page-item ">
+                                                <a href="#" aria-controls="example2" data-dt-idx="5"
+                                                    tabindex="0" class="page-link">5</a>
+                                            </li>
+                                            <li class="paginate_button page-item ">
+                                                <a href="#" aria-controls="example2" data-dt-idx="6"
+                                                    tabindex="0" class="page-link">6</a>
+                                            </li>
+                                            <li class="paginate_button page-item next" id="example2_next">
+                                                <a href="#" aria-controls="example2" data-dt-idx="7"
+                                                    tabindex="0" class="page-link">Next</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div> --}}
                         </div>
+                        <!-- /.card-body -->
                     </div>
-                    <div class="col-sm-12 col-md-7">
-                        <div class="dataTables_paginate paging_simple_numbers" id="example2_paginate">
-                            <ul class="pagination"><li class="paginate_button page-item previous" id="example2_previous">
-                                <a href="#" aria-controls="example2" data-dt-idx="0" tabindex="0" class="page-link">Previous</a>
-                            </li><li class="paginate_button page-item ">
-                                <a href="#" aria-controls="example2" data-dt-idx="1" tabindex="0" class="page-link">1</a>
-                            </li>
-                            <li class="paginate_button page-item active">
-                                <a href="#" aria-controls="example2" data-dt-idx="2" tabindex="0" class="page-link">2</a>
-                            </li>
-                            <li class="paginate_button page-item ">
-                                <a href="#" aria-controls="example2" data-dt-idx="3" tabindex="0" class="page-link">3</a>
-                            </li>
-                            <li class="paginate_button page-item ">
-                                <a href="#" aria-controls="example2" data-dt-idx="4" tabindex="0" class="page-link">4</a>
-                            </li>
-                            <li class="paginate_button page-item ">
-                                <a href="#" aria-controls="example2" data-dt-idx="5" tabindex="0" class="page-link">5</a>
-                            </li>
-                            <li class="paginate_button page-item ">
-                                <a href="#" aria-controls="example2" data-dt-idx="6" tabindex="0" class="page-link">6</a>
-                            </li>
-                            <li class="paginate_button page-item next" id="example2_next">
-                                <a href="#" aria-controls="example2" data-dt-idx="7" tabindex="0" class="page-link">Next</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-    </div>
-              <!-- /.card-body -->
- </div>
 
-          <!-- /.col -->
-        </div>
-        <!-- /.row -->
-      </div>
-      <!-- /.container-fluid -->
-</section>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+    </section>
 @endsection

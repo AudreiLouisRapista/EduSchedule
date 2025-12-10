@@ -29,6 +29,7 @@ class MainController extends Controller
     /**
      * Handle user authentication (login).
      */
+   
    public function auth_user(Request $request){
 
     $email = $request->email;
@@ -64,9 +65,13 @@ class MainController extends Controller
         Session::put('id', $user->id);
         Session::put('profile', $user->profile);
         Session::put('name', $user->name);
-        Session::put('role', 'admin');
+         Session::put('email', $user->email);
+        Session::put('phone', $user->phone);
+        Session::put('gender', $user->gender);
+        Session::put('user_role', 'admin');
 
-        return redirect()->route('dashboard');
+
+        return redirect()->route('admin.dashboard');
     }
 
     if($role == 'teacher'){
@@ -79,7 +84,7 @@ class MainController extends Controller
         Session::put('gender', $user->gender);
         Session::put('role', 'teacher');
 
-        return redirect()->route('TeacherUI');
+        return redirect()->route('teacher.dashboard');
     }
 }
 
@@ -92,6 +97,17 @@ private function logActivity($action, $description)
         'description' => $description,
     ]);
 }
+
+    public function admin_profile()
+{
+    $logs = ActivityLog::latest()->take(10)->get();
+
+    $admins = DB::table('admin')->get();
+
+    return view('admin_profile', compact('admins','logs'));
+}
+
+
 
 
     public function TeacherUI(){
@@ -152,6 +168,7 @@ private function logActivity($action, $description)
     $grade5Count = DB::table('schedules')->where('grade_id', '11')->count();
     $grade6Count = DB::table('schedules')->where('grade_id', '12')->count();
 
+//  $schoolYears = DB::table('school_year')->orderBy('schoolyear_name', 'desc')->get();
 
    $view_grade1 = DB::table('schedules')
     ->join('teacher', 'teacher.teachers_id', '=', 'schedules.teachers_id')
@@ -201,7 +218,8 @@ private function logActivity($action, $description)
         'view_grade1',
         'view_grade2',
         'logs',
-        'view_schedule'
+        'view_schedule',
+        // 'schoolYears'
         
     ));
     
@@ -227,6 +245,7 @@ private function logActivity($action, $description)
         'section_name' => $request->section_name,
         'grade_id' => $request->grade_id,
         'section_capacity' => $request-> section_capacity,
+        'section_strand' => $request-> section_strand,
 
     ]);
 
@@ -246,6 +265,7 @@ private function logActivity($action, $description)
             'section.section_name',
             'section.section_capacity',
             'grade_level.grade_title',
+            'section.section_strand'
         )
             ->get();
 
@@ -285,6 +305,8 @@ public function save_subjects(Request $request){
         'subject_name' => $request->sub_name,
         'grade_id' => $request->grade_id,
         'subject_status' => $request->t_status,
+        'sub_strand' => $request->sub_strand ?? 'N/A',
+        'sub_yearlevel' => $request->sub_yearlevel,
 
     ]);
 
@@ -306,6 +328,8 @@ public function save_subjects(Request $request){
             ->leftJoin('grade_level', 'grade_level.grade_id', '=', 'subject.grade_id')
              ->select(
             'subject.subject_name',
+            'subject.sub_strand',
+            'subject.sub_yearlevel',
             'grade_level.grade_title',
             'status.status_name'
         )
@@ -503,14 +527,14 @@ public function save_schedule(Request $request)
     // Get data from the form
 
 
-  $teacher_id = $request->teachers_id;  // Can be empty or "0"
+$teacher_id = $request->teachers_id;  // Can be empty or "0"
 $subject_id = $request->subject_id;
 $section_id = $request->section_id;
 $newday = $request->days;
 $dayString = implode('-', $newday);
 $start = $request->sub_Stime;
 $end = $request->sub_Etime;
-$sched_year = $request->sched_year;
+$schoolyear_id = $request->schoolyear_id;
 
 // Step 1: Get the grade from the subject
 $grade_id = DB::table('subject')
@@ -588,6 +612,8 @@ foreach ($sectionSchedules as $sched) {
         }
     }
 }
+    
+    
 
 
     // Step 4: Set status
@@ -595,17 +621,35 @@ foreach ($sectionSchedules as $sched) {
 
     // Step 5: Try to save the schedule (with error handling)
     try {
-        DB::table('schedules')->insert([
-            'subject_id' => $subject_id,
-            'section_id' => $section_id,
-            'grade_id' => $grade_id,
-            'teachers_id' => $teacher_id ?: null,
-            'sub_date' => $dayString,
-            'sub_Stime' => $start,
-            'sub_Etime' => $end,
-            'sched_year' => $sched_year,
-            'sched_status' => $sched_status,
-        ]);
+    // Perform the insert
+
+    $schoolyear_name = $request->schoolyear_id ?? null;
+        
+     $existingYear = DB::table('school_year')
+        ->where('schoolyear_name', $schoolyear_name)
+        ->first();
+
+        if(!$existingYear){
+            $schoolyear_ID = DB::table('school_year')->insertGetId([
+                'schoolyear_name' => $schoolyear_name
+            ]);
+        } else {
+            $schoolyear_ID = $existingYear->schoolyear_ID;
+        }
+
+DB::table('schedules')->insert([
+    'subject_id' => $subject_id,
+    'section_id' => $section_id,
+    'grade_id' => $grade_id,
+    'teachers_id' => $teacher_id ?: null,
+    'sub_date' => $dayString,
+    'sub_Stime' => $start,
+    'sub_Etime' => $end,
+    'schoolyear_id' => $schoolyear_ID,
+    'sched_status' => $sched_status,
+]);
+
+
 
 
     } catch (\Exception $e) {
@@ -630,7 +674,7 @@ foreach ($sectionSchedules as $sched) {
 
 // Fetch teacher name
 // Get teacher name
-$teacher = DB::table('teacher')->where('teachers_id', $teachers_id)->first();
+$teacher = DB::table('teacher')->where('teachers_id', $teacher_id)->first();
 $teacher_name = $teacher ? $teacher->name : 'unassigned';
 
 // Get subject name
@@ -704,7 +748,7 @@ public function update_schedule(Request $request) {
             'sub_date'     =>  $days,
             'sub_Stime'      => $request->sub_Stime,
             'sub_Etime'    => $request->sub_Etime,
-            'sched_year'    => $request->sched_year,
+            'schoolyear_id'    => $request->schoolyear_id,
 
         ]);
 
@@ -713,12 +757,22 @@ public function update_schedule(Request $request) {
         'Updated schedule ID ' . $schedule_id . ' for teacher ID ' . $request->teachers_id
     );
 
-    session()->flash('update', 'Teacher updated successfully.');
+    session()->flash('update', 'Schedule updated successfully.');
     return redirect()->back();
 }
 
 
 
+// public function set_system_schoolyear(Request $request)
+// {
+//     $selectedSchoolYear = $request->input('filter_schoolyear_name'); // string like "2025-2026"
+
+//     if ($selectedSchoolYear) {
+//         session(['system_schoolyear' => $selectedSchoolYear]);
+//     }
+
+//     return redirect()->back(); // redirect to dashboard or current page
+// }
 
 
 
@@ -749,14 +803,15 @@ public function update_schedule(Request $request) {
 
         // VIEW SCHEDULES
 
-   public function view_schedule() {
+public function view_schedule() {
 
     $view_schedule = DB::table('schedules')
         ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
         ->leftJoin('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
-        ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
-        ->Join ('status', 'status.status_id', '=', 'schedules.sched_status')
-        ->Join ('section', 'schedules.section_id', '=', 'section.section_id')
+        ->leftJoin('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+        ->leftJoin ('status', 'status.status_id', '=', 'schedules.sched_status')
+        ->leftJoin ('section', 'schedules.section_id', '=', 'section.section_id')
+        ->leftJoin ('school_year', 'schedules.schoolyear_id', '=', 'school_year.schoolyear_ID')
         
 
         ->select(
@@ -766,6 +821,7 @@ public function update_schedule(Request $request) {
             'subject.subject_name as sub_name',
             'section.section_name as sec_name',
             'status.status_name',
+            'school_year.schoolyear_name'
 
         )
         ->get();
@@ -784,7 +840,11 @@ public function update_schedule(Request $request) {
         ->select('section_id', 'section_name') // All subject
         ->get();
 
-    return view('schedule', compact('view_schedule','subject', 'teachers','section'));
+     $school_year = DB::table('school_year')
+        ->select('schoolyear_ID', 'schoolyear_name') // All year
+        ->get();
+
+    return view('schedule', compact('view_schedule','subject', 'teachers','section', 'school_year'));
 }
 
 
@@ -862,6 +922,45 @@ public function update_subject(Request $request) {
 
         return view('teachers', compact('teacher_status'));
     }
+
+
+
+
+
+        
+   public function save_student(Request $request){
+
+
+
+
+
+    // 2. Save the new subject
+   $save_student = DB::table('students')->insert([
+        'student_firstname' => $request->student_firstname,
+        'student_lastname' => $request-> student_lastname,
+
+    ]);
+
+
+
+    return redirect()->back()->with('success', 'Student added successfully!');
+
+
+    }
+
+     public function view_student() {
+
+
+       $view_student = DB::table('students') ->get();
+
+
+
+
+
+    return view('student', compact('view_student'));
+
+
+}
 
    
 
