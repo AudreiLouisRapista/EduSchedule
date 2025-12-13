@@ -203,12 +203,15 @@ private function logActivity($action, $description)
                    ->take(10)
                    ->get();
 
+    $add_teachers = DB::table('teacher')->get();
+
     return view('dashboard', compact(
         'totaladmin',
         'totalteachers',
         'unassigned_teachers',
         'assigned_teachers',
         'view_teachers',
+        'add_teachers',
         'grade1Count',
         'grade2Count',
         'grade3Count',
@@ -795,12 +798,46 @@ public function update_schedule(Request $request) {
     }
 
 
+    public function teacher_loads(Request $request)
+    {
+        // Get the selected school year from the request (no default now)
+      $selected_year_id = $request->get('schoolyear_id');  // Can be null if not selected
+        // Fetch all teachers
+        $teachers = DB::table('teacher')->get();
+        // Fetch available school years
+        $school_years_map = DB::table('school_year')->pluck('schoolyear_name', 'schoolyear_id');
+        // Fetch loads for each teacher
+        $teacher_loads = [];
+        foreach ($teachers as $teacher) {
+            $query = DB::table('schedules')
+            ->join('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
+            ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+            ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
+            ->join('section', 'schedules.section_id', '=', 'section.section_id')
+            ->select(
+                'schedules.*',  // Includes all schedule columns (e.g., sub_Stime, sub_Etime, sub_date)
+                'teacher.name as teacher_name',
+                'teacher.role as teacher_role',
+                'subject.subject_name as sub_name',
+                'grade_level.grade_title as grade_name',
+                'section.section_name as sec_name',
+              
+            ) 
 
+            -> where('schedules.teachers_id', $teacher->teachers_id);
+            // Only filter by school_year if one is selected
+            if ($selected_year_id) {
+                $query->where('schedules.schoolyear_id', $selected_year_id);
+            }
+            $loads = $query->get();
+            $teacher_loads[$teacher->teachers_id] = $loads;
+        }
+        // Pass data to view
+        return view('teacher_loadView', compact('teachers', 'teacher_loads', 'school_years_map', 'selected_year_id'));
+    }
+  
 
-
-
-
-
+   
         // VIEW SCHEDULES
 
 public function view_schedule() {

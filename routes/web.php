@@ -34,6 +34,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     // Place all admin routes here
     Route::get('/dashboard', [MainController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/schedule', [MainController::class, 'schedule'])->name('schedule');
+    Route::get('/teacher_loadView', [MainController::class, 'teacher_loadView'])->name('teacher_loadView');
+    Route::get('/teacher_loads', [MainController::class, 'teacher_loads'])->name('teacher_loads');
+    Route::get('/faculty_list', [MainController::class, 'faculty_list'])->name('faculty_list');
     Route::get('/admin_profile', [MainController::class, 'admin_profile'])->name('admin_profile');
     Route::get('/activity-log', [MainController::class, 'activityLogPage']);
     Route::get('/subject', [MainController::class, 'subject'])->name('subject');

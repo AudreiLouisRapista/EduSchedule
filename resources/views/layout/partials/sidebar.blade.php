@@ -57,6 +57,7 @@
 
     .sidebar-collapse .main-sidebar:hover a[href*="logout"] .logout-text {
         font-size: 16px !important;
+        align-items: center;
         /* restore text size */
 
     }
@@ -181,8 +182,88 @@
                         <i class="fas fa-user-cog"></i>
                         Admin Profile
                     </a>
+                </li>
 
-                    {{-- Sections  --}}
+                {{-- Start PHP Block: DEFINE VARIABLES FIRST --}}
+                @php
+                    // 1. Check if the parent item should be active/open (User is on any related page)
+                    $teacher_parent_active = Route::is('view_teachers') || Route::is('teacher_loads');
+
+                    // 2. Define custom styling variables for cleaner HTML
+                    $active_bg_style =
+                        'background: #fff; color: #333; box-shadow: 0 5px 12px rgba(99, 101, 241, 0.67);';
+                    $inactive_style = 'background: transparent; color: #fff; box-shadow: none;';
+                    $sub_active_style = 'background: rgba(255, 255, 255, 0.3); color: #333;';
+                @endphp
+                {{-- End PHP Block --}}
+
+
+                {{-- TEACHERS Dropdown Parent Item --}}
+                <li class="nav-item">
+
+                    {{-- Main Toggle Link (Parent) --}}
+                    <a href="#teachersCollapse" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ $teacher_parent_active ? 'true' : 'false' }}"
+                        class="nav-link {{ $teacher_parent_active ? 'active' : '' }}"
+                        style="
+                                    display:flex; 
+                                    align-items:center; 
+                                    gap:10px; 
+                                    padding:10px 15px;
+                                    border-radius:30px;
+                                    font-weight:500;
+                                    {{ $teacher_parent_active ? $active_bg_style : $inactive_style }}
+                                ">
+                        <i class="fas fa-user-tie"></i>
+                        Teachers
+                        <i class="fas fa-caret-down ms-auto"></i>
+                    </a>
+
+                    {{-- Collapsible Child Links --}}
+                    <div id="teachersCollapse" class="collapse {{ $teacher_parent_active ? 'show' : '' }}"
+                        style="margin-left: 15px;">
+                        <ul class="nav flex-column">
+
+                            {{-- 1. View All Teachers --}}
+                            <li class="nav-item">
+                                <a href="{{ route('view_teachers') }}"
+                                    class="nav-link {{ Route::is('view_teachers') ? 'active' : '' }}"
+                                    style="
+                                            display:block; 
+                                            padding:8px 0 8px 10px;
+                                            font-weight:400;
+                                            border-radius:15px;
+                                            {{ Route::is('view_teachers') ? $sub_active_style : $inactive_style }}
+                                        ">
+                                    View All Teachers
+                                </a>
+                            </li>
+
+                            {{-- 2. Teacher Load View --}}
+                            <li class="nav-item">
+                                @php
+                                    // Check active state for the Teacher Load link
+                                    $is_teacher_load_active = Route::is('teacher_loads') || Route::is('teacher_loads');
+                                @endphp
+                                <a href="{{ route('teacher_loads') }}"
+                                    class="nav-link {{ $is_teacher_load_active ? 'active' : '' }}"
+                                    style="
+                                            display:block;
+                                            padding:8px 0 8px 10px;
+                                            font-weight:400;
+                                            border-radius:15px;
+                                            {{ $is_teacher_load_active ? $sub_active_style : $inactive_style }}
+                                        ">
+                                    Teacher Load
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+
+
+                {{-- Sections  --}}
                 <li class="nav-item">
                     <a href="{{ route('view_section') }}"
                         class="nav-link {{ Route::is('view_section') ? 'active' : '' }}"
@@ -197,7 +278,7 @@
                      background:{{ Route::is('view_section') ? '#fff' : 'transparent' }}; /* Changed active to white */
                      box-shadow:{{ Route::is('view_section') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
                    ">
-                        <i class="far fa-calendar-alt"></i>
+                        <i class="bi bi-house-add-fill"></i>
                         Sections
                     </a>
                 </li>
@@ -222,25 +303,6 @@
                     </a>
                 </li>
 
-                {{-- Teachers --}}
-                <li class="nav-item">
-                    <a href="{{ route('view_teachers') }}"
-                        class="nav-link {{ Route::is('view_teachers') ? 'active' : '' }}"
-                        style="
-                     display:flex; 
-                     align-items:center; 
-                     gap:10px; 
-                     padding:10px 15px;
-                     border-radius:30px;
-                     font-weight:500;
-                     color:{{ Route::is('view_teachers') ? '#333' : '#fff' }}; /* Suggested: Dark text for active, white for inactive */
-                     background:{{ Route::is('view_teachers') ? '#fff' : 'transparent' }}; /* Changed active to white */
-                     box-shadow:{{ Route::is('view_teachers') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
-                   ">
-                        <i class="fas fa-user-tie"></i>
-                        Teachers
-                    </a>
-                </li>
 
                 {{-- Subjects  --}}
                 <li class="nav-item">
@@ -288,27 +350,26 @@
         </nav>
 
 
-
-
         {{-- Logout Button --}}
-        <div style="padding:5px;">
+        <div style="padding:5px; margin-top: auto;">
             <a href="{{ route('logout') }}"
                 style="
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              gap:5px;
-              padding:10px;
-              color:#fff; 
-              background:rgba(121, 10, 10, 0.5);
-              border-radius:30px;
-              font-weight:600;
-              margin-top: 150px;
-           ">
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                gap:5px;
+                                padding:10px;
+                                color:#fff; 
+                                background:rgba(121, 10, 10, 0.5);
+                                border-radius:30px;
+                                font-weight:600;
+                                margin-top: 130px;
+                            ">
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="logout-text">Log Out</span>
             </a>
         </div>
+
 
 
         <!-- </ul>
