@@ -19,10 +19,80 @@
                                     src="{{ asset('storage/' . session('profile')) }}"
                                     style="width:150px; height:150px; object-fit:cover; border:4px solid #586bff;">
 
-                                <a href="{{ url('profile/edit') }}" class="btn btn-primary btn-sm px-4 mb-3"
-                                    style="border-radius: 20px; background:#586bff; margin-top:15px;">
-                                    Edit Profile
-                                </a>
+                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#updateAdmin">
+                                    <i class="bi bi-pen"></i>
+                                </button>
+
+                                <div class="modal fade" id="updateAdmin" tabindex="-1" role="dialog"
+                                    aria-labelledby="updateAdmin" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                        <div class="modal-content" style="border-radius: 20px;">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Update Schedule</h5>
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+
+                                            @foreach ($admins as $admin)
+                                                <div class="modal-body">
+                                                    <form method="POST" action="{{ route('adminProfile', $admin->id) }}">
+                                                        @csrf
+
+                                                        <div class="form-group">
+                                                            <label>Email</label>
+                                                            <input type="email" name="email" value="{{ $admin->email }}"
+                                                                class="form-control" required>
+                                                        </div>
+
+
+                                                        <div class="form-group">
+                                                            <label>Name</label>
+                                                            <input type="text" name="name" value="{{ $admin->name }}"
+                                                                class="form-control" required>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Phone</label>
+                                                            <input type="number" name="phone" value="{{ $admin->phone }}"
+                                                                class="form-control" required>
+                                                        </div>
+
+
+
+
+                                                        <label>Gender:</label>
+                                                        <select name="gender" required>
+                                                            <option value="">-- SELECT Gender --</option>
+                                                            <option value="{{ $admin->phone }}"
+                                                                {{ old('gender') == 'male' ? 'selected' : '' }}>Male
+                                                            </option>
+                                                            <option value="{{ $admin->phone }}"
+                                                                {{ old('gender') == 'female' ? 'selected' : '' }}>
+                                                                Female</option>
+
+
+                                                            <label for="profile">
+                                                                Profile Picture:
+                                                                <input type="file" name="profile" id="profile"
+                                                                    accept="image/*">
+
+                                                            </label>
+
+                                                        </select>
+                                                        @error('gender')
+                                                            <span class="error-message">{{ $message }}</span>
+                                                        @enderror
+
+
+
+
+                                                        <button type="submit" class="btn btn-primary">Update</button>
+                                                    </form>
+
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- RIGHT SIDE: PROFILE INFORMATION -->

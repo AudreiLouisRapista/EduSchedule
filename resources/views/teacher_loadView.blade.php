@@ -62,7 +62,7 @@
                                                     <div class="modal-dialog modal-lg">
                                                         <div class="modal-content">
 
-                                                            <div class="modal-header">
+                                                            <div class="modal-header bg-primary">
                                                                 <h5 class="modal-title">{{ $t->name }} – Loads</h5>
                                                                 <button type="button" class="btn-close"
                                                                     data-bs-dismiss="modal"></button>

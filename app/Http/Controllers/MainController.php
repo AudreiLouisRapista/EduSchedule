@@ -107,6 +107,30 @@ private function logActivity($action, $description)
     return view('admin_profile', compact('admins','logs'));
 }
 
+public function adminProfile(Request $request) {
+    $admins = $request->id;
+
+
+
+    DB::table('admin')
+        ->where('id', $admins)
+        ->update([
+
+            'email'    => $request->email,
+            'name'     => $request->name,
+            'gender'     => $request->gender,
+            'phone'    => $request->phone,
+            'profile'    => $request->profile,
+        ]);
+
+         $this->logActivity(
+        'updated',
+        'Updated teacher ID ' . $admins . ': ' . $request->name
+    );
+    session()->flash('update', 'Teacher updated successfully.');
+    return redirect()->back();
+}
+
 
 
 

@@ -33,11 +33,11 @@ Route::get('/logout', [MainController::class, 'logout'])->name('logout');
 Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () {
     // Place all admin routes here
     Route::get('/dashboard', [MainController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin_profile', [MainController::class, 'admin_profile'])->name('admin_profile');
     Route::get('/schedule', [MainController::class, 'schedule'])->name('schedule');
     Route::get('/teacher_loadView', [MainController::class, 'teacher_loadView'])->name('teacher_loadView');
     Route::get('/teacher_loads', [MainController::class, 'teacher_loads'])->name('teacher_loads');
     Route::get('/faculty_list', [MainController::class, 'faculty_list'])->name('faculty_list');
-    Route::get('/admin_profile', [MainController::class, 'admin_profile'])->name('admin_profile');
     Route::get('/activity-log', [MainController::class, 'activityLogPage']);
     Route::get('/subject', [MainController::class, 'subject'])->name('subject');
     Route::get('/view_section', [MainController::class, 'view_section'])->name('view_section');
@@ -59,11 +59,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     Route::post('/deact_teacher', [MainController::class, 'deact_teacher'])->name('deact_teacher');
     Route::post('/delete_schedule', [MainController::class, 'delete_schedule'])->name('delete_schedule');
     Route::post('/update_schedule', [MainController::class, 'update_schedule'])->name('update_schedule');
+    Route::post('/adminProfile', [MainController::class, 'adminProfile'])->name('adminProfile');
+
     Route::post('/update_teacher/{teachers_id}', [MainController::class, 'update_teacher'])->name('update_teacher');
     Route::post('/system/set-schoolyear', [MainController::class, 'set_system_schoolyear'])->name('system.setSchoolYear');
-
-
-
 });
 
 Route::group(['prefix' => 'teacher', 'middleware' => ['role:teacher|admin']], function () {

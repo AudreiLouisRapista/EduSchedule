@@ -135,10 +135,12 @@
     </div>
     <h5>
         {{ session('user_role') }}
+        <hr style="border-top: 3px solid rgb(255, 255, 255); margin-top:10px;">
+
     </h5>
+
     <!-- Sidebar -->
     <div class="sidebar" style="font-size:16px; font-weight:700; color:#999;">
-
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
@@ -352,6 +354,7 @@
 
         {{-- Logout Button --}}
         <div style="padding:5px; margin-top: auto;">
+
             <a href="{{ route('logout') }}"
                 style="
                                 display:flex;
@@ -365,6 +368,7 @@
                                 font-weight:600;
                                 margin-top: 130px;
                             ">
+
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="logout-text">Log Out</span>
             </a>
