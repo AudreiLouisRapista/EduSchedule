@@ -5,11 +5,15 @@
     @include('layout.partials.head')
 
     <body class="hold-transition sidebar-mini layout-fixed">
-        {{-- Auth Check - This logic should ideally be in Middleware or a Controller but we keep it here for file structure completeness --}}
-        @if (session('id') == null && session('role') == null)
-            {{ unauthorize() }}
+        {{-- Auth Check - This logic should ideally be in Middleware or a Controller... --}}
+        @if (session('id') == null)
+            {{-- If the ID is missing, the user is logged out. Redirect immediately. --}}
+            @php
+                // Redirect to the login page
+                header('Location: /'); // <-- Ensure /login is your correct route
+                exit();
+            @endphp
         @endif
-
         <div class="wrapper">
 
             <div class="preloader flex-column justify-content-center align-items-center">

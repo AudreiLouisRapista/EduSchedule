@@ -230,8 +230,11 @@
                                             <td>{{ $sched->sub_name }}, {{ $sched->grade_name }}</td>
                                             <td>{{ $sched->sec_name }}</td>
                                             <td>{{ $sched->sub_date }}</td>
-                                            <td>{{ date('g:i A', strtotime($sched->sub_Stime)) }} -
-                                                {{ date('g:i A', strtotime($sched->sub_Etime)) }}</td>
+                                            <td>
+                                                {{ $sched->sub_Stime ? date('g:i A', strtotime($sched->sub_Stime)) : 'N/A' }}
+                                                -
+                                                {{ $sched->sub_Etime ? date('g:i A', strtotime($sched->sub_Etime)) : 'N/A' }}
+                                            </td>
                                             <td>{{ $sched->schoolyear_name }}</td>
                                             <td>{{ $sched->status_name }}</td>
                                             <td class ="text-center">

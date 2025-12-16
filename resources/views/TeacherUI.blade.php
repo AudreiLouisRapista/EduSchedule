@@ -78,7 +78,7 @@
                                             <td>{{ $teacher->sub_date }}</td>
                                             <td>{{ date('g:i A', strtotime($teacher->sub_Stime)) }} -
                                                 {{ date('g:i A', strtotime($teacher->sub_Etime)) }}</td>
-                                            <td>{{ $teacher->sched_year }}</td>
+                                            <td>{{ $teacher->schoolyear_id }}</td>
 
 
 

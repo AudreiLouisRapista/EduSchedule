@@ -265,25 +265,85 @@
                 </li>
 
 
-                {{-- Sections  --}}
+                {{-- Start PHP Block: DEFINE VARIABLES FIRST --}}
+                @php
+                    // 1. Check if the parent item should be active/open (User is on any related page)
+                    $section_parent_active = Route::is('view_section') || Route::is('section_loads');
+
+                    // 2. Define custom styling variables for cleaner HTML
+                    $active_bg_style =
+                        'background: #fff; color: #333; box-shadow: 0 5px 12px rgba(99, 101, 241, 0.67);';
+                    $inactive_style = 'background: transparent; color: #fff; box-shadow: none;';
+                    $sub_active_style = 'background: rgba(255, 255, 255, 0.3); color: #333;';
+                @endphp
+                {{-- End PHP Block --}}
+                {{-- SECTION Dropdown Parent Item --}}
                 <li class="nav-item">
-                    <a href="{{ route('view_section') }}"
-                        class="nav-link {{ Route::is('view_section') ? 'active' : '' }}"
+
+                    {{-- Main Toggle Link (Parent) --}}
+                    <a href="#sectionCollapse" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ $section_parent_active ? 'true' : 'false' }}"
+                        class="nav-link {{ $section_parent_active ? 'active' : '' }}"
                         style="
-                     display:flex; 
-                     align-items:center; 
-                     gap:10px; 
-                     padding:10px 15px;
-                     border-radius:30px;
-                     font-weight:500;
-                     color:{{ Route::is('view_section') ? '#333' : '#fff' }}; /* Suggested: Dark text for active, white for inactive */
-                     background:{{ Route::is('view_section') ? '#fff' : 'transparent' }}; /* Changed active to white */
-                     box-shadow:{{ Route::is('view_section') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
-                   ">
+                                    display:flex; 
+                                    align-items:center; 
+                                    gap:10px; 
+                                    padding:10px 15px;
+                                    border-radius:30px;
+                                    font-weight:500;
+                                    {{ $section_parent_active ? $active_bg_style : $inactive_style }}
+                                ">
                         <i class="bi bi-house-add-fill"></i>
-                        Sections
+
+                        Section
+                        <i class="fas fa-caret-down ms-auto"></i>
                     </a>
+
+                    {{-- Collapsible Child Links --}}
+                    <div id="sectionCollapse" class="collapse {{ $section_parent_active ? 'show' : '' }}"
+                        style="margin-left: 15px;">
+                        <ul class="nav flex-column">
+
+                            {{-- 1. View All Teachers --}}
+                            <li class="nav-item">
+                                <a href="{{ route('view_section') }}"
+                                    class="nav-link {{ Route::is('view_section') ? 'active' : '' }}"
+                                    style="
+                                            display:block; 
+                                            padding:8px 0 8px 10px;
+                                            font-weight:400;
+                                            border-radius:15px;
+                                            {{ Route::is('view_section') ? $sub_active_style : $inactive_style }}
+                                        ">
+                                    View All Section
+                                </a>
+                            </li>
+
+                            {{-- 2. Teacher Load View --}}
+                            <li class="nav-item">
+                                @php
+                                    // Check active state for the Teacher Load link
+                                    $is_section_load_active = Route::is('section_loads') || Route::is('teacher_loads');
+                                @endphp
+                                <a href="{{ route('section_loads') }}"
+                                    class="nav-link {{ $is_section_load_active ? 'active' : '' }}"
+                                    style="
+                                            display:block;
+                                            padding:8px 0 8px 10px;
+                                            font-weight:400;
+                                            border-radius:15px;
+                                            {{ $is_section_load_active ? $sub_active_style : $inactive_style }}
+                                        ">
+                                    Section Load
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
                 </li>
+
+
+
 
                 {{-- Schedules  --}}
                 <li class="nav-item">

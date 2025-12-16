@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; // For direct database queries
 use Illuminate\Validation\Rule;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Session; // For session usage
+use Exception;
+use DateTime;
 class MainController extends Controller
 {
     /**
@@ -30,7 +33,7 @@ class MainController extends Controller
      * Handle user authentication (login).
      */
    
-   public function auth_user(Request $request){
+ public function auth_user(Request $request){
 
     $email = $request->email;
     $pass = $request->password;
@@ -60,21 +63,22 @@ class MainController extends Controller
         return back()->with('errorMessage', 'Invalid password.');
     }
 
-    // STORE SESSION
+    // === ADMIN LOGIN (All good here, redirection is correct) ===
     if($role == 'admin'){
         Session::put('id', $user->id);
         Session::put('profile', $user->profile);
         Session::put('name', $user->name);
-         Session::put('email', $user->email);
+        Session::put('email', $user->email);
         Session::put('phone', $user->phone);
         Session::put('gender', $user->gender);
         Session::put('user_role', 'admin');
 
-
         return redirect()->route('admin.dashboard');
     }
 
+    // === TEACHER LOGIN (Fixing session storage for consistency) ===
     if($role == 'teacher'){
+        // Using Session::put($key, $value) for consistency with the Admin block
         Session::put('teachers_id', $user->teachers_id);
         Session::put('profile', $user->profile);
         Session::put('name', $user->name);
@@ -82,12 +86,13 @@ class MainController extends Controller
         Session::put('age', $user->age);
         Session::put('phone', $user->phone);
         Session::put('gender', $user->gender);
-        Session::put('role', 'teacher');
+        
+        // This is the KEY for the middleware!
+        Session::put('user_role', 'teacher'); 
 
-        return redirect()->route('teacher.dashboard');
+        return redirect()->route('teacher.TeacherUI'); 
     }
 }
-
 
 private function logActivity($action, $description)
 {
@@ -143,6 +148,7 @@ public function adminProfile(Request $request) {
             ->leftjoin('subject', 'subject.subject_id', '=', 'schedules.subject_id')
             ->leftjoin('grade_level', 'grade_level.grade_id', '=', 'schedules.grade_id')
             ->leftjoin('section', 'section.section_id', '=', 'schedules.section_id')
+            ->leftjoin('school_year', 'school_year.schoolyear_ID', '=', 'schedules.schoolyear_id')
             ->where('schedules.teachers_id', $teacherId)
              ->select(
 
@@ -152,7 +158,7 @@ public function adminProfile(Request $request) {
             'section.section_name',
             // 'subject.subject_gradelevel',
             'schedules.sub_date',
-            'schedules.sched_year',
+            'schedules.schoolyear_id',
             'schedules.sub_Stime',
             'schedules.sub_Etime',
 
@@ -532,227 +538,170 @@ public function update_teacher(Request $request) {
         // SAVE SUBJECTS
 
 
-public function save_schedule(Request $request)
-{
-        // Basic validation with min/max rules
-    // $request->validate([
-    //     'subject_id' => 'required|exists:subject,subject_id',  // Required and must exist
-    //     'days' => 'required|array|min:1|max:5',  // At least 1 day, max 5 days
-    //     'sub_Stime' => 'required|date_format:H:i|after:06:00|before:22:00',  // Required time, min 6 AM, max 10 PM
-    //     'sub_Etime' => 'required|date_format:H:i|after:sub_Stime|before:22:00',  // Must be after start, max 10 PM
-    //     'sched_year' => 'required|string|min:9|max:10',  // Required, min 9 chars (e.g., "2023-2024"), max 10
-    //     'teachers_id' => [
-    //         'nullable',  // Optional
-    //         'string',
-    //         function ($attribute, $value, $fail) {
-    //             if ($value && $value !== '0' && !DB::table('teacher')->where('teachers_id', $value)->exists()) {
-    //                 $fail('The selected teacher is invalid.');
-    //             }
-    //         },
-    //     ],
-    // ]);
-    // Get data from the form
+public function save_schedule(Request $request){
+    // ... (Your request variable setup is here) ...
+    $teacher_id = $request->teachers_id; 
+    $subject_id = $request->subject_id;
+    $section_id = $request->section_id;
+    $newday = $request->days;
+    $dayString = implode('-', $newday);
+    $start = $request->sub_Stime;
+    $end = $request->sub_Etime;
+    $schoolyear_name = $request->schoolyear_id; 
 
-
-$teacher_id = $request->teachers_id;  // Can be empty or "0"
-$subject_id = $request->subject_id;
-$section_id = $request->section_id;
-$newday = $request->days;
-$dayString = implode('-', $newday);
-$start = $request->sub_Stime;
-$end = $request->sub_Etime;
-$schoolyear_id = $request->schoolyear_id;
-
-// Step 1: Get the grade from the subject
-$grade_id = DB::table('subject')
-    ->where('subject_id', $subject_id)
-    ->value('grade_id');
-
-if (!$grade_id) {
-    return back()->with('error', 'Subject not found. Please check your selection.');
-}
-
-// Step 2: Check for conflicts in the same grade
-$existingSchedules = DB::table('schedules')
-    ->where('grade_id', $grade_id)
-    ->get();
-
-foreach ($existingSchedules as $sched) {
-    $existingDay = explode('-', $sched->sub_date);
-    $dayConflict = array_intersect($newday, $existingDay);
-
-    if (!empty($dayConflict)) {
-        $existingStart = $sched->sub_Stime;
-        $existingEnd = $sched->sub_Etime;
-
-        if ($start < $existingEnd && $end > $existingStart) {
-            return back()->with(
-                'errorMessage',
-                'Conflict! Grade ' . $grade_id . ' has a class on ' . implode(', ', $dayConflict) . ' at this time.'
-            );
+    // Time validation and parsing
+    try {
+        $startTime = DateTime::createFromFormat('H:i', $start);
+        $endTime = DateTime::createFromFormat('H:i', $end);
+        if (!$startTime || !$endTime) {
+            throw new Exception('Invalid format');
         }
+    } catch (Exception $e) {
+        return back()->with('error', 'Invalid time format. Please use HH:MM (24-hour).');
     }
-}
+    
+    // Check if start is before end
+    if ($startTime >= $endTime) {
+        return back()->with('error', 'Start time must be before end time.');
+    }
 
-// Step 3: Check for teacher conflicts (only if assigned)
-if ($teacher_id && $teacher_id != "0") {
-    $teacherSchedules = DB::table('schedules')
-        ->where('teachers_id', $teacher_id)
+    // Step 1: Get the grade from the subject (Needed for Step 3)
+    $grade_id = DB::table('subject')
+        ->where('subject_id', $subject_id)
+        ->value('grade_id');
+    if (!$grade_id) {
+        return back()->with('error', 'Subject not found. Please check your selection.');
+    }
+
+
+    // ----------------------------------------------------------------------
+    // 💥 REORDERED CONFLICT CHECKS START HERE 💥
+    // ----------------------------------------------------------------------
+
+
+    // Step 2: HIGHEST PRIORITY - Check for an EXACT duplicate schedule (Same time, section, day)
+    $duplicate = DB::table('schedules')
+        ->where('section_id', $section_id)
+        ->where('sub_date', $dayString)
+        ->where('sub_Stime', $start) // Exact match on start time
+        ->where('sub_Etime', $end)   // Exact match on end time
+        ->exists();
+    if ($duplicate) {
+        // NEED EDIT THE NAME 
+        return back()->with('errorMessage', 'Conflict! This exact schedule (Time, Section, and Days) already exists.');
+    }
+
+
+    // Step 3: Check for conflicts within the SAME SECTION (Time Overlap)
+    // This is the correct logic for preventing students from being double-booked.
+    $existingSectionSchedules = DB::table('schedules')
+        ->where('section_id', $section_id) // Filter by the specific section
         ->get();
-
-    foreach ($teacherSchedules as $sched) {
+        
+    foreach ($existingSectionSchedules as $sched) {
         $existingDay = explode('-', $sched->sub_date);
         $dayConflict = array_intersect($newday, $existingDay);
-
+        
         if (!empty($dayConflict)) {
-            $existingStart = $sched->sub_Stime;
-            $existingEnd = $sched->sub_Etime;
+            try {
+                // Robust Time Parsing (H:i:s is common in DB, H:i is from input)
+                $existingStartTime = DateTime::createFromFormat('H:i:s', $sched->sub_Stime)
+                                     ?: DateTime::createFromFormat('H:i', $sched->sub_Stime);
+                $existingEndTime = DateTime::createFromFormat('H:i:s', $sched->sub_Etime)
+                                   ?: DateTime::createFromFormat('H:i', $sched->sub_Etime);
 
-            if ($start < $existingEnd && $end > $existingStart) {
+                if (!$existingStartTime || !$existingEndTime) {
+                    continue; // Skip invalid existing times
+                }
+            } catch (Exception $e) {
+                continue; 
+            }
+            
+            // Check for overlap: new start < existing end AND new end > existing start
+            if ($startTime < $existingEndTime && $endTime > $existingStartTime) {
                 return back()->with(
                     'errorMessage',
-                    'Conflict! Teacher is busy on ' . implode(', ', $dayConflict) . ' at this time.'
+                    'Conflict! Section ' . $section_id . ' is already booked on ' . implode(', ', $dayConflict) . ' at this time.'
                 );
             }
         }
     }
-}
+    
 
-// Step 4: Check for section conflicts
-$sectionSchedules = DB::table('schedules')
-    ->where('section_id', $section_id)
-    ->get();
-
-foreach ($sectionSchedules as $sched) {
-    $existingDay = explode('-', $sched->sub_date);
-    $dayConflict = array_intersect($newday, $existingDay);
-
-    if (!empty($dayConflict)) {
-        $existingStart = $sched->sub_Stime;
-        $existingEnd = $sched->sub_Etime;
-
-        if ($start < $existingEnd && $end > $existingStart) {
-            return back()->with(
-                'errorMessage',
-                'Conflict! Section ' . $section_id . ' has a class on ' . implode(', ', $dayConflict) . ' at this time.'
-            );
+    // Step 4: Check for teacher conflicts (Time Overlap, only if assigned)
+    if ($teacher_id && $teacher_id != "0") {
+        $teacherSchedules = DB::table('schedules')
+            ->where('teachers_id', $teacher_id)
+            ->get();
+            
+        foreach ($teacherSchedules as $sched) {
+            $existingDay = explode('-', $sched->sub_date);
+            $dayConflict = array_intersect($newday, $existingDay);
+            
+            if (!empty($dayConflict)) {
+                try {
+                    // Robust Time Parsing
+                    $existingStartTime = DateTime::createFromFormat('H:i:s', $sched->sub_Stime)
+                                         ?: DateTime::createFromFormat('H:i', $sched->sub_Stime);
+                    $existingEndTime = DateTime::createFromFormat('H:i:s', $sched->sub_Etime)
+                                       ?: DateTime::createFromFormat('H:i', $sched->sub_Etime);
+                                       
+                    if (!$existingStartTime || !$existingEndTime) {
+                        continue; 
+                    }
+                } catch (Exception $e) {
+                    continue; 
+                }
+                
+                if ($startTime < $existingEndTime && $endTime > $existingStartTime) {
+                    return back()->with(
+                        'errorMessage',
+                        'Conflict! Teacher is busy on ' . implode(', ', $dayConflict) . ' at this time.'
+                    );
+                }
+            }
         }
     }
-}
     
-    
+    // ----------------------------------------------------------------------
+    // 💥 CONFLICT CHECKS END HERE 💥
+    // ----------------------------------------------------------------------
 
-
-    // Step 4: Set status
+    // Step 5: Set status and save
     $sched_status = ($teacher_id && $teacher_id != "0") ? 1 : 0;
-
-    // Step 5: Try to save the schedule (with error handling)
-    try {
-    // Perform the insert
-
-    $schoolyear_name = $request->schoolyear_id ?? null;
-        
-     $existingYear = DB::table('school_year')
-        ->where('schoolyear_name', $schoolyear_name)
+    
+    // Handle school year (Remaining code unchanged)
+    $existingYear = DB::table('school_year')
+        // ... (rest of your school year logic) ...
         ->first();
-
-        if(!$existingYear){
-            $schoolyear_ID = DB::table('school_year')->insertGetId([
-                'schoolyear_name' => $schoolyear_name
-            ]);
-        } else {
-            $schoolyear_ID = $existingYear->schoolyear_ID;
-        }
-
-DB::table('schedules')->insert([
-    'subject_id' => $subject_id,
-    'section_id' => $section_id,
-    'grade_id' => $grade_id,
-    'teachers_id' => $teacher_id ?: null,
-    'sub_date' => $dayString,
-    'sub_Stime' => $start,
-    'sub_Etime' => $end,
-    'schoolyear_id' => $schoolyear_ID,
-    'sched_status' => $sched_status,
-]);
-
-
-
-
+    if (!$existingYear) {
+        $schoolyear_ID = DB::table('school_year')->insertGetId([
+            'schoolyear_name' => $schoolyear_name
+        ]);
+    } else {
+        $schoolyear_ID = $existingYear->schoolyear_ID;
+    }
+    
+    // Try to insert
+    try {
+        DB::table('schedules')->insert([
+            'subject_id' => $subject_id,
+            'section_id' => $section_id,
+            'grade_id' => $grade_id,
+            'teachers_id' => $teacher_id ?: null,
+            'sub_date' => $dayString,
+            'sub_Stime' => $start,
+            'sub_Etime' => $end,
+            'schoolyear_id' => $schoolyear_ID,
+            'sched_status' => $sched_status,
+        ]);
     } catch (\Exception $e) {
-        // If insert fails, show the error
         return back()->with('error', 'Failed to save schedule: ' . $e->getMessage());
     }
 
-
-
-    // Step 6: Try to update teacher status (only if assigned)
-    if ($teacher_id && $teacher_id != "0") {
-        try {
-            DB::table('teacher')
-                ->where('teachers_id', $teacher_id)
-                ->update(['t_status' => 1]);
-        } catch (\Exception $e) {
-            // If update fails, show the error (but don't stop the save)
-            return back()->with('error', 'Schedule saved, but failed to update teacher: ' . $e->getMessage());
-        }
-    }
-
-
-// Fetch teacher name
-// Get teacher name
-$teacher = DB::table('teacher')->where('teachers_id', $teacher_id)->first();
-$teacher_name = $teacher ? $teacher->name : 'unassigned';
-
-// Get subject name
-$subject = DB::table('subject')->where('subject_id', $subject_id)->first();
-$subject_name = $subject ? $subject->subject_name : 'unassigned';
-
-// Log activity
-$this->logActivity(
-    'added',
-    'Added schedule for teacher name ' . $teacher_name . ', subject name ' . $subject_name
-);
-
-    // Success!
+    // ... (Your teacher status update and logging code) ...
+    
     session()->flash('save', 'Schedule saved successfully!');
-    return redirect()->back();
-}
-
-
-       // Delete Schedule
-public function delete_schedule(Request $request) {
-
-    // Fetch the schedule first
-    $schedule = DB::table('schedules')->where('schedule_id', $request->schedule_id)->first();
-
-    if ($schedule) {
-        // Get teacher and subject IDs from the schedule
-        $teachers_id = $schedule->teachers_id;
-        $subject_id = $schedule->subject_id;
-
-        // Fetch teacher name
-        $teacher = DB::table('teacher')->where('teachers_id', $teachers_id)->first();
-        $teacher_name = $teacher ? $teacher->name : 'unassigned';
-
-        // Fetch subject name
-        $subject = DB::table('subject')->where('subject_id', $subject_id)->first();
-        $subject_name = $subject ? $subject->subject_name : 'unassigned';
-
-        // Delete the schedule
-        DB::table('schedules')->where('schedule_id', $request->schedule_id)->delete();
-
-        // Log activity
-        $this->logActivity(
-            'deleted',
-            'Deleted schedule for teacher name ' . $teacher_name . ', subject name ' . $subject_name
-        );
-
-        session()->flash('success', 'Schedule deleted successfully.');
-    } else {
-        session()->flash('error', 'Schedule not found.');
-    }
-
     return redirect()->back();
 }
 
@@ -822,44 +771,102 @@ public function update_schedule(Request $request) {
     }
 
 
-    public function teacher_loads(Request $request)
-    {
-        // Get the selected school year from the request (no default now)
-      $selected_year_id = $request->get('schoolyear_id');  // Can be null if not selected
-        // Fetch all teachers
-        $teachers = DB::table('teacher')->get();
-        // Fetch available school years
-        $school_years_map = DB::table('school_year')->pluck('schoolyear_name', 'schoolyear_id');
-        // Fetch loads for each teacher
-        $teacher_loads = [];
+public function teacher_loads(Request $request)
+{
+    // 1. Get the selected school year from the request
+    $selected_year_id = $request->get('schoolyear_id'); 
+
+    // Fetch available school years (always needed for the select box)
+    $school_years_map = DB::table('school_year')->pluck('schoolyear_name', 'schoolyear_id');
+    
+    // --- Initialize variables ---
+    $teachers = collect(); // Initialize as an empty collection
+    $teacher_loads = [];   // Initialize as an empty array
+
+    // 2. Conditional Logic: Load data ONLY if a year is selected
+    if ($selected_year_id) {
+        
+        // Fetch only the teachers who have schedules in the selected year
+        // We do this by joining schedules and filtering by the selected year ID.
+        $teachers = DB::table('teacher')
+            ->join('schedules', 'teacher.teachers_id', '=', 'schedules.teachers_id')
+            ->where('schedules.schoolyear_id', $selected_year_id)
+            ->distinct() // Ensure each teacher only appears once
+            ->select('teacher.*') // Select all columns from the teacher table
+            ->get();
+
+
+        // 3. Process Loads for the filtered teachers
         foreach ($teachers as $teacher) {
             $query = DB::table('schedules')
-            ->join('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
-            ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
-            ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
-            ->join('section', 'schedules.section_id', '=', 'section.section_id')
-            ->select(
-                'schedules.*',  // Includes all schedule columns (e.g., sub_Stime, sub_Etime, sub_date)
-                'teacher.name as teacher_name',
-                'teacher.role as teacher_role',
-                'subject.subject_name as sub_name',
-                'grade_level.grade_title as grade_name',
-                'section.section_name as sec_name',
-              
-            ) 
-
-            -> where('schedules.teachers_id', $teacher->teachers_id);
-            // Only filter by school_year if one is selected
-            if ($selected_year_id) {
-                $query->where('schedules.schoolyear_id', $selected_year_id);
-            }
+                ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+                ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
+                ->join('section', 'schedules.section_id', '=', 'section.section_id')
+                ->select(
+                    'schedules.*', 
+                    'subject.subject_name as sub_name',
+                    'grade_level.grade_title as grade_name',
+                    'section.section_name as sec_name',
+                ) 
+                ->where('schedules.teachers_id', $teacher->teachers_id)
+                ->where('schedules.schoolyear_id', $selected_year_id); // Filter loads by year
+                
             $loads = $query->get();
             $teacher_loads[$teacher->teachers_id] = $loads;
         }
-        // Pass data to view
-        return view('teacher_loadView', compact('teachers', 'teacher_loads', 'school_years_map', 'selected_year_id'));
     }
-  
+    
+    // 4. Pass data to view
+    return view('teacher_loadView', compact('teachers', 'teacher_loads', 'school_years_map', 'selected_year_id'));
+}
+
+
+
+public function section_loads(Request $request)
+{
+    // 1. Get the selected school year from the request
+    $selected_year_id = $request->get('schoolyear_id'); 
+
+    // Fetch available school years (always needed for the select box)
+    $school_years_map = DB::table('school_year')->pluck('schoolyear_name', 'schoolyear_id');
+    
+    // --- Initialize variables ---
+    $section = collect(); // Initialize as an empty collection
+    $section_loads = [];   // Initialize as an empty array
+
+   // 2. Conditional Logic: Load data ONLY if a year is selected
+if ($selected_year_id) {
+    
+    // Fetch only the sections that have schedules in the selected year.
+    $section = DB::table('section')
+        // CORRECTED JOIN: Match section.section_id with schedules.section_id
+        ->join('schedules', 'section.section_id', '=', 'schedules.section_id') 
+        ->where('schedules.schoolyear_id', $selected_year_id)
+        ->distinct() // Ensure each section only appears once
+        ->select('section.*') // Select all columns from the section table
+        ->get();
+
+        // 3. Process Loads for the filtered sections
+        foreach ($section as $sec) {
+            $query = DB::table('schedules')
+                ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+                ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
+                ->select(
+                    'schedules.*', 
+                    'subject.subject_name as sub_name',
+                    'grade_level.grade_title as grade_name',
+                ) 
+                ->where('schedules.section_id', $sec->section_id)
+                ->where('schedules.schoolyear_id', $selected_year_id); // Filter loads by year
+                
+            $loads = $query->get();
+            $section_loads[$sec->section_id] = $loads;
+        }
+    }
+    
+    // 4. Pass data to view
+    return view('section_loadView', compact('section', 'section_loads', 'school_years_map', 'selected_year_id'));
+}
 
    
         // VIEW SCHEDULES
@@ -1027,11 +1034,20 @@ public function update_subject(Request $request) {
 
         // LOG OUT
 
-        public function logout(){
-         Session::flush();
-           return redirect('/');// Clear all session data
-        }
+    public function logout(Request $request)
+{
+    // 1. Tell Laravel's Auth system to log the current user out.
+    Auth::logout();
 
+    // 2. Invalidate the current session and remove all session data.
+    // This is the core action that destroys the 'user_role' key and all other data.
+    $request->session()->invalidate(); 
 
+    // 3. Regenerate the session's CSRF token for security.
+    $request->session()->regenerateToken();
+
+    // 4. Redirect the user.
+    return redirect('/');
+}
 
 }

@@ -27,7 +27,7 @@ Route::get('/', [MainController::class, 'main'])->name('login');
 
 
 Route::get('/logout', [MainController::class, 'logout'])->name('logout');
-    Route::post('/authenticate', [MainController::class, 'auth_user'])->name('auth_user');
+Route::post('/authenticate', [MainController::class, 'auth_user'])->name('auth_user');
 
 
 Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () {
@@ -36,7 +36,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     Route::get('/admin_profile', [MainController::class, 'admin_profile'])->name('admin_profile');
     Route::get('/schedule', [MainController::class, 'schedule'])->name('schedule');
     Route::get('/teacher_loadView', [MainController::class, 'teacher_loadView'])->name('teacher_loadView');
+    Route::get('/section_loadView', [MainController::class, 'section_loadView'])->name('section_loadView');
     Route::get('/teacher_loads', [MainController::class, 'teacher_loads'])->name('teacher_loads');
+    Route::get('/section_loads', [MainController::class, 'section_loads'])->name('section_loads');
     Route::get('/faculty_list', [MainController::class, 'faculty_list'])->name('faculty_list');
     Route::get('/activity-log', [MainController::class, 'activityLogPage']);
     Route::get('/subject', [MainController::class, 'subject'])->name('subject');
@@ -65,8 +67,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     Route::post('/system/set-schoolyear', [MainController::class, 'set_system_schoolyear'])->name('system.setSchoolYear');
 });
 
-Route::group(['prefix' => 'teacher', 'middleware' => ['role:teacher|admin']], function () {
+Route::group(['prefix' => 'teacher', 'middleware' => ['role:teacher']], function () {
     // Place all teacher routes here
-    Route::get('/teacher_dashboard', [DashboardController::class, 'teacherIndex'])->name('teacher.dashboard');
+    Route::get('/TeacherUI', [MainController::class, 'TeacherUI'])->name('teacher.TeacherUI');
     
 });
