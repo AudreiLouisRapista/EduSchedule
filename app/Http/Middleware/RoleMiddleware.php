@@ -10,39 +10,31 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, $roles): Response
     {
-        // 1. Fetch user role and convert it to uppercase for consistency
-        $userRole = strtoupper($request->session()->get('user_role', '')); 
-        // Example: If session is 'admin', $userRole is 'ADMIN'
-        // Example: If session is   'Teacher', $userRole is 'TEACHER'
+        // 1. Get role from session (lowercase)
+        $userRole = $request->session()->get('user_role', '');
 
-        // 2. Authentication Check
+        // 2. Not logged in?
         if (empty($userRole)) {
-            return redirect('/login')->with('error', 'Please log in to access this page.');
+            return redirect('/login')->with('error', 'Please log in.');
         }
 
-        // 3. ADMIN Bypass (Now checking the uppercase 'ADMIN')
-        if ($userRole === 'ADMIN') {
-            return $next($request); // <-- ADMIN is granted access regardless of route role
+        // 3. ADMIN can access everything
+        if ($userRole === 'admin') {
+            return $next($request);
         }
 
-        // 4. Standard Role Authorization Check
-        // Convert the required roles from the route (e.g., 'admin' or 'teacher') to uppercase
-        $allowedRoles = array_map('strtoupper', explode('|', $roles));
+        // 4. Check if the current user role is allowed for this specific route
+        $allowedRoles = explode('|', $roles); // expects 'teacher' or 'admin|teacher'
         
-        // Check if the user's role is in the allowed list
-   if (!in_array($userRole, $allowedRoles)) {
-    // Role mismatch denial - Redirect the user to their known dashboard or the login page.
-    
-    // Check if the user is a Teacher and send them to the Teacher UI
-    if ($userRole === 'TEACHER') {
-        return redirect('/teacher/TeacherUI')->with('error', 'Access Denied. You do not have permission for that page.');
-    }
+        if (in_array($userRole, $allowedRoles)) {
+            return $next($request);
+        }
 
-    // Default denial: For any other role trying to access a page they shouldn't, 
-    // send them to the base URL or the login page.
-    return redirect('/login')->with('error', 'Access Denied. You do not have the required permissions.');
-}
-        // 5. Proceed
-        return $next($request);
+        // 5. If a Teacher tries to go to an Admin page, send them back to TeacherUI
+        if ($userRole === 'Teacher') {
+            return redirect()->route('Teacher.TeacherUI')->with('error', 'Access Denied.');
+        }
+
+        return redirect('/');
     }
 }

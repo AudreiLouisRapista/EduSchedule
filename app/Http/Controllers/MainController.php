@@ -33,64 +33,58 @@ class MainController extends Controller
      * Handle user authentication (login).
      */
    
- public function auth_user(Request $request){
-
+public function auth_user(Request $request) {
     $email = $request->email;
     $pass = $request->password;
 
-    // Check admin first
     $admin = DB::table('admin')->where('email', $email)->first();
-
-    // Check teacher
     $teacher = DB::table('teacher')->where('email', $email)->first();
+    // dd($admin, $teacher);
 
-    // USER FOUND?
     if(!$admin && !$teacher){
         return back()->with('errorMessage', 'User not found.');
     }
 
-    // Determine correct user and role
-    if($admin){
-        $user = $admin;
-        $role = 'admin';
-    } else {
-        $user = $teacher;
-        $role = 'teacher';
-    }
+    // Determine user and role
+    $user = $admin ? $admin : $teacher;
+    $role = $admin ? 'admin' : 'Teacher';
+    // dd($user, $role);
 
-    // CHECK PASSWORD
     if(!Hash::check($pass, $user->password)){
         return back()->with('errorMessage', 'Invalid password.');
     }
 
-    // === ADMIN LOGIN (All good here, redirection is correct) ===
+    // Clear old session data first to prevent role mixing
+    Session::flush();
+
+    // Store common data
+    // Session::put('id', $user->id ?? $user->teachers_id);
+    Session::put('name', $user->name);
+    Session::put('email', $user->email);
+    Session::put('user_role', $role); 
+    Session::put('profile', $user->profile);
+    Session::put('phone', $user->phone);
+    Session::put('gender', $user->gender);
+    
+    
+    // This saves 'admin' or 'teacher'
+
     if($role == 'admin'){
         Session::put('id', $user->id);
-        Session::put('profile', $user->profile);
+        Session::put('user_role', $role); 
         Session::put('name', $user->name);
         Session::put('email', $user->email);
+        Session::put('profile', $user->profile);
         Session::put('phone', $user->phone);
         Session::put('gender', $user->gender);
-        Session::put('user_role', 'admin');
-
+        Session::save(); // CRITICAL
         return redirect()->route('admin.dashboard');
-    }
+    } else {
+    // dd(session('name'),session('email'),session('user_role'));   
 
-    // === TEACHER LOGIN (Fixing session storage for consistency) ===
-    if($role == 'teacher'){
-        // Using Session::put($key, $value) for consistency with the Admin block
-        Session::put('teachers_id', $user->teachers_id);
-        Session::put('profile', $user->profile);
-        Session::put('name', $user->name);
-        Session::put('email', $user->email);
-        Session::put('age', $user->age);
-        Session::put('phone', $user->phone);
-        Session::put('gender', $user->gender);
-        
-        // This is the KEY for the middleware!
-        Session::put('user_role', 'teacher'); 
-
-        return redirect()->route('teacher.TeacherUI'); 
+        Session::put('id', $user->teachers_id);
+        // Session::save(); // CRITICAL
+        return redirect()->route('Teacher.TeacherUI');
     }
 }
 
@@ -132,47 +126,91 @@ public function adminProfile(Request $request) {
         'updated',
         'Updated teacher ID ' . $admins . ': ' . $request->name
     );
-    session()->flash('update', 'Teacher updated successfully.');
+    session()->flash('update', 'Admin updated successfully.');
     return redirect()->back();
+}
+
+public function Update_teacherProfile(Request $request, $id) { // Accept $id from route
+    
+    // Handle the image upload
+    $imageName = $request->hidden_profile; // Fallback to old image if no new one
+    if ($request->hasFile('profile')) {
+        $imageName = time().'.'.$request->profile->extension();  
+        $request->profile->move(public_path('profiles'), $imageName);
+    }
+
+    DB::table('teacher')
+        ->where('teachers_id', $id) // Use the ID passed from the route
+        ->update([
+            'teachers_id' => $request->teachers_id,
+            'email'   => $request->email,
+            'name'    => $request->name,
+            'gender'  => $request->gender,
+            'phone'   => $request->phone,
+            'profile' => $imageName,
+        ]);
+
+    $this->logActivity('updated', "Updated teacher ID $id: $request->name");
+    
+    return redirect()->back()->with('update', 'Teacher updated successfully.');
 }
 
 
 
 
-    public function TeacherUI(){
-
-     $teacherId = session ('teachers_id');
-
-    $teacher_ui = DB::table('schedules')
-            ->leftjoin('teacher', 'teacher.teachers_id', '=', 'schedules.teachers_id')
-            ->leftjoin('subject', 'subject.subject_id', '=', 'schedules.subject_id')
-            ->leftjoin('grade_level', 'grade_level.grade_id', '=', 'schedules.grade_id')
-            ->leftjoin('section', 'section.section_id', '=', 'schedules.section_id')
-            ->leftjoin('school_year', 'school_year.schoolyear_ID', '=', 'schedules.schoolyear_id')
-            ->where('schedules.teachers_id', $teacherId)
-             ->select(
-
-            'teacher.teachers_id',
-            'subject.subject_name',
-            'grade_level.grade_title',
-            'section.section_name',
-            // 'subject.subject_gradelevel',
-            'schedules.sub_date',
-            'schedules.schoolyear_id',
-            'schedules.sub_Stime',
-            'schedules.sub_Etime',
-
-
-
-
-        )
-            ->get();
-
-
-    return view('TeacherUI', compact('teacher_ui'));
-
-
+public function TeacherUI(Request $request) {
+    // 1. Get the logged-in teacher's ID from the session
+    $teacherId = session('id'); 
+    
+    if (!$teacherId) {
+        return redirect()->route('login')->with('error', 'Session expired.');
     }
+
+    // 2. Data for the dropdown
+    $school_years_map = DB::table('school_year')->pluck('schoolyear_name', 'schoolyear_id');
+    $selected_year_id = $request->get('schoolyear_id');
+
+    // 3. Fetch specific teacher profile info
+    $teachers = DB::table('teacher')
+        ->where('teachers_id', $teacherId)
+        ->select(
+            'teachers_id', 
+            'email as teacher_email', 
+            'name as teacher_name', 
+            'phone as teacher_phone', 
+            'gender as teacher_gender', 
+            'profile as teacher_profile'
+        )
+        ->get();
+
+    // 4. Fetch the specific teacher's schedule/loads
+    $query = DB::table('schedules')
+        ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+        ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
+        ->join('section', 'schedules.section_id', '=', 'section.section_id')
+        ->where('schedules.teachers_id', $teacherId) // Only this teacher
+        ->select(
+            'schedules.*', 
+            'schedules.create_at',
+            'subject.subject_name as sub_name',
+            'grade_level.grade_title as grade_name',
+            'section.section_name as sec_name'
+        );
+
+    // Filter by year if selected
+    if ($selected_year_id) {
+        $query->where('schedules.schoolyear_id', $selected_year_id);
+    }
+
+    $teacher_ui = $query->get();
+
+    return view('TeacherUI', compact('teachers', 'teacher_ui', 'school_years_map', 'selected_year_id'));
+}
+
+
+
+
+
 
     /**
      * Show the dashboard view.

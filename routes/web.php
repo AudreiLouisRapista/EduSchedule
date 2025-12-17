@@ -67,8 +67,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     Route::post('/system/set-schoolyear', [MainController::class, 'set_system_schoolyear'])->name('system.setSchoolYear');
 });
 
-Route::group(['prefix' => 'teacher', 'middleware' => ['role:teacher']], function () {
+// Route::group(['prefix' => 'Teacher', 'middleware' => ['role:Teacher']], function () {
     // Place all teacher routes here
-    Route::get('/TeacherUI', [MainController::class, 'TeacherUI'])->name('teacher.TeacherUI');
-    
-});
+    Route::get('/TeacherUI', [MainController::class, 'TeacherUI'])->name('Teacher.TeacherUI');
+    Route::post('/teacher/update/{id}', [MainController::class, 'Update_teacherProfile'])->name('Update_teacherProfile'); 
+
+
+// });  

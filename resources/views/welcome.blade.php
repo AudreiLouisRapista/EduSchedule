@@ -26,8 +26,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background:
-                linear-gradient(135deg, #8002ef, #2427e3);
+            background-color: #f7f2f2;
 
             /* The main teal background color */
             padding: 20px;
