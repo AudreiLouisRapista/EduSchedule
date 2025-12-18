@@ -1,3 +1,5 @@
+@section('title', 'Login')
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -351,11 +353,8 @@
                             placeholder="••••••••••" required>
                     </div>
 
-                    <div class="forgot-password">
-                        <a href="#">Forgot your password?</a>
-                    </div>
 
-                    <button type="submit" class="login-btn">Log In</button>
+                    <button type="submit" class="login-btn" style="margin-top: 25px;">Log In</button>
                 </form>
                 <p style="text-align: center; margin-top: 30px;">Click the icons to meet the Developer</p>
                 <div class="social-icons">

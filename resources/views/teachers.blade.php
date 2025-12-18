@@ -10,93 +10,66 @@
         <p style="margin-left: 50px;">Manage faculty members and their class assignments</p>
     </div>
 
-    <section class="content" style = "width: 1400 px; margin-left: 20px; margin-top: 20px;">
-        <div class="container-fluid;">
+    <section class="content" style="max-width: 1400px; margin-left: 20px; margin-top: 20px;">
+        <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <div class="card" style=" border-radius: 30px; background:#fff; padding:20px">
+                    <div class="card" style="border-radius: 30px; background:#fff; padding:20px">
                         <div class="card-header" style="background:#fff;">
-                            <h3 class="card-title">Faculty list</h3>
-                            <!-- Button trigger modal -->
+                            <h5 class="card-title fs-4 fw-bold m-0">Faculty List</h5>
+
 
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#addTeacherModal"
-                                style="float: right; border-radius: 20px; background-color: #4CAF50; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); transition: background-color 0.3s ease;">
+                                style="float: right; border-radius: 20px; background-color: #4CAF50; border: none; padding: 10px 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
                                 Add Teacher
                             </button>
 
-                            <!-- Modal -->
                             <div class="modal fade" id="addTeacherModal" tabindex="-1"
                                 aria-labelledby="addTeacherModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-lg">
                                     <div class="modal-content" style="border-radius: 20px;">
-                                        <!-- Square-ish rounded corners -->
-                                        <div class="modal-header">
+                                        <div class="modal-header bg-primary">
                                             <h5 class="modal-title" id="addTeacherModalLabel">Add Teacher</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
                                             @include('layout.partials.alerts')
-
                                             <form method="POST" action="{{ route('save_teacher') }}"
                                                 enctype="multipart/form-data">
                                                 @csrf
-
-                                                <!-- Row for Email and Fullname side by side -->
                                                 <div class="row mb-3">
                                                     <div class="col-md-6">
-                                                        <label for="email" class="form-label">Email:</label>
-                                                        <input type="email" name="email" id="email"
-                                                            class="form-control" placeholder="Enter your email"
+                                                        <label class="form-label">Email:</label>
+                                                        <input type="email" name="email" class="form-control"
                                                             value="{{ old('email') }}" required>
-                                                        @error('email')
-                                                            <span class="text-danger small">{{ $message }}</span>
-                                                        @enderror
                                                     </div>
-
-
                                                     <div class="col-md-6">
-                                                        <label for="name" class="form-label">Fullname:</label>
-                                                        <input type="text" name="name" id="name"
-                                                            class="form-control" placeholder="Enter your fullname"
+                                                        <label class="form-label">Fullname:</label>
+                                                        <input type="text" name="name" class="form-control"
                                                             value="{{ old('name') }}" required>
-                                                        @error('name')
-                                                            <span class="text-danger small">{{ $message }}</span>
-                                                        @enderror
                                                     </div>
                                                 </div>
 
-                                                <!-- Age and Phone side by side -->
                                                 <div class="row mb-3">
                                                     <div class="col-md-6">
-                                                        <label for="age" class="form-label">Age:</label>
-                                                        <input type="text" name="age" id="age"
-                                                            class="form-control" placeholder="Enter your age"
+                                                        <label class="form-label">Age:</label>
+                                                        <input type="number" name="age" class="form-control"
                                                             value="{{ old('age') }}" required>
-                                                        @error('age')
-                                                            <span class="text-danger small">{{ $message }}</span>
-                                                        @enderror
                                                     </div>
-
-
                                                     <div class="col-md-6">
-                                                        <label for="phone" class="form-label">Phone Number:</label>
-                                                        <input type="number" name="phone" id="phone"
-                                                            class="form-control" placeholder="Enter your phone number"
+                                                        <label class="form-label">Phone Number:</label>
+                                                        <input type="text" name="phone" class="form-control"
                                                             value="{{ old('phone') }}" required>
-                                                        @error('phone')
-                                                            <span class="text-danger small">{{ $message }}</span>
-                                                        @enderror
                                                     </div>
                                                 </div>
 
-                                                <!-- Gender and Role side by side -->
                                                 <div class="row mb-3">
                                                     <div class="col-md-6">
-                                                        <label for="gender" class="form-label">Gender:</label>
-                                                        <select name="gender" id="gender" class="form-select" required>
-                                                            <option value="">-- SELECT Gender --</option>
+                                                        <label class="form-label">Gender:</label>
+                                                        <select name="gender" class="form-select" required>
+                                                            <option value="">-- Select --</option>
                                                             <option value="male"
                                                                 {{ old('gender') == 'male' ? 'selected' : '' }}>Male
                                                             </option>
@@ -104,93 +77,49 @@
                                                                 {{ old('gender') == 'female' ? 'selected' : '' }}>Female
                                                             </option>
                                                         </select>
-                                                        @error('gender')
-                                                            <span class="text-danger small">{{ $message }}</span>
-                                                        @enderror
                                                     </div>
-
-                                                    <!-- Major in what subject -->
-
                                                     <div class="col-md-6">
-                                                        <label for="teacher_major" class="form-label">Major in:</label>
-                                                        <select name="teacher_major" id="teacher_major" class="form-select"
-                                                            required>
-                                                            <option value="">-- SELECT MAJOR --</option>
-                                                            <option value="English"
-                                                                {{ old('teacher_major') == 'English' ? 'selected' : '' }}>
-                                                                English</option>
-                                                            <option value="Filipino"
-                                                                {{ old('teacher_major') == 'Filipino' ? 'selected' : '' }}>
-                                                                Filipino</option>
-                                                            <option value="Mathematics"
-                                                                {{ old('teacher_major') == 'Mathematics' ? 'selected' : '' }}>
-                                                                Mathematics</option>
-                                                            <option value="Science"
-                                                                {{ old('teacher_major') == 'Science ' ? 'selected' : '' }}>
-                                                                Science </option>
-                                                            <option value="History"
-                                                                {{ old('teacher_major') == 'History' ? 'selected' : '' }}>
-                                                                History </option>
-                                                            <option value="TLE"
-                                                                {{ old('teacher_major') == 'TLE' ? 'selected' : '' }}>TLE
-                                                            </option>
-                                                            <option value="PE"
-                                                                {{ old('teacher_major') == 'PE' ? 'selected' : '' }}>PE
-                                                            </option>
+                                                        <label class="form-label">Major in:</label>
+                                                        <select name="teacher_major" class="form-select" required>
+                                                            <option value="">-- Select --</option>
+                                                            <option value="English">English</option>
+                                                            <option value="Mathematics">Mathematics</option>
+                                                            <option value="Science">PE</option>
+                                                            <option value="Mathematics">Social work</option>
+                                                            <option value="Science">Filipino</option>
                                                         </select>
-                                                        @error('teacher_major')
-                                                            <span class="text-danger small">{{ $message }}</span>
-                                                        @enderror
                                                     </div>
                                                 </div>
 
                                                 <div class="row mb-3">
                                                     <div class="col-md-6">
-                                                        <label for="role" class="form-label">Role:</label>
-                                                        <input type="text" name="role" id="role"
-                                                            class="form-control" value="{{ old('role', 'Teacher') }}">
-                                                        @error('role')
-                                                            <span class="text-danger small">{{ $message }}</span>
-                                                        @enderror
+                                                        <label class="form-label">Role:</label>
+                                                        <input type="text" name="role" class="form-control"
+                                                            value="Teacher">
                                                     </div>
-
-
-                                                    <!-- Profile Image -->
                                                     <div class="col-md-6">
-                                                        <label for="profile_image" class="form-label">Profile
-                                                            Image:</label>
-                                                        <input type="file" name="profile_image" id="profile_image"
-                                                            class="form-control" required>
-                                                        @error('profile_image')
-                                                            <span class="text-danger small">{{ $message }}</span>
-                                                        @enderror
+                                                        <label class="form-label">Profile Image:</label>
+                                                        <input type="file" name="profile_image" class="form-control"
+                                                            required>
                                                     </div>
+                                                    <input type="hidden" name="t_status" value="0">
                                                 </div>
 
-                                                <input type="hidden" name="t_status" value="0">
-
-                                                <div class="text-center mt-4">
-                                                    <button type="submit" class="btn btn-primary w-100">Register</button>
-                                                </div>
-
+                                                <button type="submit" class="btn btn-primary w-100 mt-3">Register</button>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-
-
                         </div>
-                        <!-- /.card-header -->
+
                         <div class="card-body">
                             <table id="example2" class="table table-bordered table-hover">
-                                <thead>
+                                <thead style="text-align: center;">
                                     <tr>
-
                                         <th>Email</th>
                                         <th>Name</th>
-                                        <th>Age</th>
                                         <th>Phone</th>
                                         <th>Major</th>
                                         <th>Status</th>
@@ -200,161 +129,244 @@
                                 <tbody>
                                     @foreach ($view_teachers as $teacher)
                                         <tr>
-
                                             <td>
-                                                @if ($teacher->profile)
-                                                    <img src="{{ asset('storage/' . $teacher->profile) }}"
-                                                        class="img-circle elevation-2" alt="User Image"
-                                                        style="width:30px; height:30px; object-fit:cover; border-radius:50%; margin-right:10px;">
-                                                @else
-                                                    <img src="{{ asset('dist/img/default.png') }}"
-                                                        class="img-circle elevation-2" alt="Default Image">
-                                                @endif
+                                                <img src="{{ $teacher->profile ? asset('storage/' . $teacher->profile) : asset('dist/img/default.png') }}"
+                                                    style="width:30px; height:30px; object-fit:cover; border-radius:50%; margin-right:10px;">
                                                 {{ $teacher->email }}
                                             </td>
                                             <td>{{ $teacher->name }}</td>
-                                            <td>{{ $teacher->age }}</td>
                                             <td>{{ $teacher->phone }}</td>
-                                            <td>{{ $teacher->teacher_major }}</td>
-                                            <td>{{ $teacher->status_name }}</td>
-                                            <td class ="text-center">
-                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                    data-target="#deleteTeacherModal{{ $teacher->teachers_id }}">
-                                                    <i class="bi bi-person-dash"></i>
+                                            <td style="text-align: center;">
+                                                <span class="badge"
+                                                    style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 500; border-radius: 6px; padding: 5px 10px;">
+                                                    {{ $teacher->teacher_major }}
+                                                </span>
+                                            </td>
 
-                                                </button>
-
-                                                <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                    data-target="#UpdateTeacherModal{{ $teacher->teachers_id }}">
-                                                    <i class="bi bi-pen"></i>
-
-                                                </button>
+                                            <td style="text-align: center;">
+                                                @if ($teacher->t_status == 1)
+                                                    {{-- Soft Green for Assigned (Status 1) --}}
+                                                    <span class="badge"
+                                                        style="background-color: #ecfdf5; color: #06bd4c; border: 1px solid #a7f3d0; font-weight: 600; border-radius: 50px; padding: 4px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;">
+                                                        <span
+                                                            style="width: 7px; height: 7px; background-color: #10b981; border-radius: 50%;"></span>
+                                                        {{ $teacher->status_name }}
+                                                    </span>
+                                                @else
+                                                    {{-- Soft Red for Unassigned (Status 0) --}}
+                                                    <span class="badge"
+                                                        style="background-color: #fff1f2; color: #ff2d2d; border: 1px solid #fecdd3; font-weight: 600; border-radius: 50px; padding: 4px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;">
+                                                        <span
+                                                            style="width: 7px; height: 7px; background-color: #f43f5e; border-radius: 50%;"></span>
+                                                        {{ $teacher->status_name }}
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <button class="btn btn-sm"
+                                                        style="background-color: #f0fdf4; color: #06bd4c; border: 1px solid #dcfce7; border-radius: 8px; padding: 6px 10px; transition: 0.3s;"
+                                                        onmouseover="this.style.backgroundColor='#dcfce7'"
+                                                        onmouseout="this.style.backgroundColor='#f0fdf4'"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#UpdateTeacherModal{{ $teacher->teachers_id }}">
+                                                        <i class="bi bi-pen" style="font-size: 14px;"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
 
-
-                                        <!-- Delete Teacher Modal -->
-                                        <div class="modal fade" id="deleteTeacherModal{{ $teacher->teachers_id }}"
-                                            tabindex="-1" role="dialog"
-                                            aria-labelledby="deleteTeacherModalLabel{{ $teacher->teachers_id }}"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
+                                        {{-- <div class="modal fade" id="deleteTeacherModal{{ $teacher->teachers_id }}"
+                                            tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
                                                 <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title"
-                                                            id="deleteTeacherModalLabel{{ $teacher->teachers_id }}">
-                                                            Deactivate Teacher</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
+                                                    <div class="modal-header bg-danger">
+                                                        <h5 class="modal-title">Unassigned Teacher</h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
                                                     </div>
                                                     <div class="modal-body text-center">
-                                                        <p>Are you sure you want to deactivate {{ $teacher->name }}?</p>
+                                                        <p>Are you sure you want to Unassigned <b>{{ $teacher->name }}</b>?
+                                                            the status will be updated if the schedule of the Teacher
+                                                            is less than 5
+                                                        </p>
                                                         <form method="POST" action="{{ route('deact_teacher') }}">
                                                             @csrf
                                                             <input type="hidden" name="teachers_id"
                                                                 value="{{ $teacher->teachers_id }}">
                                                             <button type="submit"
-                                                                class="btn btn-danger">Deactivate</button>
+                                                                class="btn btn-danger">Unassigned</button>
                                                             <button type="button" class="btn btn-secondary"
-                                                                data-dismiss="modal">Cancel</button>
+                                                                data-bs-dismiss="modal">Cancel</button>
                                                         </form>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
 
-
-
-
-                                        <!-- Update Teacher Modal -->
                                         <div class="modal fade" id="UpdateTeacherModal{{ $teacher->teachers_id }}"
-                                            tabindex="-1" role="dialog"
-                                            aria-labelledby="UpdateTeacherModalLabel{{ $teacher->teachers_id }}"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
+                                            tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
                                                 <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title"
-                                                            id="UpdateTeacherModal{{ $teacher->teachers_id }}">Update
-                                                            Teacher</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
+                                                    <div class="modal-header bg-primary">
+                                                        <h5 class="modal-title">Update Teacher</h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
                                                     </div>
-                                                    <div class="modal-body text-center">
-
-
+                                                    <div class="modal-body">
                                                         <form method="POST"
                                                             action="{{ route('update_teacher', $teacher->teachers_id) }}">
                                                             @csrf
-
-                                                            <div class="form-group">
-                                                                <label>Email</label>
-                                                                <input type="email" name="email"
-                                                                    value="{{ $teacher->email }}" class="form-control"
-                                                                    required>
-                                                            </div>
-
-
-                                                            <div class="form-group">
-                                                                <label>Name</label>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Name</label>
                                                                 <input type="text" name="name"
                                                                     value="{{ $teacher->name }}" class="form-control"
                                                                     required>
                                                             </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Gender</label>
+                                                                <select name="gender" class="form-select" required>
+                                                                    <option value="male"
+                                                                        {{ $teacher->gender == 'male' ? 'selected' : '' }}>
+                                                                        Male</option>
+                                                                    <option value="female"
+                                                                        {{ $teacher->gender == 'female' ? 'selected' : '' }}>
+                                                                        Female</option>
+                                                                </select>
+                                                            </div>
 
-                                                            <div class="form-group">
-                                                                <label>Phone</label>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Email</label>
+                                                                <input type="text" name="email"
+                                                                    value="{{ $teacher->email }}" class="form-control"
+                                                                    required>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Phone</label>
                                                                 <input type="number" name="phone"
                                                                     value="{{ $teacher->phone }}" class="form-control"
                                                                     required>
                                                             </div>
 
-
-                                                            <div class="form-group">
-                                                                <label>Age</label>
-                                                                <input type="number" name="age"
-                                                                    value="{{ $teacher->age }}" class="form-control"
-                                                                    required>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Major</label>
+                                                                <input type="text" name="major"
+                                                                    value="{{ $teacher->teacher_major }}"
+                                                                    class="form-control" required>
                                                             </div>
 
-                                                            <label>Gender:</label>
-                                                            <select name="gender" required>
-                                                                <option value="">-- SELECT Gender --</option>
-                                                                <option value="{{ $teacher->phone }}"
-                                                                    {{ old('gender') == 'male' ? 'selected' : '' }}>Male
-                                                                </option>
-                                                                <option value="{{ $teacher->phone }}"
-                                                                    {{ old('gender') == 'female' ? 'selected' : '' }}>
-                                                                    Female</option>
-
-                                                            </select>
-                                                            @error('gender')
-                                                                <span class="error-message">{{ $message }}</span>
-                                                            @enderror
+                                                            <input type="hidden" name="age"
+                                                                value="{{ $teacher->age }}">
 
 
-
-
-                                                            <button type="submit" class="btn btn-primary">Update</button>
+                                                            <button type="submit"
+                                                                class="btn btn-primary w-100">Update</button>
                                                         </form>
                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endforeach
                                 </tbody>
                             </table>
-
-
                         </div>
-                        <!-- /.card-body -->
                     </div>
-
-                    <!-- /.col -->
                 </div>
-                <!-- /.row -->
             </div>
-            <!-- /.container-fluid -->
+        </div>
     </section>
+
+
+    <style>
+        /* 1. Fix the vertical distance (The "Too High" gap) */
+        .dataTables_wrapper .row:first-child {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* 2. Style the search box to be sleek and professional */
+        .dataTables_filter {
+            margin: 0 !important;
+            /* Removes default spacing pushing it down */
+        }
+
+        .dataTables_filter input {
+            width: 250px !important;
+            height: 38px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            /* Modern rounded look */
+            background-color: #f8fafc !important;
+            padding-left: 35px !important;
+            /* Space for an icon */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            transition: all 0.2s ease;
+        }
+
+        .dataTables_filter input:focus {
+            border-color: #3b82f6 !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            outline: none;
+        }
+
+        /* 3. Match the Button heights to the search box */
+        .dt-button {
+            height: 38px !important;
+            display: flex !important;
+            align-items: center !important;
+            font-weight: 500 !important;
+            border-radius: 12px !important;
+        }
+    </style>
+@endsection
+
+@section('tables')
+    <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('plugins/jszip/jszip.min.js') }}"></script>
+    <script src="{{ asset('plugins/pdfmake/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('plugins/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+
+    <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.DataTable.isDataTable('#example2')) {
+                $('#example2').DataTable().destroy();
+            }
+
+            var table = $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "buttons": ["excel", "pdf", "print"],
+                // This 'dom' configuration groups Buttons (B) and Filter (f) in one row
+                "dom": '<"d-flex align-items-end justify-content-between mb-4"Bf>rtip',
+                "language": {
+                    "search": "", // Removes the default "Search:" text
+                    "searchPlaceholder": "Search faculty..."
+                }
+            });
+
+            // 1. Move buttons to the container first
+            table.buttons().container().appendTo('#example2_wrapper .col-md-6:eq(0)');
+
+
+        });
+    </script>
 @endsection

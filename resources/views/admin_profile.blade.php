@@ -1,194 +1,340 @@
 @extends('themes.main')
 
 @section('content_header')
-    <section class="content">
+    <style>
+        /* Aesthetic Improvements */
+        .profile-card {
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .profile-img-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .edit-overlay {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #4e73df;
+            color: white;
+            border-radius: 50%;
+            padding: 5px 10px;
+            cursor: pointer;
+            border: 3px solid #fff;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #858796;
+            font-weight: 700;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #3a3b45;
+            font-weight: 600;
+        }
+
+        .activity-item {
+            border-left: 3px solid #e3e6f0;
+            padding-left: 20px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .activity-item::before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            top: 0;
+            width: 13px;
+            height: 13px;
+            background: #fff;
+            border: 3px solid #4e73df;
+            border-radius: 50%;
+        }
+    </style>
+
+    <section class="content py-4">
         <div class="container-fluid">
-
             <div class="row justify-content-center">
+                <div class="col-md-10" style="margin-top: 30px;">
+                    <div class="card border-0 shadow-lg" style="border-radius: 25px; overflow: hidden; background: #fff;">
 
-                <!-- Profile Container (Full Card) -->
-                <div class="col-md-8" style="margin-top: 30px;">
+                        <div style="height: 100px; background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);"></div>
 
-                    <div class="card shadow-lg" style="border-radius: 20px; padding: 25px;">
+                        <div class="card-body pt-0 px-5 pb-5">
+                            <div class="row">
+                                <div class="col-md-4 text-center" style="margin-top: -50px;">
+                                    <div class="position-relative d-inline-block">
+                                        <img class="rounded-circle shadow border border-white"
+                                            src="{{ asset('storage/' . session('profile')) }}"
+                                            style="width:150px; height:150px; object-fit:cover; border-width: 5px !important;">
 
-                        <div class="row">
+                                        <button class="btn btn-primary btn-sm position-absolute rounded-circle shadow"
+                                            style="bottom: 5px; right: 5px; width: 38px; height: 38px; border: 3px solid #fff;"
+                                            data-toggle="modal" data-target="#updateAdmin">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                    </div>
+                                    <h3 class="mt-3 font-weight-bold mb-0 text-dark">{{ session('name') }}</h3>
+                                    <span class="badge badge-soft-primary px-3 py-1 rounded-pill"
+                                        style="background: #eef2ff; color: #4e73df;">{{ session('role') }}</span>
+                                </div>
 
-                            <!-- LEFT SIDE: PROFILE IMAGE -->
-                            <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
-                                <img class="img-fluid rounded-circle shadow"
-                                    src="{{ asset('storage/' . session('profile')) }}"
-                                    style="width:150px; height:150px; object-fit:cover; border:4px solid #586bff;">
+                                <div class="col-md-8 pt-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <h5 class="font-weight-bold text-secondary mb-0">Personal Details</h5>
+                                        <button class="btn btn-sm btn-light border rounded-pill px-3" data-toggle="modal"
+                                            data-target="#updateAdmin">
+                                            Update Account
+                                        </button>
+                                        <div class="modal fade" id="updateAdmin" tabindex="-1" role="dialog"
+                                            aria-labelledby="updateAdminLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
 
-                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#updateAdmin">
-                                    <i class="bi bi-pen"></i>
-                                </button>
+                                                    <div class="modal-header border-0 pt-4 px-4">
+                                                        <h5 class="modal-title font-weight-bold text-dark"
+                                                            id="updateAdminLabel">
+                                                            <i class="bi bi-person-gear mr-2 text-primary"></i> Edit Profile
+                                                            Settings
+                                                        </h5>
+                                                        <button type="button" class="btn-close shadow-none"
+                                                            data-dismiss="modal" aria-label="Close"
+                                                            style="background: none; border: none; font-size: 1.5rem;">&times;</button>
+                                                    </div>
 
-                                <div class="modal fade" id="updateAdmin" tabindex="-1" role="dialog"
-                                    aria-labelledby="updateAdmin" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                        <div class="modal-content" style="border-radius: 20px;">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Update Schedule</h5>
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                            </div>
+                                                    @foreach ($admins as $admin)
+                                                        <form method="POST" <form method="POST"
+                                                            action="{{ route('adminProfile', $admin->id) }}"
+                                                            enctype="multipart/form-data">
 
-                                            @foreach ($admins as $admin)
-                                                <div class="modal-body">
-                                                    <form method="POST" action="{{ route('adminProfile', $admin->id) }}">
-                                                        @csrf
+                                                            @csrf
+                                                            <div class="modal-body px-4">
 
-                                                        <div class="form-group">
-                                                            <label>Email</label>
-                                                            <input type="email" name="email" value="{{ $admin->email }}"
-                                                                class="form-control" required>
-                                                        </div>
+                                                                <div class="text-center mb-4">
+                                                                    <label for="profileUpload" style="cursor: pointer;"
+                                                                        class="position-relative">
+                                                                        <img src="{{ asset('storage/' . session('profile')) }}"
+                                                                            class="rounded-circle border shadow-sm"
+                                                                            style="width: 100px; height: 100px; object-fit: cover;"
+                                                                            id="previewImg">
+                                                                        <div class="position-absolute"
+                                                                            style="bottom: 0; right: 0; background: #4e73df; color: #fff; border-radius: 50%; padding: 4px 8px; font-size: 12px; border: 2px solid #fff;">
+                                                                            <i class="bi bi-camera"></i>
+                                                                        </div>
+                                                                    </label>
+                                                                    <input type="file" name="profile" id="profileUpload"
+                                                                        class="d-none" accept="image/*"
+                                                                        onchange="previewFile(this)">
+                                                                    <p class="small text-muted mt-2">Click photo to upload
+                                                                        new image</p>
+                                                                </div>
 
+                                                                <div class="form-group mb-3">
+                                                                    <label
+                                                                        class="small font-weight-bold text-muted text-uppercase">Full
+                                                                        Name</label>
+                                                                    <input type="text" name="name"
+                                                                        value="{{ $admin->name }}"
+                                                                        class="form-control form-control-lg border-0 bg-light"
+                                                                        style="border-radius: 12px; font-size: 0.95rem;"
+                                                                        required>
+                                                                </div>
 
-                                                        <div class="form-group">
-                                                            <label>Name</label>
-                                                            <input type="text" name="name" value="{{ $admin->name }}"
-                                                                class="form-control" required>
-                                                        </div>
+                                                                <div class="form-group mb-3">
+                                                                    <label
+                                                                        class="small font-weight-bold text-muted text-uppercase">Email
+                                                                        Address</label>
+                                                                    <input type="email" name="email"
+                                                                        value="{{ $admin->email }}"
+                                                                        class="form-control form-control-lg border-0 bg-light"
+                                                                        style="border-radius: 12px; font-size: 0.95rem;"
+                                                                        required>
+                                                                </div>
 
-                                                        <div class="form-group">
-                                                            <label>Phone</label>
-                                                            <input type="number" name="phone" value="{{ $admin->phone }}"
-                                                                class="form-control" required>
-                                                        </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-6 form-group mb-3">
+                                                                        <label
+                                                                            class="small font-weight-bold text-muted text-uppercase">Phone</label>
+                                                                        <input type="number" name="phone"
+                                                                            value="{{ $admin->phone }}"
+                                                                            class="form-control form-control-lg border-0 bg-light"
+                                                                            style="border-radius: 12px; font-size: 0.95rem;"
+                                                                            required>
+                                                                    </div>
+                                                                    <div class="col-md-6 form-group mb-3">
+                                                                        <label
+                                                                            class="small font-weight-bold text-muted text-uppercase">Gender</label>
+                                                                        <select name="gender"
+                                                                            class="form-control form-control-lg border-0 bg-light text-capitalize"
+                                                                            style="border-radius: 12px; font-size: 0.95rem;"
+                                                                            required>
+                                                                            <option value="male"
+                                                                                {{ $admin->gender == 'male' ? 'selected' : '' }}>
+                                                                                Male</option>
+                                                                            <option value="female"
+                                                                                {{ $admin->gender == 'female' ? 'selected' : '' }}>
+                                                                                Female</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
 
+                                                            </div>
 
-
-
-                                                        <label>Gender:</label>
-                                                        <select name="gender" required>
-                                                            <option value="">-- SELECT Gender --</option>
-                                                            <option value="{{ $admin->phone }}"
-                                                                {{ old('gender') == 'male' ? 'selected' : '' }}>Male
-                                                            </option>
-                                                            <option value="{{ $admin->phone }}"
-                                                                {{ old('gender') == 'female' ? 'selected' : '' }}>
-                                                                Female</option>
-
-
-                                                            <label for="profile">
-                                                                Profile Picture:
-                                                                <input type="file" name="profile" id="profile"
-                                                                    accept="image/*">
-
-                                                            </label>
-
-                                                        </select>
-                                                        @error('gender')
-                                                            <span class="error-message">{{ $message }}</span>
-                                                        @enderror
-
-
-
-
-                                                        <button type="submit" class="btn btn-primary">Update</button>
-                                                    </form>
-
+                                                            <div class="modal-footer border-0 px-4 pb-4">
+                                                                <button type="button"
+                                                                    class="btn btn-light rounded-pill px-4 font-weight-bold"
+                                                                    data-dismiss="modal">Cancel</button>
+                                                                <button type="submit"
+                                                                    class="btn btn-primary rounded-pill px-4 font-weight-bold shadow">Save
+                                                                    Changes</button>
+                                                            </div>
+                                                        </form>
+                                                    @endforeach
                                                 </div>
-                                            @endforeach
+                                            </div>
+                                        </div>
+
+                                        <script>
+                                            function previewFile(input) {
+                                                var file = $("input[type=file]").get(0).files[0];
+                                                if (file) {
+                                                    var reader = new FileReader();
+                                                    reader.onload = function() {
+                                                        $("#previewImg").attr("src", reader.result);
+                                                    }
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }
+                                        </script>
+                                    </div>
+
+                                    @foreach ($admins as $admin)
+                                        <div class="row">
+                                            <div class="col-sm-6 mb-4">
+                                                <label
+                                                    class="text-muted small font-weight-bold text-uppercase mb-1 d-block">Full
+                                                    Name</label>
+                                                <p class="text-dark font-weight-600 mb-0">{{ $admin->name }}</p>
+                                            </div>
+                                            <div class="col-sm-6 mb-4">
+                                                <label
+                                                    class="text-muted small font-weight-bold text-uppercase mb-1 d-block">Email
+                                                    Address</label>
+                                                <p class="text-dark font-weight-600 mb-0">{{ $admin->email }}</p>
+                                            </div>
+                                            <div class="col-sm-6 mb-4">
+                                                <label
+                                                    class="text-muted small font-weight-bold text-uppercase mb-1 d-block">Phone
+                                                    Number</label>
+                                                <p class="text-dark font-weight-600 mb-0">{{ $admin->phone }}</p>
+                                            </div>
+                                            <div class="col-sm-6 mb-4">
+                                                <label
+                                                    class="text-muted small font-weight-bold text-uppercase mb-1 d-block">Gender</label>
+                                                <p class="text-dark font-weight-600 mb-0 text-capitalize">
+                                                    {{ $admin->gender }}</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 mt-4 mb-5">
+                                <div class="card border-0 shadow-sm" style="border-radius: 20px; background: #ffffff;">
+
+                                    <div class="card-header bg-transparent border-0 pt-4 px-4">
+                                        <h5 class="mb-0 font-weight-bold" style="color: #334155;">
+                                            <i class="bi bi-activity text-primary mr-2"></i> Recent Activity Log
+                                        </h5>
+                                        <p class="text-muted small mb-0">Track your most recent system changes</p>
+                                    </div>
+
+                                    <div class="card-body px-4 pb-4">
+                                        <div
+                                            style="max-height: 400px; overflow-y: auto; padding-right: 15px; scrollbar-width: thin;">
+
+                                            <div class="timeline-container"
+                                                style="position: relative; padding-left: 20px; border-left: 2px solid #e2e8f0; margin-left: 10px;">
+
+                                                @foreach ($logs as $log)
+                                                    @php
+                                                        // Keeping your existing logic exactly as you had it
+                                                        switch ($log->action) {
+                                                            case 'added':
+                                                                $bgColor = 'rgba(0, 128, 0, 0.15)';
+                                                                $textColor = '#166534';
+                                                                $dotColor = '#22c55e';
+                                                                break;
+                                                            case 'updated':
+                                                                $bgColor = 'rgba(255, 165, 0, 0.15)';
+                                                                $textColor = '#9a3412';
+                                                                $dotColor = '#f97316';
+                                                                break;
+                                                            case 'deleted':
+                                                                $bgColor = 'rgba(255, 0, 0, 0.15)';
+                                                                $textColor = '#991b1b';
+                                                                $dotColor = '#ef4444';
+                                                                break;
+                                                            default:
+                                                                $bgColor = '#f1f5f9';
+                                                                $textColor = '#475569';
+                                                                $dotColor = '#94a3b8';
+                                                        }
+                                                    @endphp
+
+                                                    <div class="mb-4 position-relative">
+                                                        <div
+                                                            style="position: absolute; left: -27px; top: 5px; width: 12px; height: 12px; background: {{ $dotColor }}; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 2px {{ $bgColor }};">
+                                                        </div>
+
+                                                        <div class="p-3"
+                                                            style="background: #f8fafc; border-radius: 12px; transition: transform 0.2s ease;">
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-start mb-1">
+                                                                <span
+                                                                    style="background: {{ $bgColor }}; color: {{ $textColor }}; padding: 2px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                                    {{ $log->action }}
+                                                                </span>
+                                                                <small class="text-muted font-italic"
+                                                                    style="font-size: 11px;">
+                                                                    <i class="bi bi-clock-history mr-1"></i>
+                                                                    {{ $log->created_at->diffForHumans() }}
+                                                                </small>
+                                                            </div>
+
+                                                            <p class="mb-0"
+                                                                style="font-size: 14px; color: #334155; line-height: 1.5;">
+                                                                {{ $log->description }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- RIGHT SIDE: PROFILE INFORMATION -->
-                            <div class="col-md-8">
-
-                                <h2 class="mb-1">{{ session('name') }}</h2>
-                                <p class="text-muted" style="font-size: 14px;">{{ session('role') }}</p>
-
-
-                                <hr>
-                                @foreach ($admins as $admin)
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <strong>Email</strong>
-                                            <p>{{ $admin->email }}</p>
-                                        </div>
-
-                                        <div class="col-sm-6">
-                                            <strong>Name</strong>
-                                            <p>{{ $admin->name }}</p>
-                                        </div>
-
-
-                                        <div class="col-sm-6">
-                                            <strong>Phone</strong>
-                                            <p>{{ $admin->phone }}</p>
-                                        </div>
-
-                                        <div class="col-sm-6">
-                                            <strong>Gender</strong>
-                                            <p>{{ $admin->gender }}</p>
-                                        </div>
-                                    </div>
-                                @endforeach
-
-                            </div>
-
                         </div>
-
                     </div>
-
-                </div>
+                </section>
 
             </div>
-
         </div>
     </section>
 
-    <section class="content ">
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-12">
-                    <div class="card" style="border-radius: 10px; padding:15px;">
-
-                        <!-- Role above Name -->
-                        <h4 style="margin: 0; font-size: 20px; font-weight: 600; text-align:center;">
-                            Recent Activity
-                        </h4>
-
-                        <!-- Activity Log Section -->
-                        <div class="activity-log mt-4">
-                            <ul style="list-style-type: none; padding: 0; max-height: 300px; overflow-y: auto;">
-                                @foreach ($logs as $log)
-                                    @php
-                                        // Set styles based on action
-                                        switch ($log->action) {
-                                            case 'added':
-                                                $bgColor = 'rgba(0, 128, 0, 0.2)'; // green
-                                                $textColor = '#28a745';
-                                                break;
-                                            case 'updated':
-                                                $bgColor = 'rgba(255, 165, 0, 0.2)'; // orange
-                                                $textColor = 'orange';
-                                                break;
-                                            case 'deleted':
-                                                $bgColor = 'rgba(255, 0, 0, 0.2)'; // red
-                                                $textColor = '#E3242B';
-                                                break;
-                                            default:
-                                                $bgColor = 'transparent';
-                                                $textColor = '#000';
-                                        }
-                                    @endphp
-                                    <li style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                                        <p style="margin: 0; font-size: 14px; color: #555;">
-                                            <strong
-                                                style="background: {{ $bgColor }}; color: {{ $textColor }}; padding: 3px 8px; border-radius: 12px;">
-                                                {{ ucfirst($log->action) }}
-                                            </strong> - {{ $log->description }}
-                                        </p>
-                                        <span style="font-size: 12px; color: gray;">
-                                            {{ $log->created_at->diffForHumans() }}
-                                        </span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-    </section>
+    {{-- @include('partials.admin_modal') --}}
 @endsection

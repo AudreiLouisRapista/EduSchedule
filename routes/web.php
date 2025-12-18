@@ -38,6 +38,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     Route::get('/teacher_loadView', [MainController::class, 'teacher_loadView'])->name('teacher_loadView');
     Route::get('/section_loadView', [MainController::class, 'section_loadView'])->name('section_loadView');
     Route::get('/teacher_loads', [MainController::class, 'teacher_loads'])->name('teacher_loads');
+    Route::get('/print_teacher_load/{id}/{year}', [MainController::class, 'print_teacher_load'])->name('teacher.print_pdf');
     Route::get('/section_loads', [MainController::class, 'section_loads'])->name('section_loads');
     Route::get('/faculty_list', [MainController::class, 'faculty_list'])->name('faculty_list');
     Route::get('/activity-log', [MainController::class, 'activityLogPage']);
@@ -51,7 +52,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     Route::get('/view_grade1', [MainController::class, 'view_grade1'])->name('view_grade1');
     Route::get('/view_grade2', [MainController::class, 'view_grade2'])->name('view_grade2');
     Route::get('/teacher_status', [MainController::class, 'teacher_status'])->name('teacher_status');
-    Route::get('/update_subject', [MainController::class, 'update_subject'])->name('update_subject');
     Route::get('/updateTeacherStatus', [MainController::class, 'updateTeacherStatus'])->name('updateTeacherStatus');
     Route::post('/save_teacher', [MainController::class, 'save_teacher'])->name('save_teacher');
     Route::post('/save_schedule', [MainController::class, 'save_schedule'])->name('save_schedule');
@@ -61,7 +61,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     Route::post('/deact_teacher', [MainController::class, 'deact_teacher'])->name('deact_teacher');
     Route::post('/delete_schedule', [MainController::class, 'delete_schedule'])->name('delete_schedule');
     Route::post('/update_schedule', [MainController::class, 'update_schedule'])->name('update_schedule');
-    Route::post('/adminProfile', [MainController::class, 'adminProfile'])->name('adminProfile');
+    Route::post('/update_subject', [MainController::class, 'update_subject'])->name('update_subject');
+    Route::post('/update_section', [MainController::class, 'update_section'])->name('update_section');
+    Route::post('/delete-schedule', [MainController::class, 'delete_schedule'])->name('delete_schedule');
+
+   // Add {id} to the URL
+    Route::post('/admin-profile/{id}', [MainController::class, 'adminProfile'])->name('adminProfile');
 
     Route::post('/update_teacher/{teachers_id}', [MainController::class, 'update_teacher'])->name('update_teacher');
     Route::post('/system/set-schoolyear', [MainController::class, 'set_system_schoolyear'])->name('system.setSchoolYear');
@@ -71,6 +76,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () 
     // Place all teacher routes here
     Route::get('/TeacherUI', [MainController::class, 'TeacherUI'])->name('Teacher.TeacherUI');
     Route::post('/teacher/update/{id}', [MainController::class, 'Update_teacherProfile'])->name('Update_teacherProfile'); 
+
+
 
 
 // });  

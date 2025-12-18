@@ -10,7 +10,7 @@
         <p style="margin-left: 50px;">Manage Subjects and their class assignments</p>
     </div>
 
-    <section class="content" style="width: 1400px; margin-left: 20px; margin-top: 20px;">
+    <section class="content mt-4">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
@@ -194,13 +194,14 @@
 
                         <!-- DATATABLE -->
                         <div class="card-body">
-                            <table id="example1" class="table table-bordered table-striped">
+                            <table id="example2" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
                                         <th>Year Level</th>
                                         <th>Strand</th>
                                         <th>Subject Name</th>
                                         <th>Grade Level</th>
+
 
                                     </tr>
                                 </thead>
@@ -232,46 +233,94 @@
             </div>
         </div>
     </section>
+    <style>
+        /* 1. Fix the vertical distance (The "Too High" gap) */
+        .dataTables_wrapper .row:first-child {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
 
+        /* 2. Style the search box to be sleek and professional */
+        .dataTables_filter {
+            margin: 0 !important;
+            /* Removes default spacing pushing it down */
+        }
+
+        .dataTables_filter input {
+            width: 250px !important;
+            height: 38px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            /* Modern rounded look */
+            background-color: #f8fafc !important;
+            padding-left: 35px !important;
+            /* Space for an icon */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            transition: all 0.2s ease;
+        }
+
+        .dataTables_filter input:focus {
+            border-color: #3b82f6 !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            outline: none;
+        }
+
+        /* 3. Match the Button heights to the search box */
+        .dt-button {
+            height: 38px !important;
+            display: flex !important;
+            align-items: center !important;
+            font-weight: 500 !important;
+            border-radius: 12px !important;
+        }
+    </style>
 @endsection
 
 @section('tables')
-    <!-- DataTables  & Plugins -->
-    <script src="../../plugins/datatables/jquery.dataTables.min.js"></script>
-    <script src="../../plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../../plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="../../plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-    <script src="../../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="../../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-    <script src="../../plugins/jszip/jszip.min.js"></script>
-    <script src="../../plugins/pdfmake/pdfmake.min.js"></script>
-    <script src="../../plugins/pdfmake/vfs_fonts.js"></script>
-    <script src="../../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-    <script src="../../plugins/datatables-buttons/js/buttons.print.min.js"></script>
-    <script src="../../plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="../../dist/js/adminlte.min.js"></script>
-    <!-- AdminLTE for demo purposes -->
-    <script src="../../dist/js/demo.js"></script>
-    <!-- Page specific script -->
+    <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('plugins/jszip/jszip.min.js') }}"></script>
+    <script src="{{ asset('plugins/pdfmake/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('plugins/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+
+    <script src="{{ asset('dist/js/adminlte.min.js') }}"></script>
     <script>
-        $(function() {
-            $("#example1").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "autoWidth": false,
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-            $('#example2').DataTable({
+        $(document).ready(function() {
+            if ($.fn.DataTable.isDataTable('#example2')) {
+                $('#example2').DataTable().destroy();
+            }
+
+            var table = $('#example2').DataTable({
                 "paging": true,
                 "lengthChange": false,
-                "searching": false,
+                "searching": true,
                 "ordering": true,
                 "info": true,
                 "autoWidth": false,
                 "responsive": true,
+                "buttons": ["excel", "pdf", "print"],
+                // This 'dom' configuration groups Buttons (B) and Filter (f) in one row
+                "dom": '<"d-flex align-items-end justify-content-between mb-4"Bf>rtip',
+                "language": {
+                    "search": "", // Removes the default "Search:" text
+                    "searchPlaceholder": "Search subject..."
+                }
             });
+
+            // 1. Move buttons to the container first
+            table.buttons().container().appendTo('#example2_wrapper .col-md-6:eq(0)');
+
+
         });
     </script>
-
 @endsection

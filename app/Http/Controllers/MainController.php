@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; // For direct database queries
 use Illuminate\Validation\Rule;
 use App\Models\ActivityLog;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Session; // For session usage
 use Exception;
 use DateTime;
@@ -106,55 +107,58 @@ private function logActivity($action, $description)
     return view('admin_profile', compact('admins','logs'));
 }
 
-public function adminProfile(Request $request) {
-    $admins = $request->id;
+    public function adminProfile(Request $request, $id) { 
+        // Now $request is argument #1 and $id is argument #2
+        
+        $updateData = [
+            'email'  => $request->email,
+            'name'   => $request->name,
+            'gender' => $request->gender,
+            'phone'  => $request->phone,
+        ];
 
+        if ($request->hasFile('profile')) {
+            $path = $request->file('profile')->store('profiles', 'public');
+            $updateData['profile'] = $path;
+            session(['profile' => $path]);
+        }
 
+        DB::table('admin')->where('id', $id)->update($updateData);
 
-    DB::table('admin')
-        ->where('id', $admins)
-        ->update([
+        session(['name' => $request->name]);
 
-            'email'    => $request->email,
-            'name'     => $request->name,
-            'gender'     => $request->gender,
-            'phone'    => $request->phone,
-            'profile'    => $request->profile,
-        ]);
+        $this->logActivity('updated', 'Updated Admin Profile: ' . $request->name);
 
-         $this->logActivity(
-        'updated',
-        'Updated teacher ID ' . $admins . ': ' . $request->name
-    );
-    session()->flash('update', 'Admin updated successfully.');
-    return redirect()->back();
-}
-
-public function Update_teacherProfile(Request $request, $id) { // Accept $id from route
-    
-    // Handle the image upload
-    $imageName = $request->hidden_profile; // Fallback to old image if no new one
-    if ($request->hasFile('profile')) {
-        $imageName = time().'.'.$request->profile->extension();  
-        $request->profile->move(public_path('profiles'), $imageName);
+        session()->flash('update', 'Profile updated successfully.');
+        return redirect()->back();
     }
 
-    DB::table('teacher')
-        ->where('teachers_id', $id) // Use the ID passed from the route
-        ->update([
-            'teachers_id' => $request->teachers_id,
-            'email'   => $request->email,
-            'name'    => $request->name,
-            'gender'  => $request->gender,
-            'phone'   => $request->phone,
-            'profile' => $imageName,
-        ]);
+public function Update_teacherProfile(Request $request, $id) {
+    // 1. Prepare data - Ensure keys match your DB column names exactly
+    $updateData = [
+        'teacher_name'   => $request->name,
+        'teacher_email'  => $request->email,
+        'teacher_phone'  => $request->phone,
+        'teacher_gender' => $request->gender,
+    ];
 
-    $this->logActivity('updated', "Updated teacher ID $id: $request->name");
-    
-    return redirect()->back()->with('update', 'Teacher updated successfully.');
+    // 2. Handle Image Upload
+    if ($request->hasFile('profile')) {
+        $path = $request->file('profile')->store('teachers', 'public');
+        
+        // FIX: Change 'profile' to 'teacher_profile' 
+        // to match what your Blade file is looking for
+        $updateData['teacher_profile'] = $path; 
+    }
+
+    // 3. Update DB
+    DB::table('teacher')->where('teachers_id', $id)->update($updateData);
+
+    // 4. Log the activity
+    $this->logActivity('updated', 'Updated profile for Teacher: ' . $request->name);
+
+    return redirect()->back()->with('update', 'Teacher updated successfully!');
 }
-
 
 
 
@@ -212,7 +216,7 @@ public function TeacherUI(Request $request) {
 
 
 
-    /**
+    /**s
      * Show the dashboard view.
      */
    public function dashboard()
@@ -266,6 +270,58 @@ public function TeacherUI(Request $request) {
         )
         ->get();
 
+    $view_grade3 = DB::table('schedules')
+        ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
+        ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+        ->where('schedules.grade_id', 9)
+        ->select(
+            'subject.subject_name as sub_name',
+            'teacher.name as teacher_name',
+            'schedules.sub_date',
+            'schedules.sub_Stime',
+             'schedules.sub_Etime'
+        )
+        ->get();
+
+         $view_grade4 = DB::table('schedules')
+        ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
+        ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+        ->where('schedules.grade_id', 10)
+        ->select(
+            'subject.subject_name as sub_name',
+            'teacher.name as teacher_name',
+            'schedules.sub_date',
+            'schedules.sub_Stime',
+             'schedules.sub_Etime'
+        )
+        ->get();
+
+         $view_grade5 = DB::table('schedules')
+        ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
+        ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+        ->where('schedules.grade_id', 11)
+        ->select(
+            'subject.subject_name as sub_name',
+            'teacher.name as teacher_name',
+            'schedules.sub_date',
+            'schedules.sub_Stime',
+             'schedules.sub_Etime'
+        )
+        ->get();
+
+         $view_grade6 = DB::table('schedules')
+        ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
+        ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+        ->where('schedules.grade_id', 12)
+        ->select(
+            'subject.subject_name as sub_name',
+            'teacher.name as teacher_name',
+            'schedules.sub_date',
+            'schedules.sub_Stime',
+             'schedules.sub_Etime'
+        )
+        ->get();
+
             $logs = ActivityLog::whereIn('action', ['added','updated','deleted'])
                    ->latest()
                    ->take(10)
@@ -288,6 +344,10 @@ public function TeacherUI(Request $request) {
         'grade6Count',
         'view_grade1',
         'view_grade2',
+        'view_grade3',
+        'view_grade4',
+        'view_grade5',
+        'view_grade6',
         'logs',
         'view_schedule',
         // 'schoolYears'
@@ -298,7 +358,7 @@ public function TeacherUI(Request $request) {
 
 
 
-   public function save_section(Request $request){
+public function save_section(Request $request){
 
 
        // 1. Validate input
@@ -321,21 +381,22 @@ public function TeacherUI(Request $request) {
     ]);
 
 
+ session()->flash('save', 'Section ADDED successfully.');
+    return redirect()->back();
 
-    return redirect()->back()->with('success', 'Section added successfully!');
+}
 
-
-    }
-
-     public function view_section() {
+public function view_section() {
 
 
        $view_section = DB::table('section')
             ->leftJoin('grade_level', 'grade_level.grade_id', '=', 'section.grade_id')
              ->select(
+            'section.section_id',
             'section.section_name',
             'section.section_capacity',
             'grade_level.grade_title',
+            'section.grade_id',
             'section.section_strand'
         )
             ->get();
@@ -344,12 +405,33 @@ public function TeacherUI(Request $request) {
 
 
 
-    return view('section', compact('view_section'));
+ return view('section', compact('view_section'));
 
 
 }
 
+public function update_section(Request $request) {
+    $section_id = $request->section_id;
 
+
+    DB::table('section')
+        ->where('section_id', $section_id)
+        ->update([
+
+            'section_name'    => $request->section_name,
+            'section_capacity'     => $request->section_capacity,
+            'grade_id'   => $request->grade_id,  
+            'section_strand'     => $request->section_strand,
+            
+        ]);
+
+         $this->logActivity(
+        'updated',
+        'Updated Section ID ' . $section_id . ': ' . $request->section_name
+    );
+    session()->flash('save', 'Section updated successfully.');
+    return redirect()->back();
+}
 
 
 
@@ -426,7 +508,7 @@ public function save_subjects(Request $request){
 
         // SAVE TEACHERS
 
-    public function save_teacher(Request $request){
+public function save_teacher(Request $request){
     // 1. Validation
     // $request->validate([
     //     'name' => ['required', 'string', 'max:255', 'unique:teacher'],
@@ -434,7 +516,6 @@ public function save_subjects(Request $request){
     //     'age' => ['required', 'integer'],
     //     'phone' => ['required', 'digits_between:7,11'], // better for phone validation
     // ]);
-
     $email = $request->input('email');
     $pass = $request->input('password');
     $name = $request->input('name');
@@ -443,7 +524,7 @@ public function save_subjects(Request $request){
     $phone = $request->input('phone');
     $gender = $request->input('gender');
     $role = $request->input('role');
-    $t_status = $request->input('t_status');
+    $t_status = $request->input('t_status', 0);
 
     $chech_exist = DB::table('teacher')
     ->where('name', $request->name)
@@ -478,7 +559,10 @@ public function save_subjects(Request $request){
         ]);
 
 
-
+ $this->logActivity(
+    'added',
+    'Added Teacher for Name: ' . $name 
+ );
     //  session()->flash('successMessage','Teacher added successfully');
      session()->flash('save','Teacher added successfully');
 
@@ -489,23 +573,37 @@ public function save_subjects(Request $request){
 
 
 
-        // DEACTIVATE TEACHERS
 public function deact_teacher(Request $request) {
-    // Update the teacher's status to 'deactivated' (assuming status_id 2 is 'deactivated')
-    DB::table('teacher')
-        ->where('teachers_id', $request->teachers_id)
-        ->update([
-            't_status' => 0 // Deactivated
-        ]);
+    $teacherId = $request->teachers_id;
+    $scheduleId = $request->schedule_id; // The specific row to clear
+    $teacher_name = $request->name;
 
-        $this->logActivity(
-        'updated',
-        'Deactivated teacher ID ' . $request->teachers_id
-    );
-    session()->flash('success', 'Teacher deactivated successfully.');
-    return redirect()->back();
+    // 1. UNASSIGN: Clear the teacher from this specific schedule row
+    DB::table('schedules')
+        ->where('schedule_id', $scheduleId)
+        ->update(['teachers_id' => 0]); // Set to 0 to unassign
 
+    // 2. CHECK REMAINING: Count how many schedules this teacher still has
+    $remainingSchedules = DB::table('schedules')
+        ->where('teachers_id', $teacherId)
+        ->count();
+
+    // 3. UPDATE STATUS: If 0 left, update teacher status to 0
+    if ($remainingSchedules == 0) {
+        DB::table('teacher')
+            ->where('teachers_id', $teacherId)
+            ->update(['t_status' => 0]);
+
+        $this->logActivity('updated', 'Unassigned ' . $teacher_name . '. No schedules left, status updated to Inactive.');
+        session()->flash('warning', 'Unassigned successfully. Teacher now has 0 schedules and is hidden.');
+    } else {
+        // They still have other classes, so keep t_status at 1
+        $this->logActivity('updated', 'Unassigned ' . $teacher_name . ' from one schedule. ' . $remainingSchedules . ' left.');
+        session()->flash('success', 'Schedule removed. Teacher still has ' . $remainingSchedules . ' classes.');
     }
+
+    return redirect()->back();
+}
 
 
 public function update_teacher(Request $request) {
@@ -519,6 +617,7 @@ public function update_teacher(Request $request) {
 
             'email'    => $request->email,
             'name'     => $request->name,
+            'teacher_major'   => $request->major,  
             'gender'     => $request->gender,
             'age'      => $request->age,
             'phone'    => $request->phone,
@@ -528,7 +627,7 @@ public function update_teacher(Request $request) {
         'updated',
         'Updated teacher ID ' . $teachers_id . ': ' . $request->name
     );
-    session()->flash('update', 'Teacher updated successfully.');
+    session()->flash('save', 'Teacher updated successfully.');
     return redirect()->back();
 }
 
@@ -545,7 +644,7 @@ public function update_teacher(Request $request) {
 
 
     $view_teachers = DB::table('teacher')
-            ->join('status', 'status.status_id', '=', 'teacher.t_status')
+            ->leftJoin('status', 'status.status_id', '=', 'teacher.t_status')
              ->select(
             'teacher.teachers_id',
              'teacher.email',
@@ -553,6 +652,7 @@ public function update_teacher(Request $request) {
             'teacher.age',
             'teacher.phone',
             'teacher.teacher_major',
+            'teacher.t_status',
             'status.status_name',
             'teacher.gender',
             'teacher.profile',
@@ -626,7 +726,7 @@ public function save_schedule(Request $request){
         ->exists();
     if ($duplicate) {
         // NEED EDIT THE NAME 
-        return back()->with('errorMessage', 'Conflict! This exact schedule (Time, Section, and Days) already exists.');
+        return back()->with('error', 'Conflict! This exact schedule (Time, Section, and Days) already exists.');
     }
 
 
@@ -658,7 +758,7 @@ public function save_schedule(Request $request){
             // Check for overlap: new start < existing end AND new end > existing start
             if ($startTime < $existingEndTime && $endTime > $existingStartTime) {
                 return back()->with(
-                    'errorMessage',
+                    'error',
                     'Conflict! Section ' . $section_id . ' is already booked on ' . implode(', ', $dayConflict) . ' at this time.'
                 );
             }
@@ -693,7 +793,7 @@ public function save_schedule(Request $request){
                 
                 if ($startTime < $existingEndTime && $endTime > $existingStartTime) {
                     return back()->with(
-                        'errorMessage',
+                        'error',
                         'Conflict! Teacher is busy on ' . implode(', ', $dayConflict) . ' at this time.'
                     );
                 }
@@ -721,60 +821,149 @@ public function save_schedule(Request $request){
     }
     
     // Try to insert
-    try {
-        DB::table('schedules')->insert([
-            'subject_id' => $subject_id,
-            'section_id' => $section_id,
-            'grade_id' => $grade_id,
-            'teachers_id' => $teacher_id ?: null,
-            'sub_date' => $dayString,
-            'sub_Stime' => $start,
-            'sub_Etime' => $end,
-            'schoolyear_id' => $schoolyear_ID,
-            'sched_status' => $sched_status,
-        ]);
-    } catch (\Exception $e) {
-        return back()->with('error', 'Failed to save schedule: ' . $e->getMessage());
+ try {
+    // 1. Check if a teacher is being assigned (avoid '0' or null)
+    if ($teacher_id && $teacher_id != "0") {
+        $scheduleCount = DB::table('schedules')
+            ->where('teachers_id', $teacher_id)
+            ->count();
+
+        // 2. Maximum Limit Check
+        if ($scheduleCount >= 5) {
+            return back()->with('error', 'Limit Reached: This instructor already has 5 maximum schedules assigned.');
+        }
     }
 
-    // ... (Your teacher status update and logging code) ...
-    
-    session()->flash('save', 'Schedule saved successfully!');
-    return redirect()->back();
+    // 3. Insert the Schedule
+    DB::table('schedules')->insert([
+        'subject_id'    => $subject_id,
+        'section_id'    => $section_id,
+        'grade_id'      => $grade_id,
+        'teachers_id'   => $teacher_id ?: 0,
+        'sub_date'      => $dayString,
+        'sub_Stime'     => $start,
+        'sub_Etime'     => $end,
+        'schoolyear_id' => $schoolyear_ID,
+        'sched_status'  => $sched_status,
+    ]);
+
+    // 4. Update Teacher Status ONLY if assigned
+    if ($teacher_id && $teacher_id != "0") {
+        DB::table('teacher')
+            ->where('teachers_id', $teacher_id)
+            ->update(['t_status' => 1]);
+    }
+
+} catch (\Exception $e) {
+    return back()->with('error', 'Failed to save schedule: ' . $e->getMessage());
 }
 
+// --- Success Logic (Outside the Try Block) ---
+
+// Fetch names for the activity log
+$subject = DB::table('subject')->where('subject_id', $subject_id)->first();
+$subject_name = $subject ? $subject->subject_name : 'unassigned';
+
+$teacher_data = DB::table('teacher')->where('teachers_id', $teacher_id)->first();
+$teacher_name = $teacher_data ? $teacher_data->name : 'Unassigned';
+
+$this->logActivity(
+    'added',
+    'Added schedule for teacher name ' . $teacher_name . ', subject name ' . $subject_name
+);
+
+session()->flash('save', 'Schedule saved successfully!');
+return redirect()->back();
+}
+
+  
 
 
-
-    //Update Schedule
 public function update_schedule(Request $request) {
-    $schedule_id = $request->schedule_id;
+    // 1. Validate the incoming data
+    $request->validate([
+        'schedule_id'   => 'required',
+        'subject_id'    => 'required|integer',
+        'teachers_id'   => 'required|integer',
+        'section_id'    => 'required|integer',
+        'schoolyear_id' => 'required|integer', // This ensures you are sending an ID, not "2025-2026"
+        'days'          => 'required|array',
+        'sub_Stime'     => 'required',
+        'sub_Etime'     => 'required',
+    ]);
 
+    $schedule_id = $request->schedule_id;
+    
+    // 2. Format the days array into a string
     $days = implode('-', $request->days);
 
-    DB::table('schedules')
-        ->where('schedule_id', $schedule_id)
-        ->update([
+    // 3. Perform the update
+      // 1. Update the schedule
+$updated = DB::table('schedules')
+    ->where('schedule_id', $schedule_id)
+    ->update([
+        'subject_id'    => $request->subject_id,
+        'teachers_id'   => $request->teachers_id,
+        'section_id'    => $request->section_id,
+        'sub_date'      => $days,
+        'sub_Stime'     => $request->sub_Stime,
+        'sub_Etime'     => $request->sub_Etime,
+        'schoolyear_id' => $request->schoolyear_id,
+    ]);
 
-            'subject_id'    => $request->subject_id,
-            'teachers_id'     => $request->teachers_id,
-            'section_id'     => $request->section_id,
-            'sub_date'     =>  $days,
-            'sub_Stime'      => $request->sub_Stime,
-            'sub_Etime'    => $request->sub_Etime,
-            'schoolyear_id'    => $request->schoolyear_id,
+        // 2. Fetch the teacher's name from the 'teacher' table
+        $teacher = DB::table('teacher')
+            ->where('teachers_id', $request->teachers_id)
+            ->first();
 
-        ]);
+        // 3. Set a fallback name in case the teacher is not found or unassigned
+        $teacher_name = $teacher ? $teacher->name : '';
 
+        // 4. Log the activity with the actual Name
         $this->logActivity(
-        'updated',
-        'Updated schedule ID ' . $schedule_id . ' for teacher ID ' . $request->teachers_id
-    );
+            'updated',
+            'Updated schedule ID ' . $schedule_id . ' for teacher name ' . $teacher_name
+        );
 
-    session()->flash('update', 'Schedule updated successfully.');
+session()->flash('save', 'Schedule updated successfully!');
+return redirect()->back();
+}
+
+public function delete_schedule(Request $request) {
+    $teacher_id = $request->teachers_id;
+    $schedule_id = $request->schedule_id;
+
+    // 1. Delete the schedule
+    DB::table('schedules')->where('schedule_id', $schedule_id)->delete();
+
+    // 2. Only proceed if there was a teacher assigned
+    if ($teacher_id && $teacher_id != "0") {
+        
+        // Count remaining schedules for this teacher
+        $remainingSchedules = DB::table('schedules')
+            ->where('teachers_id', $teacher_id)
+            ->count();
+
+        // 3. Status Condition
+        if ($remainingSchedules == 0) {
+            // No more classes? Deactivate (hide from active list)
+            DB::table('teacher')
+                ->where('teachers_id', $teacher_id)
+                ->update(['t_status' => 0]);
+                
+            session()->flash('warning', 'Schedule deleted. Teacher has 0 classes left and is now unassigned.');
+        } else {
+            // Still has classes? Keep them active
+            session()->flash('save', 'Schedule deleted. Teacher still has ' . $remainingSchedules . ' classes.');
+        }
+    } else {
+        session()->flash('save', 'Schedule deleted successfully.');
+    }
+
     return redirect()->back();
 }
 
+   
 
 
 // public function set_system_schoolyear(Request $request)
@@ -813,30 +1002,29 @@ public function teacher_loads(Request $request)
 {
     // 1. Get the selected school year from the request
     $selected_year_id = $request->get('schoolyear_id'); 
-
-    // Fetch available school years (always needed for the select box)
+    // dd($selected_year_id);
+    // Fetch available school years for the dropdown
     $school_years_map = DB::table('school_year')->pluck('schoolyear_name', 'schoolyear_id');
     
-    // --- Initialize variables ---
-    $teachers = collect(); // Initialize as an empty collection
-    $teacher_loads = [];   // Initialize as an empty array
+    // Initialize empty collection and array
+    $teachers = collect(); 
+    $teacher_loads = [];   
 
-    // 2. Conditional Logic: Load data ONLY if a year is selected
+    // 2. Logic: Show ALL teachers ONLY if a year is selected
     if ($selected_year_id) {
+    
+    // Fetch only the sections that have schedules in the selected year.
+    $teachers = DB::table('teacher')
+        // CORRECTED JOIN: Match section.section_id with schedules.section_id
+        ->join('schedules', 'teacher.teachers_id', '=', 'schedules.teachers_id') 
+        ->where('schedules.schoolyear_id', $selected_year_id)
+        ->distinct() // Ensure each teacher only appears once
+        ->select('teacher.*') // Select all columns from the section table
+        ->get();
         
-        // Fetch only the teachers who have schedules in the selected year
-        // We do this by joining schedules and filtering by the selected year ID.
-        $teachers = DB::table('teacher')
-            ->join('schedules', 'teacher.teachers_id', '=', 'schedules.teachers_id')
-            ->where('schedules.schoolyear_id', $selected_year_id)
-            ->distinct() // Ensure each teacher only appears once
-            ->select('teacher.*') // Select all columns from the teacher table
-            ->get();
-
-
-        // 3. Process Loads for the filtered teachers
+        // 3. Fetch specific schedules for each teacher for the chosen year
         foreach ($teachers as $teacher) {
-            $query = DB::table('schedules')
+            $teacher_loads[$teacher->teachers_id] = DB::table('schedules')
                 ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
                 ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
                 ->join('section', 'schedules.section_id', '=', 'section.section_id')
@@ -847,46 +1035,43 @@ public function teacher_loads(Request $request)
                     'section.section_name as sec_name',
                 ) 
                 ->where('schedules.teachers_id', $teacher->teachers_id)
-                ->where('schedules.schoolyear_id', $selected_year_id); // Filter loads by year
-                
-            $loads = $query->get();
-            $teacher_loads[$teacher->teachers_id] = $loads;
+                ->where('schedules.schoolyear_id', $selected_year_id) // Filter loads by chosen year
+                ->get();
         }
     }
     
-    // 4. Pass data to view
     return view('teacher_loadView', compact('teachers', 'teacher_loads', 'school_years_map', 'selected_year_id'));
 }
-
 
 
 public function section_loads(Request $request)
 {
     // 1. Get the selected school year from the request
     $selected_year_id = $request->get('schoolyear_id'); 
-
-    // Fetch available school years (always needed for the select box)
+    // dd($selected_year_id);
+    // Fetch available school years for the dropdown
     $school_years_map = DB::table('school_year')->pluck('schoolyear_name', 'schoolyear_id');
     
-    // --- Initialize variables ---
-    $section = collect(); // Initialize as an empty collection
-    $section_loads = [];   // Initialize as an empty array
+    // Initialize empty collection and array
+    $sections = collect(); 
+    $section_loads = [];   
 
-   // 2. Conditional Logic: Load data ONLY if a year is selected
-if ($selected_year_id) {
+    // 2. Logic: Show ALL teachers ONLY if a year is selected
+    if ($selected_year_id) {
     
     // Fetch only the sections that have schedules in the selected year.
-    $section = DB::table('section')
+    $sections = DB::table('section')
         // CORRECTED JOIN: Match section.section_id with schedules.section_id
         ->join('schedules', 'section.section_id', '=', 'schedules.section_id') 
         ->where('schedules.schoolyear_id', $selected_year_id)
-        ->distinct() // Ensure each section only appears once
+        ->distinct() // Ensure each teacher only appears once
         ->select('section.*') // Select all columns from the section table
         ->get();
-
-        // 3. Process Loads for the filtered sections
-        foreach ($section as $sec) {
-            $query = DB::table('schedules')
+        
+        // 3. Fetch specific schedules for each teacher for the chosen year
+        foreach ($sections as $section) {
+            $section_loads[$section->section_id] = DB::table('section')
+                ->join('schedules', 'section.section_id', '=', 'schedules.section_id') 
                 ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
                 ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
                 ->select(
@@ -894,16 +1079,72 @@ if ($selected_year_id) {
                     'subject.subject_name as sub_name',
                     'grade_level.grade_title as grade_name',
                 ) 
-                ->where('schedules.section_id', $sec->section_id)
-                ->where('schedules.schoolyear_id', $selected_year_id); // Filter loads by year
-                
-            $loads = $query->get();
-            $section_loads[$sec->section_id] = $loads;
+                ->where('schedules.section_id', $section->section_id)
+                ->where('schedules.schoolyear_id', $selected_year_id) // Filter loads by chosen year
+                ->get();
         }
     }
     
-    // 4. Pass data to view
-    return view('section_loadView', compact('section', 'section_loads', 'school_years_map', 'selected_year_id'));
+    return view('section_loadView', compact('sections', 'section_loads', 'school_years_map', 'selected_year_id'));
+}
+
+
+
+
+
+public function print_section_load($id, $year)
+{
+    $section = DB::table('section')->where('section_id', $id)->first();
+    $schoolyear = DB::table('school_year')->where('schoolyear_id', $year)->first();
+
+    $loads = DB::table('schedules')
+        ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+        ->join('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
+        ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
+        ->where('schedules.section_id', $id)
+        ->where('schedules.schoolyear_id', $year)
+        ->select(
+            'schedules.*', 
+            'subject.subject_name', 
+            'teacher.name as teacher_name', 
+            'grade_level.grade_title'
+        )
+        ->orderBy('schedules.sub_Stime', 'asc')
+        ->get();
+
+    $pdf = Pdf::loadView('pdf.section_load_print', compact('section', 'loads', 'schoolyear'));
+    
+    // Set paper to A4 Portrait
+    return $pdf->setPaper('a4', 'portrait')->stream('Section_'.$section->section_name.'.pdf');
+}
+
+public function print_teacher_load($id, $year)
+{
+    // Fetch Teacher and School Year
+    $teacher = DB::table('teacher')->where('teachers_id', $id)->first();
+    $schoolyear = DB::table('school_year')->where('schoolyear_id', $year)->first();
+
+    // Fetch the schedules and JOIN the section table to get names
+    $loads = DB::table('schedules')
+        ->join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
+        ->join('section', 'schedules.section_id', '=', 'section.section_id')
+        ->join('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
+        ->where('schedules.teachers_id', $id)
+        ->where('schedules.schoolyear_id', $year)
+        ->select(
+            'subject.subject_name',
+            'section.section_name', // This is what you need for the table
+            'grade_level.grade_title',
+            'schedules.sub_date',
+            'schedules.sub_Stime',
+            'schedules.sub_Etime'
+        )
+        ->get();
+
+    // Pass ONLY teacher, loads, and schoolyear to the view
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.teacher_load_print', compact('teacher', 'loads', 'schoolyear'));
+    
+    return $pdf->setPaper('a4', 'portrait')->stream('Teacher_Load_'.$teacher->name.'.pdf');
 }
 
    

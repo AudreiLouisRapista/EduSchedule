@@ -50,16 +50,48 @@
     }
 
     /* Collapse Logout text — keep design consistent, only hide text */
-    .sidebar-collapse a[href*="logout"] .logout-text {
-        font-size: 0 !important;
-        /* hide text only */
+    /* 1. Hide the text when sidebar is collapsed */
+    /* Base Button Styling */
+    .logout-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Centers icon and text */
+        gap: 8px;
+        padding: 10px 15px;
+        background: #ff4757;
+        color: white;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        width: 100%;
     }
 
-    .sidebar-collapse .main-sidebar:hover a[href*="logout"] .logout-text {
-        font-size: 16px !important;
-        align-items: center;
-        /* restore text size */
+    /* When sidebar is COLLAPSED */
+    .sidebar-collapse .logout-text {
+        display: none !important;
+        /* Completely removes text so icon can center */
+    }
 
+    .sidebar-collapse .logout-btn {
+        width: 45px;
+        /* Shrink to a circle/square when collapsed */
+        margin: 0 auto;
+        padding: 10px;
+    }
+
+    /* When sidebar is HOVERED (Expanded) */
+    .sidebar-collapse .main-sidebar:hover .logout-text {
+        display: inline-block !important;
+        font-size: 14px !important;
+    }
+
+    .sidebar-collapse .main-sidebar:hover .logout-btn {
+        width: 90%;
+        /* Return to full width on hover */
+        justify-content: flex-start;
+        /* Align left when expanded */
+        padding-left: 20px;
     }
 
     /* Position the logout button container at the bottom in collapsed state */
@@ -127,7 +159,7 @@
     <!-- Brand / User -->
     <div class="sidebar-brand d-flex align-items-center justify-content-center py-3">
         <div class="brand-logo"
-            style="width:80px; height:80px; border-radius:50%; overflow:hidden; box-shadow:rgba(88, 10, 121, 0.847)">
+            style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:rgba(88, 10, 121, 0.847)">
 
             <img src="{{ session('profile') ? asset('storage/' . session('profile')) : asset('dist/img/default.png') }}"
                 style="width:100%; height:100%; object-fit:cover;">
@@ -189,7 +221,7 @@
                 {{-- Start PHP Block: DEFINE VARIABLES FIRST --}}
                 @php
                     // 1. Check if the parent item should be active/open (User is on any related page)
-                    $teacher_parent_active = Route::is('view_teachers') || Route::is('teacher_loads');
+                    $teacher_parent_active = Route::is('view_teachers') || Route::is('admin_teacher_loads');
 
                     // 2. Define custom styling variables for cleaner HTML
                     $active_bg_style =
@@ -388,25 +420,6 @@
 
 
 
-                {{-- Student  --}}
-                <li class="nav-item">
-                    <a href="{{ route('view_student') }}"
-                        class="nav-link {{ Route::is('view_student') ? 'active' : '' }}"
-                        style="
-                     display:flex; 
-                     align-items:center; 
-                     gap:10px; 
-                     padding:10px 15px;
-                     border-radius:30px;
-                     font-weight:500;
-                     color:{{ Route::is('view_student') ? '#333' : '#fff' }}; /* Suggested: Dark text for active, white for inactive */
-                     background:{{ Route::is('view_student') ? '#fff' : 'transparent' }}; /* Changed active to white */
-                     box-shadow:{{ Route::is('view_student') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
-                   ">
-                        <i class="bi bi-person-add"></i>
-                        Student
-                    </a>
-                </li>
 
             </ul>
         </nav>
@@ -417,20 +430,27 @@
 
             <a href="{{ route('logout') }}"
                 style="
-                                display:flex;
-                                align-items:center;
-                                justify-content:center;
-                                gap:5px;
-                                padding:10px;
-                                color:#fff; 
-                                background:rgba(121, 10, 10, 0.5);
-                                border-radius:30px;
-                                font-weight:600;
-                                margin-top: 130px;
-                            ">
-
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="logout-text">Log Out</span>
+                  display: flex;
+                  align-items: center;
+                  justify-content: center; 
+                gap: 10px;               
+                width: 90%;              
+                  padding: 8px 20px;
+                  color: #fff;
+                  background: #ff4757;
+                  border-radius: 12px;
+                  font-size: 13px;
+                  font-weight: 600;
+                  text-decoration: none;
+                  transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+                  margin-top:200px;
+                 
+               "
+                onmouseover="this.style.transform='scale(1.05)'; this.style.backgroundColor='#ff6b81';"
+                onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#ff4757';">
+                <i class="bi bi-box-arrow-left"></i>
+                <span class="logout-text">Logout</span>
             </a>
         </div>
 

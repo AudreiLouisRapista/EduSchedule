@@ -26,97 +26,123 @@
                                 </button>
 
                                 <div class="modal fade" id="updateTeacher" tabindex="-1" role="dialog" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                        <div class="modal-content"
-                                            style="border-radius: 24px; border: none; overflow: hidden;">
-                                            <div class="modal-header border-0 p-4" style="background: #f8f9fa;">
-                                                <h5 class="modal-title font-weight-bold"><i
-                                                        class="fas fa-user-circle mr-2 text-primary"></i>Update Profile
-                                                    Information</h5>
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow-lg"
+                                            style="border-radius: 20px; overflow: hidden;">
+
+                                            <div class="modal-header border-0 pt-4 px-4" style="background: #ffffff;">
+                                                <h5 class="modal-title font-weight-bold text-dark">
+                                                    <i class="fas fa-user-edit mr-2 text-primary"></i> Edit Teacher Profile
+                                                </h5>
+                                                <button type="button" class="close shadow-none" data-dismiss="modal"
+                                                    aria-label="Close"
+                                                    style="border:none; background:none; font-size:1.5rem;">&times;</button>
                                             </div>
 
                                             @foreach ($teachers as $teacher)
-                                                <form method="POST"
-                                                    action="{{ route('Update_teacherProfile', $teacher->teachers_id) }}"
+                                                <form method="POST" <form method="POST"
+                                                    action="{{ route('adminProfile', ['id' => $teacher->teachers_id]) }}"
                                                     enctype="multipart/form-data">
                                                     @csrf
-                                                    <div class="modal-body p-4">
-                                                        <input type="hidden" name="teachers_id"
-                                                            value="{{ $teacher->teachers_id }}">
+                                                    <div class="modal-body px-4 pb-4">
+
+                                                        <div class="text-center mb-4">
+                                                            <label for="teacherPicUpload" style="cursor: pointer;"
+                                                                class="position-relative">
+                                                                <img src="{{ !empty($teacher->teacher_profile) && file_exists(public_path('storage/' . $teacher->teacher_profile))
+                                                                    ? asset('storage/' . $teacher->teacher_profile)
+                                                                    : asset('images/default-avatar.png') }}"
+                                                                    class="rounded-circle border shadow-sm"
+                                                                    style="width: 110px; height: 110px; object-fit: cover;"
+                                                                    id="teacherPreview">
+                                                                <div class="position-absolute"
+                                                                    style="bottom: 0; right: 0; background: #4e73df; color: #fff; border-radius: 50%; padding: 4px 8px; font-size: 12px; border: 3px solid #fff;">
+                                                                    <i class="fas fa-camera"></i>
+                                                                </div>
+                                                            </label>
+                                                            <input type="file" name="profile" id="teacherPicUpload"
+                                                                class="d-none" accept="image/*"
+                                                                onchange="previewTeacherFile(this)">
+                                                            <p class="small text-muted mt-2 mb-0">Click the photo to change
+                                                            </p>
+                                                        </div>
+
+
+
+                                                        <div class="form-group mb-3">
+                                                            <label
+                                                                class="small font-weight-bold text-muted text-uppercase">Full
+                                                                Name</label>
+                                                            <input type="text" name="name"
+                                                                value="{{ $teacher->teacher_name }}"
+                                                                class="form-control form-control-lg border-0 bg-light rounded-pill px-4"
+                                                                style="font-size: 0.95rem;" required>
+                                                        </div>
+
+                                                        <div class="form-group mb-3">
+                                                            <label
+                                                                class="small font-weight-bold text-muted text-uppercase">Email
+                                                                Address</label>
+                                                            <input type="email" name="email"
+                                                                value="{{ $teacher->teacher_email }}"
+                                                                class="form-control form-control-lg border-0 bg-light rounded-pill px-4"
+                                                                style="font-size: 0.95rem;" required>
+                                                        </div>
 
                                                         <div class="row">
-                                                            <div class="col-md-6">
-                                                                <div class="form-group mb-3">
-                                                                    <label
-                                                                        class="small font-weight-bold text-muted text-uppercase">Full
-                                                                        Name</label>
-                                                                    <input type="text" name="name"
-                                                                        value="{{ $teacher->teacher_name }}"
-                                                                        class="form-control" required>
-                                                                </div>
+                                                            <div class="col-md-6 form-group mb-3">
+                                                                <label
+                                                                    class="small font-weight-bold text-muted text-uppercase">Phone</label>
+                                                                <input type="text" name="phone"
+                                                                    value="{{ $teacher->teacher_phone }}"
+                                                                    class="form-control form-control-lg border-0 bg-light rounded-pill px-4"
+                                                                    style="font-size: 0.95rem;" required>
                                                             </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group mb-3">
-                                                                    <label
-                                                                        class="small font-weight-bold text-muted text-uppercase">Email
-                                                                        Address</label>
-                                                                    <input type="email" name="email"
-                                                                        value="{{ $teacher->teacher_email }}"
-                                                                        class="form-control" required>
-                                                                </div>
+                                                            <div class="col-md-6 form-group mb-3">
+                                                                <label
+                                                                    class="small font-weight-bold text-muted text-uppercase">Gender</label>
+                                                                <select name="gender"
+                                                                    class="form-control form-control-lg border-0 bg-light rounded-pill px-3"
+                                                                    style="font-size: 0.95rem;" required>
+                                                                    <option value="Male"
+                                                                        {{ $teacher->teacher_gender == 'Male' ? 'selected' : '' }}>
+                                                                        Male</option>
+                                                                    <option value="Female"
+                                                                        {{ $teacher->teacher_gender == 'Female' ? 'selected' : '' }}>
+                                                                        Female</option>
+                                                                </select>
                                                             </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group mb-3">
-                                                                    <label
-                                                                        class="small font-weight-bold text-muted text-uppercase">Phone
-                                                                        Number</label>
-                                                                    <input type="text" name="phone"
-                                                                        value="{{ $teacher->teacher_phone }}"
-                                                                        class="form-control" required>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group mb-3">
-                                                                    <label
-                                                                        class="small font-weight-bold text-muted text-uppercase">Gender</label>
-                                                                    <select name="gender" class="form-control" required>
-                                                                        <option value="Male"
-                                                                            {{ $teacher->teacher_gender == 'Male' ? 'selected' : '' }}>
-                                                                            Male</option>
-                                                                        <option value="Female"
-                                                                            {{ $teacher->teacher_gender == 'Female' ? 'selected' : '' }}>
-                                                                            Female</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <div class="form-group mb-0">
-                                                                    <label
-                                                                        class="small font-weight-bold text-muted text-uppercase">Update
-                                                                        Profile Picture</label>
-                                                                    <div class="custom-file">
-                                                                        <input type="file" name="profile"
-                                                                            class="custom-file-input" id="profilePic">
-                                                                        <label class="custom-file-label"
-                                                                            for="profilePic">Choose file...</label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                            <input type="hidden" name="teachers_id"
+                                                                value="{{ $teacher->teachers_id }}">
                                                         </div>
                                                     </div>
-                                                    <div class="modal-footer border-0 p-4">
-                                                        <button type="button" class="btn btn-light rounded-pill px-4"
+
+                                                    <div class="modal-footer border-0 px-4 pb-4">
+                                                        <button type="button"
+                                                            class="btn btn-light rounded-pill px-4 font-weight-bold"
                                                             data-dismiss="modal">Cancel</button>
                                                         <button type="submit"
-                                                            class="btn btn-primary rounded-pill px-5 shadow-sm">Save
-                                                            Changes</button>
+                                                            class="btn btn-primary rounded-pill px-5 font-weight-bold shadow-sm">Update
+                                                            Profile</button>
                                                     </div>
                                                 </form>
                                             @endforeach
                                         </div>
                                     </div>
                                 </div>
+
+                                <script>
+                                    function previewTeacherFile(input) {
+                                        var file = input.files[0];
+                                        if (file) {
+                                            var reader = new FileReader();
+                                            reader.onload = function() {
+                                                $("#teacherPreview").attr("src", reader.result);
+                                            }
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }
+                                </script>
                             </div>
 
                             <div class="col-md-8 p-5">

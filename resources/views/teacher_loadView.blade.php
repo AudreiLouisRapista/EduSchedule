@@ -17,73 +17,95 @@
                     <div class="card" style=" border-radius: 30px; background:#fff; padding:20px">
                         <div class="card-header" style="background:#fff;">
                             <h3 class="card-title">Faculty list</h3>
-                            <select id="schoolYearSelect" name="schoolyear_id"
-                                style="width: 200px; float: right; background: #0061f4; border-radius: 5px; padding: 5px; color: white; border: none;">
-                                <option value="">Select School Year</option>
-                                @foreach ($school_years_map as $id => $name)
-                                    <option value="{{ $id }}" @if ($id == $selected_year_id) selected @endif>
-                                        {{ $name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="d-flex justify-content-end mb-3">
+                                <form method="GET" action="{{ route('teacher_loads') }}" id="filterForm">
+                                    <div class="input-group shadow-sm rounded-pill overflow-hidden"
+                                        style="min-width: 250px; border: 1px solid #e0e0e0;">
+                                        <span class="input-group-text bg-white border-0 ps-3">
+                                            <i class="fas fa-calendar-alt text-primary"></i>
+                                        </span>
+                                        <select name="schoolyear_id" class="form-select border-0 ps-1 py-2 shadow-none"
+                                            style="cursor: pointer; font-weight: 500; font-size: 0.85rem; color: #495057;"
+                                            onchange="this.form.submit()">
+                                            <option value="">Choose School Year</option>
+                                            @foreach ($school_years_map as $id => $name)
+                                                <option value="{{ $id }}"
+                                                    {{ $selected_year_id == $id ? 'selected' : '' }}>
+                                                    {{ $name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-
                             @if (!$selected_year_id)
-                                <div class="alert alert-warning text-center" role="alert">
-                                    Please select a **School Year** from the dropdown menu above to view the teacher's
-                                    assigned loads.
+                                {{-- Message shown when no year is selected --}}
+                                <div class="alert alert-warning text-center" role="alert" style="border-radius: 15px;">
+                                    Please select a **School Year** from the dropdown menu above to view teacher loads.
                                 </div>
-                            @endif
-
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Gender</th>
-                                        <th class="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($teachers as $t)
+                            @else
+                                {{-- Table only appears after the admin selects a year --}}
+                                <table class="table table-striped table-hover">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $t->name }}</td>
-                                            <td>{{ $t->email }}</td>
-                                            <td>{{ $t->phone }}</td>
-                                            <td>{{ $t->gender }}</td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                                    data-bs-target="#viewTeacherModal{{ $t->teachers_id }}">
-                                                    VIEW LOAD
-                                                </button>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th>Gender</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($teachers as $f)
+                                            <tr>
+                                                <td>{{ $f->name }}</td>
+                                                <td>{{ $f->email }}</td>
+                                                <td>{{ $f->phone }}</td>
+                                                <td>{{ $f->gender }}</td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                        data-bs-target="#viewTeacherModal{{ $f->teachers_id }}">
+                                                        VIEW LOAD
+                                                    </button>
 
-                                                <div class="modal fade" id="viewTeacherModal{{ $t->teachers_id }}"
-                                                    tabindex="-1">
-                                                    <div class="modal-dialog modal-lg">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header bg-primary">
-                                                                <h5 class="modal-title">{{ $t->name }} – Loads</h5>
-                                                                <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <table class="table table-bordered table-hover">
-                                                                    <thead>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @if (!$selected_year_id)
+                                                    <div class="modal fade" id="viewTeacherModal{{ $f->teachers_id }}"
+                                                        tabindex="-1">
+                                                        <div class="modal-dialog modal-lg">
+                                                            <div class="modal-content text-start"> {{-- Added text-start to fix alignment --}}
+                                                                <div class="modal-header bg-primary">
+                                                                    <h5 class="modal-title text-white">
+                                                                        {{ $f->name ?? $s->section_name }} – Teaching Loads
+                                                                    </h5>
+
+                                                                    @if ($selected_year_id)
+                                                                        <a href="{{ route('teacher.print_pdf', ['id' => $f->teachers_id, 'year' => $selected_year_id]) }}"
+                                                                            class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm ms-auto me-3">
+                                                                            <i class="fas fa-file-pdf me-1"></i> Print PDF
+                                                                        </a>
+                                                                    @endif
+
+                                                                    <button type="button" class="btn-close btn-close-white"
+                                                                        data-bs-dismiss="modal"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <table class="table table-bordered table-hover">
+                                                                        <thead class="bg-light">
                                                                             <tr>
-                                                                                <td colspan="5"
-                                                                                    class="text-center text-danger">
-                                                                                    **Please select a School Year to view
-                                                                                    loads.**
-                                                                                </td>
+                                                                                <th>Subject</th>
+                                                                                <th>Section</th>
+                                                                                <th>Time</th>
+                                                                                <th>Schedule</th>
+                                                                                <th>Grade</th>
                                                                             </tr>
-                                                                        @else
-                                                                            @forelse ($teacher_loads[$t->teachers_id] ?? [] as $load)
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {{-- Check if we actually have schedule data for this specific teacher --}}
+                                                                            @php $teacherLoad = $teacher_loads[$f->teachers_id] ?? collect(); @endphp
+
+                                                                            @forelse ($teacherLoad as $load)
                                                                                 <tr>
                                                                                     <td>{{ $load->sub_name }}</td>
                                                                                     <td>{{ $load->sec_name }}</td>
@@ -99,24 +121,25 @@
                                                                                 <tr>
                                                                                     <td colspan="5"
                                                                                         class="text-center text-muted">
-                                                                                        No schedule assigned for the
-                                                                                        selected school year.
+                                                                                        No assigned loads found for this
+                                                                                        teacher
+                                                                                        in
+                                                                                        {{ $school_years_map[$selected_year_id] ?? 'this year' }}.
                                                                                     </td>
                                                                                 </tr>
                                                                             @endforelse
-                                                                        @endif
-                                                                    </tbody>
-                                                                </table>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endif
 
                         </div>
                         <!-- /.card-body -->
@@ -128,7 +151,24 @@
             </div>
             <!-- /.container-fluid -->
     </section>
+    <style>
+        /* Professional Dropdown Styling */
+        .form-select:focus {
+            background-color: #f8f9ff;
+            color: #4e73df;
+        }
 
+        .input-group:hover {
+            border-color: #4e73df !important;
+            transition: all 0.3s ease;
+        }
+
+        /* Modern scrollbar for the dropdown list */
+        select option {
+            padding: 10px;
+            background: #fff;
+        }
+    </style>
 @endsection
 
 

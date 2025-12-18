@@ -4,6 +4,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>My App | @yield('title', 'Dashboard')</title>
 
+
+    <link rel="icon" type="image/png" href="{{ asset('images/SystemAethelLogo.png') }}">
+
     <link rel="stylesheet"
         href="{{ asset('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback') }}">
     <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">

@@ -7,6 +7,10 @@
 @section('content_header')
 
     <style>
+        .grade6-box:hover,
+        .grade5-box:hover,
+        .grade4-box:hover,
+        .grade3-box:hover,
         .grade2-box:hover,
         .grade1-box:hover {
             transform: scale(1.05);
@@ -174,88 +178,100 @@
 
         <div class="row" style= "margin-top:20px;">
             <section class="col-md-8" ">
-                                                                                                                                                                                                                                                                                                                                                                                <div class="container-fluid">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="container-fluid">
 
-                                                                                                                                                                                                                                                                                                                                                                                    <div class="col-12">
-                                                                                                                                                                                                                                                                                                                                                                                        <div class="card" style= "border-radius: 10px; padding:15px; ">
-                                                                                                                                                                                                                                                                                                                                                                                            <h3 class="card-title" style = ' margin-top: 10px; font-size: 25px;'>
-                                                                                                                                                                                                                                                                                                                                                                                                Class
-                                                                                                                                                                                                                                                                                                                                                                                                Schedules</h3>
-                                                                                                                                                                                                                                                                                                                                                                                            <p style = 'margin-left: 2px; margin-top: 2px'>Click on a grade to view teacher
-                                                                                                                                                                                                                                                                                                                                                                                                schedules
-                                                                                                                                                                                                                                                                                                                                                                                            </p>
-
-
-
-                                                                                                                                                                                                                                                                                                                                                                                            <!-- GRADE 7-8  -->
-                                                                                                                                                                                                                                                                                                                                                                                            <div class="row g-3">
-                                                                                                                                                                                                                                                                                                                                                                                                <!-- GRADE 1 BOX -->
-                                                                                                                                                                                                                                                                                                                                                                                                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                                                                                                                                                                                                                                                                                                                                                                                    <div class="grade1-box" data-bs-toggle="modal" data-bs-target="#grade1 "
-                                                                                                                                                                                                                                                                                                                                                                                                        style="cursor:pointer;   width:100%; border-radius:20px; background:#fff; margin-top:20px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); padding:15px;">
-
-                                                                                                                                                                                                                                                                                                                                                                                                        <div class="inner">
-
-                                                                                                                                                                                                                                                                                                                                                                                                            <div class="d-flex align-items-center justify-content-between flex-nowrap">
-
-                                                                                                                                                                                                                                                                                                                                                                                                                <h3 style="font-size:26px; margin:0; font-weight:700; white-space:nowrap;">
-                                                                                                                                                                                                                                                                                                                                                                                                                    Grade 7
-                                                                                                                                                                                                                                                                                                                                                                                                                </h3>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                <div
-                                                                                                                                                                                                                                                                                                                                                                                                                    style="
-                                                                                                                                            background: linear-gradient(135deg, rgb(103, 127, 248), #4400ff);
-                                                                                                                                            width:40px; height:40px;
-                                                                                                                                            border-radius:50%;
-                                                                                                                                            display:flex; align-items:center; justify-content:center;
-                                                                                                                                            color:#fff; font-size:16px;">
-                                                                                                                                                                                                                                                                                                                                                                                                                    <i>{{ $grade1Count }}</i>
-                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-
-                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-
-                                                                                                                                                                                                                                                                                                                                                                                                            <p style="font-size:15px;"> {{ $grade1Count }} Scheduled Classes</p>
-                                                                                                                                                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="col-12">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="card" style= "border-radius: 10px; padding:15px; ">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <h3 class="card-title" style = ' margin-top: 10px; font-size: 25px;'>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Class
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Schedules</h3>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <p style = 'margin-left: 2px; margin-top: 2px'>Click on a grade to view teacher
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            schedules
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </p>
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                <!-- Modal -->
-                                                                                                                                                                                                                                                                                                                                                                                                <div class="modal fade" id="grade1" tabindex="-1" aria-labelledby="unassignedModalLabel"
-                                                                                                                                                                                                                                                                                                                                                                                                    aria-hidden="true">
-                                                                                                                                                                                                                                                                                                                                                                                                    <div class="modal-dialog">
-                                                                                                                                                                                                                                                                                                                                                                                                        <div class="modal-content" style="width: 800px;">
-                                                                                                                                                                                                                                                                                                                                                                                                            <div class="modal-header">
-                                                                                                                                                                                                                                                                                                                                                                                                                <h5 class="modal-title" id="grade1">GRADE 7</h5>
-                                                                                                                                                                                                                                                                                                                                                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                                                                                                                                                                                                                                                                                                                                                                    aria-label="Close"></button>
-                                                                                                                                                                                                                                                                                                                                                                                                            </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                            <div class="modal-body">
-                                                                                                                                                                                                                                                                                                                                                                                                                <div class="card-body">
-                                                                                                                                                                                                                                                                                                                                                                                                                    <table id="example1" class="table table-bordered table-hover">
-                                                                                                                                                                                                                                                                                                                                                                                                                        <thead>
-                                                                                                                                                                                                                                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                <th>Subject</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                                <th>Teachers</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                                <th>Date</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                                <th>Time</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                        </thead>
-                                                                                                                                                                                                                                                                                                                                                                                                                        <tbody>
-                                                                                                                                                                                                                                                                                                                                                                                                                                 
-                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                              
-                                                                                                                                                                                  
-                                                                                                                      
-                                                   @foreach ($view_grade1 as $grade)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <!-- GRADE 7-8  -->
+                                                                                                 <!-- GRADE 7-8  -->
+                                                                                                    <div class="row g-3">
+
+                                                                                                        <!-- GRADE 7 BOX -->
+                                                                                                        <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+                                                                                                            <div class="grade1-box" data-bs-toggle="modal" data-bs-target="#grade1"
+                                                                                                                style="cursor:pointer;   width:100%; border-radius:20px; background:#fff; margin-top:20px; margin-left:3px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); padding:15px;">
+
+                                                                                                                <div class="inner">
+
+                                                                                                                    <!-- Flex container for Grade and Icon -->
+                                                                                                                    <div class="d-flex align-items-center justify-content-between flex-nowrap">
+
+                                                                                                                        <h3 style="font-size:26px; margin:0; font-weight:700; white-space:nowrap;">
+                                                                                                                            Grade 7
+                                                                                                                        </h3>
+
+                                                                                                                        <div
+                                                                                                                            style="  background: linear-gradient(135deg, rgb(103, 127, 248), #4400ff);
+                                                                    width:40px; height:40px;
+                                                                    border-radius:50%;
+                                                                    display:flex; align-items:center; justify-content:center;
+                                                                    color:#fff; font-size:16px;">
+
+                                                                                                                            <i>{{ $grade1Count }}</i>
+                                                                                                                        </div>
+
+                                                                                                                    </div>
+                                                                                                                    <p style="font-size:15px;"> {{ $grade1Count }} Scheduled Classes</p>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        </div>
+
+
+                                                                                                        <!-- Modal -->
+                                                                                            <div class="modal fade" id="grade1" tabindex="-1" aria-labelledby="unassignedModalLabel"
+                                                                                                            aria-hidden="true">
+                                                                                                            <div class="modal-dialog">
+                                                                                                                <div class="modal-content" style="width: 800px;">
+                                                                                                                    <div class="modal-header bg-primary">
+                                                                                                                        <h5 class="modal-title" id="grade2">GRADE 7 </h5>
+                                                                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                                                                    </div>
+
+                                                                                                                    <div class="modal-body">
+                                                                                                                        <div class="card-body">
+                                                                                                                            <table id="example2" class="table table-bordered table-hover">
+                                                                                                                                <thead>
+                                                                                                                                    <tr>
+                                                                                                                                        <th>Subject</th>
+                                                                                                                                        <th>Teachers</th>
+                                                                                                                                        <th>Date and Time</th>
+                                                                                                                                    </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                              
+                     @foreach ($view_grade1 as $grade)
                 <tr>
                     <td>{{ $grade->sub_name }}</td>
-                    <td>{{ $grade->teacher_name }}</td>
-                    <td>{{ $grade->sub_date }}</td>
-                    <td>{{ $grade->sub_Stime }} -
-                        {{ $grade->sub_Etime }}</td>
+                    <td>{{ $grade->teacher_name }}
+                    <td class="align-middle">
+                        <div class="mb-1">
+                            @if ($grade->sub_date)
+                                @foreach (explode('-', $grade->sub_date) as $day)
+                                    <span class="badge bg-primary shadow-sm" style="font-size: 0.75rem;">
+                                        {{ $day }}
+                                    </span>
+                                @endforeach
+                            @else
+                                <span class="text-muted small">No Days Set</span>
+                            @endif
+                        </div>
+
+                        <div class="text-dark fw-bold" style="font-size: 0.9rem;">
+                            <i class="bi bi-clock me-1 text-secondary"></i>
+                            {{ $grade->sub_Stime ? date('g:i A', strtotime($grade->sub_Stime)) : 'N/A' }}
+                            <span class="text-secondary mx-1">→</span>
+                            {{ $grade->sub_Etime ? date('g:i A', strtotime($grade->sub_Etime)) : 'N/A' }}
+                        </div>
+                    </td>
                 </tr>
                 @endforeach
                 </tbody>
@@ -269,36 +285,37 @@
 
     <!-- GRADE 8 BOX -->
     <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-        <div class="grade1-box" data-bs-toggle="modal" data-bs-target="#grade2 "
-            style="cursor:pointer;  width:100%; border-radius:20px; background:#fff; margin-top:20px;  box-shadow: 0 6px 15px rgba(0,0,0,0.1); padding:15px;">
+        <div class="grade2-box" data-bs-toggle="modal" data-bs-target="#grade22"
+            style="cursor:pointer;   width:100%; border-radius:20px; background:#fff; margin-top:20px; margin-left:3px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); padding:15px;">
 
             <div class="inner">
 
                 <!-- Flex container for Grade and Icon -->
                 <div class="d-flex align-items-center justify-content-between flex-nowrap">
 
-                    <h3 style="font-size:26px; margin:0; font-weight:700; white-space:nowrap; background:#fff;">
+                    <h3 style="font-size:26px; margin:0; font-weight:700; white-space:nowrap;">
                         Grade 8
                     </h3>
 
                     <div
-                        style="
-                                                                    background: linear-gradient(135deg, rgb(103, 127, 248), #4400ff);
+                        style="  background: linear-gradient(135deg, rgb(103, 127, 248), #4400ff);
                                                                     width:40px; height:40px;
                                                                     border-radius:50%;
                                                                     display:flex; align-items:center; justify-content:center;
                                                                     color:#fff; font-size:16px;">
+
                         <i>{{ $grade2Count }}</i>
                     </div>
 
                 </div>
-
                 <p style="font-size:15px;"> {{ $grade2Count }} Scheduled Classes</p>
             </div>
         </div>
     </div>
+
+
     <!-- Modal -->
-    <div class="modal fade" id="grade2" tabindex="-1" aria-labelledby="unassignedModalLabel" aria-hidden="true">
+    <div class="modal fade" id="grade22" tabindex="-1" aria-labelledby="unassignedModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content" style="width: 800px;">
                 <div class="modal-header bg-primary">
@@ -313,8 +330,7 @@
                                 <tr>
                                     <th>Subject</th>
                                     <th>Teachers</th>
-                                    <th>Date</th>
-                                    <th>Time</th>
+                                    <th>Date and Time</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -322,9 +338,27 @@
                                     <tr>
                                         <td>{{ $grade->sub_name }}</td>
                                         <td>{{ $grade->teacher_name }}
-                                        <td>{{ $grade->sub_date }}</td>
-                                        <td>{{ $grade->sub_Stime }} -
-                                            {{ $grade->sub_Etime }}</td>
+                                        <td class="align-middle">
+                                            <div class="mb-1">
+                                                @if ($grade->sub_date)
+                                                    @foreach (explode('-', $grade->sub_date) as $day)
+                                                        <span class="badge bg-primary shadow-sm"
+                                                            style="font-size: 0.75rem;">
+                                                            {{ $day }}
+                                                        </span>
+                                                    @endforeach
+                                                @else
+                                                    <span class="text-muted small">No Days Set</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="text-dark fw-bold" style="font-size: 0.9rem;">
+                                                <i class="bi bi-clock me-1 text-secondary"></i>
+                                                {{ $grade->sub_Stime ? date('g:i A', strtotime($grade->sub_Stime)) : 'N/A' }}
+                                                <span class="text-secondary mx-1">→</span>
+                                                {{ $grade->sub_Etime ? date('g:i A', strtotime($grade->sub_Etime)) : 'N/A' }}
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -334,18 +368,22 @@
             </div>
         </div>
     </div>
-
-
     </div>
+
+
+
+
+
+
 
 
 
     <!-- GRADE 9-10  -->
     <div class="row g-3">
 
-        <!-- GRADE 3 BOX -->
+        <!-- GRADE 9 BOX -->
         <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-            <div class="grade-box" data-bs-toggle="modal" data-bs-target="#unassignedModal"
+            <div class="grade3-box" data-bs-toggle="modal" data-bs-target="#grade3"
                 style="cursor:pointer;   width:100%; border-radius:20px; background:#fff; margin-top:20px; margin-left:3px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); padding:15px;">
 
                 <div class="inner">
@@ -358,12 +396,12 @@
                         </h3>
 
                         <div
-                            style="
-                                                                    background: linear-gradient(135deg, rgb(103, 127, 248), #4400ff);
+                            style="  background: linear-gradient(135deg, rgb(103, 127, 248), #4400ff);
                                                                     width:40px; height:40px;
                                                                     border-radius:50%;
                                                                     display:flex; align-items:center; justify-content:center;
                                                                     color:#fff; font-size:16px;">
+
                             <i>{{ $grade3Count }}</i>
                         </div>
 
@@ -375,22 +413,56 @@
 
 
         <!-- Modal -->
-        <div class="modal fade" id="unassignedModal" tabindex="-1" aria-labelledby="unassignedModalLabel"
+        <div class="modal fade" id="grade3" tabindex="-1" aria-labelledby="unassignedModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="unassignedModalLabel">Unassigned
-                            Courses
-                        </h5>
+                <div class="modal-content" style="width: 800px;">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title" id="grade2">GRADE 9 </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body">
-                        <!-- Your content here, e.g., list of courses -->
-                        List of courses that need assignment.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <div class="card-body">
+                            <table id="example2" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Teachers</th>
+                                        <th>Date and Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($view_grade3 as $grade)
+                                        <tr>
+                                            <td>{{ $grade->sub_name }}</td>
+                                            <td>{{ $grade->teacher_name }}
+                                            <td class="align-middle">
+                                                <div class="mb-1">
+                                                    @if ($grade->sub_date)
+                                                        @foreach (explode('-', $grade->sub_date) as $day)
+                                                            <span class="badge bg-primary shadow-sm"
+                                                                style="font-size: 0.75rem;">
+                                                                {{ $day }}
+                                                            </span>
+                                                        @endforeach
+                                                    @else
+                                                        <span class="text-muted small">No Days Set</span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="text-dark fw-bold" style="font-size: 0.9rem;">
+                                                    <i class="bi bi-clock me-1 text-secondary"></i>
+                                                    {{ $grade->sub_Stime ? date('g:i A', strtotime($grade->sub_Stime)) : 'N/A' }}
+                                                    <span class="text-secondary mx-1">→</span>
+                                                    {{ $grade->sub_Etime ? date('g:i A', strtotime($grade->sub_Etime)) : 'N/A' }}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -399,7 +471,7 @@
 
         <!-- GRADE 10 BOX -->
         <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-            <div class="grade-box" data-bs-toggle="modal" data-bs-target="#unassignedModal"
+            <div class="grade4-box" data-bs-toggle="modal" data-bs-target="#grade4"
                 style="cursor:pointer;   width:100%; border-radius:20px; background:#fff; margin-top:20px; margin-left:3px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); padding:15px;">
 
                 <div class="inner">
@@ -431,22 +503,56 @@
 
 
         <!-- Modal -->
-        <div class="modal fade" id="unassignedModal" tabindex="-1" aria-labelledby="unassignedModalLabel"
+        <div class="modal fade" id="grade4" tabindex="-1" aria-labelledby="unassignedModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="unassignedModalLabel">Unassigned
-                            Courses
-                        </h5>
+                <div class="modal-content" style="width: 800px;">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title" id="grade2">GRADE 10 </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body">
-                        <!-- Your content here, e.g., list of courses -->
-                        List of courses that need assignment.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <div class="card-body">
+                            <table id="example2" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Teachers</th>
+                                        <th>Date and Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($view_grade4 as $grade)
+                                        <tr>
+                                            <td>{{ $grade->sub_name }}</td>
+                                            <td>{{ $grade->teacher_name }}
+                                            <td class="align-middle">
+                                                <div class="mb-1">
+                                                    @if ($grade->sub_date)
+                                                        @foreach (explode('-', $grade->sub_date) as $day)
+                                                            <span class="badge bg-primary shadow-sm"
+                                                                style="font-size: 0.75rem;">
+                                                                {{ $day }}
+                                                            </span>
+                                                        @endforeach
+                                                    @else
+                                                        <span class="text-muted small">No Days Set</span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="text-dark fw-bold" style="font-size: 0.9rem;">
+                                                    <i class="bi bi-clock me-1 text-secondary"></i>
+                                                    {{ $grade->sub_Stime ? date('g:i A', strtotime($grade->sub_Stime)) : 'N/A' }}
+                                                    <span class="text-secondary mx-1">→</span>
+                                                    {{ $grade->sub_Etime ? date('g:i A', strtotime($grade->sub_Etime)) : 'N/A' }}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -460,7 +566,7 @@
 
         <!-- GRADE 5 BOX -->
         <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-            <div class="grade-box" data-bs-toggle="modal" data-bs-target="#unassignedModal"
+            <div class="grade5-box" data-bs-toggle="modal" data-bs-target="#grade5"
                 style="cursor:pointer;   width:100%; border-radius:20px; background:#fff; margin-top:20px; margin-left:3px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); padding:15px;">
                 <div class="inner">
 
@@ -489,22 +595,56 @@
 
 
         <!-- Modal -->
-        <div class="modal fade" id="unassignedModal" tabindex="-1" aria-labelledby="unassignedModalLabel"
+        <div class="modal fade" id="grade5" tabindex="-1" aria-labelledby="unassignedModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="unassignedModalLabel">Unassigned
-                            Courses
-                        </h5>
+                <div class="modal-content" style="width: 800px;">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title" id="grade2">GRADE 11 </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body">
-                        <!-- Your content here, e.g., list of courses -->
-                        List of courses that need assignment.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <div class="card-body">
+                            <table id="example2" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Teachers</th>
+                                        <th>Date and Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($view_grade5 as $grade)
+                                        <tr>
+                                            <td>{{ $grade->sub_name }}</td>
+                                            <td>{{ $grade->teacher_name }}
+                                            <td class="align-middle">
+                                                <div class="mb-1">
+                                                    @if ($grade->sub_date)
+                                                        @foreach (explode('-', $grade->sub_date) as $day)
+                                                            <span class="badge bg-primary shadow-sm"
+                                                                style="font-size: 0.75rem;">
+                                                                {{ $day }}
+                                                            </span>
+                                                        @endforeach
+                                                    @else
+                                                        <span class="text-muted small">No Days Set</span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="text-dark fw-bold" style="font-size: 0.9rem;">
+                                                    <i class="bi bi-clock me-1 text-secondary"></i>
+                                                    {{ $grade->sub_Stime ? date('g:i A', strtotime($grade->sub_Stime)) : 'N/A' }}
+                                                    <span class="text-secondary mx-1">→</span>
+                                                    {{ $grade->sub_Etime ? date('g:i A', strtotime($grade->sub_Etime)) : 'N/A' }}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -513,7 +653,7 @@
 
         <!-- GRADE 6 BOX -->
         <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-            <div class="grade-box" data-bs-toggle="modal" data-bs-target="#unassignedModal"
+            <div class="grade6-box" data-bs-toggle="modal" data-bs-target="#grade66"
                 style="cursor:pointer;   width:100%; border-radius:20px; background:#fff; margin-top:20px; margin-left:3px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); padding:15px;">
 
 
@@ -543,30 +683,64 @@
             </div>
         </div>
 
-
-
         <!-- Modal -->
-        <div class="modal fade" id="unassignedModal" tabindex="-1" aria-labelledby="unassignedModalLabel"
+        <div class="modal fade" id="grade66" tabindex="-1" aria-labelledby="unassignedModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="unassignedModalLabel">Unassigned
-                            Courses
-                        </h5>
+                <div class="modal-content" style="width: 800px;">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title" id="grade2">GRADE 12 </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body">
-                        <!-- Your content here, e.g., list of courses -->
-                        List of courses that need assignment.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <div class="card-body">
+                            <table id="example2" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Teachers</th>
+                                        <th>Date and Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($view_grade6 as $grade)
+                                        <tr>
+                                            <td>{{ $grade->sub_name }}</td>
+                                            <td>{{ $grade->teacher_name }}
+                                            <td class="align-middle">
+                                                <div class="mb-1">
+                                                    @if ($grade->sub_date)
+                                                        @foreach (explode('-', $grade->sub_date) as $day)
+                                                            <span class="badge bg-primary shadow-sm"
+                                                                style="font-size: 0.75rem;">
+                                                                {{ $day }}
+                                                            </span>
+                                                        @endforeach
+                                                    @else
+                                                        <span class="text-muted small">No Days Set</span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="text-dark fw-bold" style="font-size: 0.9rem;">
+                                                    <i class="bi bi-clock me-1 text-secondary"></i>
+                                                    {{ $grade->sub_Stime ? date('g:i A', strtotime($grade->sub_Stime)) : 'N/A' }}
+                                                    <span class="text-secondary mx-1">→</span>
+                                                    {{ $grade->sub_Etime ? date('g:i A', strtotime($grade->sub_Etime)) : 'N/A' }}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
     </div>
     </div>
     </section>

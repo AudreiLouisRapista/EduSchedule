@@ -1,46 +1,59 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-@if(session('errorMessage'))
-<script>
-    window.addEventListener('load', function(){
-        
-        Swal.fire({
-            icon: "error",
-            title: "Ooops...",
-            text: @json(session('errorMessage')),
-            
+@if (session('errorMessage'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: "error",
+                title: "Access Denied",
+                text: "{{ session('errorMessage') }}",
+                confirmButtonColor: "#4e73df", // Matches your primary blue
+                timer: 5000,
+                timerProgressBar: true
+            });
         });
-    });
-
-</script>
+    </script>
 @endif
 
-@if(session('success'))
-<script>
-    window.addEventListener('load', function(){
-        
-        Swal.fire({
-            icon: "error",
-            title: "Ooops...",
-            text: @json(session('success')),
-            
+@if (session('error'))
+    <script>
+        document.addEventListener('load', function() {
+            Swal.fire({
+                icon: "error",
+                title: "Access Denied",
+                text: "{{ session('error') }}",
+                confirmButtonColor: "#4e73df", // Matches your primary blue
+                timerProgressBar: true
+            });
         });
-    });
+    </script>
+@endif
 
-</script>
+@if (session('warning'))
+    <script>
+        window.addEventListener('load', function() {
+
+            Swal.fire({
+                icon: "error",
+                title: "Be informed",
+                text: @json(session('warning')),
+
+            });
+        });
+    </script>
 @endif
 
 
-@if(session('save'))
-<script>
-    window.addEventListener('load', function(){
-        
-        Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: @json(session('save')),
-            
-        });
-    });
+@if (session('save'))
+    <script>
+        window.addEventListener('load', function() {
 
-</script>
+            Swal.fire({
+                icon: "success",
+                title: "Success",
+                text: @json(session('save')),
+
+            });
+        });
+    </script>
 @endif
