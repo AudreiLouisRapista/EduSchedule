@@ -37,7 +37,7 @@
     <nav class="navbar-glass">
         <a class="navbar-brand d-flex align-items-center" href="#" style="text-decoration: none;">
 
-            <span class="brand-text">Aethel</span>
+            <span class="brand-text">EduSched</span>
         </a>
 
         <div class="d-flex align-items-center gap-3">

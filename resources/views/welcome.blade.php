@@ -73,9 +73,9 @@
             font-size: 36px;
             font-weight: 700;
             text-align: left;
-            margin-left: 20px;
+            margin-left: 5px;
             margin-top: 150px;
-            left: 130px;
+            left: 110px;
             font-style: italic;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -319,8 +319,8 @@
     <div class="login-container">
         <div class="left-panel">
             <div class="left-panel-content">
-                <h1>Aethel</h1>
-                <p class="sub-text">Aethel is the premier management system
+                <h1>EduSched</h1>
+                <p class="sub-text">EduSched is the premier management system
                     engineered to
                     bring stability and
                     precision to your academic

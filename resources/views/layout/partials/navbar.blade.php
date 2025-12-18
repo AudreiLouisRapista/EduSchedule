@@ -36,7 +36,7 @@
 
              <ul class="navbar-nav ml-auto">
                  <li class="nav-item">
-                     <span class="brand-text">Aethel</span>
+                     <span class="brand-text">EduSched</span>
                  </li>
              </ul>
 
