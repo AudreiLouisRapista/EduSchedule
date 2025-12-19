@@ -116,7 +116,7 @@
 
                                                             @csrf
                                                             <div class="modal-body px-4">
-
+                                                                @include('layout.partials.alerts')
                                                                 <div class="text-center mb-4">
                                                                     <label for="profileUpload" style="cursor: pointer;"
                                                                         class="position-relative">

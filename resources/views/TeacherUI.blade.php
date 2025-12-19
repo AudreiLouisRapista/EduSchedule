@@ -41,11 +41,11 @@
 
                                             @foreach ($teachers as $teacher)
                                                 <form method="POST" <form method="POST"
-                                                    action="{{ route('adminProfile', ['id' => $teacher->teachers_id]) }}"
+                                                    action="{{ route('Update_teacherProfile', ['id' => $teacher->teachers_id]) }}"
                                                     enctype="multipart/form-data">
                                                     @csrf
                                                     <div class="modal-body px-4 pb-4">
-
+                                                        @include('layout.partials.alerts')
                                                         <div class="text-center mb-4">
                                                             <label for="teacherPicUpload" style="cursor: pointer;"
                                                                 class="position-relative">
@@ -87,6 +87,16 @@
                                                                 value="{{ $teacher->teacher_email }}"
                                                                 class="form-control form-control-lg border-0 bg-light rounded-pill px-4"
                                                                 style="font-size: 0.95rem;" required>
+                                                        </div>
+
+                                                        <div class="form-group mb-3">
+                                                            <label
+                                                                class="small font-weight-bold text-muted text-uppercase">Password
+                                                            </label>
+                                                            <input type="password" name="password" {{-- value="{{ $teacher->teacher_password }}" --}}
+                                                                class="form-control form-control-lg border-0 bg-light rounded-pill px-4"
+                                                                style="font-size: 0.95rem;" placeholder="••••••••••"
+                                                                required>
                                                         </div>
 
                                                         <div class="row">

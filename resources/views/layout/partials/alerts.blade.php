@@ -17,12 +17,28 @@
 
 @if (session('error'))
     <script>
-        document.addEventListener('load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({
-                icon: "error",
-                title: "Access Denied",
+                icon: "warning",
+                title: "Schedule Conflict!",
                 text: "{{ session('error') }}",
-                confirmButtonColor: "#4e73df", // Matches your primary blue
+                confirmButtonColor: "#4e73df",
+                timer: 5000,
+                timerProgressBar: true
+            });
+        });
+    </script>
+@endif
+
+@if (session('deletschedule'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: "warning",
+                title: "Be informed",
+                text: "{{ session('deletschedule') }}",
+                confirmButtonColor: "#4e73df",
+                timer: 5000,
                 timerProgressBar: true
             });
         });

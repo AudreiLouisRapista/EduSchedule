@@ -129,35 +129,48 @@ private function logActivity($action, $description)
 
         $this->logActivity('updated', 'Updated Admin Profile: ' . $request->name);
 
-        session()->flash('update', 'Profile updated successfully.');
+        session()->flash('save', 'Admin Info updated successfully.');
         return redirect()->back();
     }
 
 public function Update_teacherProfile(Request $request, $id) {
-    // 1. Prepare data - Ensure keys match your DB column names exactly
+    
+    // 1. Prepare basic update data
     $updateData = [
-        'teacher_name'   => $request->name,
-        'teacher_email'  => $request->email,
-        'teacher_phone'  => $request->phone,
-        'teacher_gender' => $request->gender,
+        'email'  => $request->email,
+        'name'   => $request->name,
+        'gender' => $request->gender,
+        'phone'  => $request->phone,
     ];
 
-    // 2. Handle Image Upload
-    if ($request->hasFile('profile')) {
-        $path = $request->file('profile')->store('teachers', 'public');
-        
-        // FIX: Change 'profile' to 'teacher_profile' 
-        // to match what your Blade file is looking for
-        $updateData['teacher_profile'] = $path; 
+    // 2. Handle Password Change
+    // Only update the password if the user actually typed something in the field
+    if ($request->filled('password')) {
+        $updateData['password'] = Hash::make($request->password);
     }
 
-    // 3. Update DB
+    // 3. Handle Profile Image Update
+    if ($request->hasFile('profile')) {
+        $path = $request->file('profile')->store('profiles', 'public');
+        $updateData['profile'] = $path;
+        session(['profile' => $path]);
+    }
+
+    // 4. Perform Database Update using the correct ID column
     DB::table('teacher')->where('teachers_id', $id)->update($updateData);
 
-    // 4. Log the activity
-    $this->logActivity('updated', 'Updated profile for Teacher: ' . $request->name);
+    // 5. Update Session and Log Activity
+    session(['name' => $request->name]);
 
-    return redirect()->back()->with('update', 'Teacher updated successfully!');
+    $logMessage = 'Updated Teacher Profile: ' . $request->name;
+    if ($request->filled('password')) {
+        $logMessage .= ' (Password was also changed)';
+    }
+
+    $this->logActivity('updated', $logMessage);
+
+    session()->flash('save', 'Information updated successfully.');
+    return redirect()->back();
 }
 
 
@@ -179,6 +192,7 @@ public function TeacherUI(Request $request) {
         ->where('teachers_id', $teacherId)
         ->select(
             'teachers_id', 
+            'password as teacher_password',
             'email as teacher_email', 
             'name as teacher_name', 
             'phone as teacher_phone', 
@@ -508,14 +522,9 @@ public function save_subjects(Request $request){
 
         // SAVE TEACHERS
 
-public function save_teacher(Request $request){
-    // 1. Validation
-    // $request->validate([
-    //     'name' => ['required', 'string', 'max:255', 'unique:teacher'],
-    //     'lastname' => ['required', 'string', 'max:255'],
-    //     'age' => ['required', 'integer'],
-    //     'phone' => ['required', 'digits_between:7,11'], // better for phone validation
-    // ]);
+public function save_teacher(Request $request)
+{
+    // 1. Capture Input Data
     $email = $request->input('email');
     $pass = $request->input('password');
     $name = $request->input('name');
@@ -524,50 +533,51 @@ public function save_teacher(Request $request){
     $phone = $request->input('phone');
     $gender = $request->input('gender');
     $role = $request->input('role');
+    
+    // Default to 0 (Unassigned) if not provided in the request
     $t_status = $request->input('t_status', 0);
 
-    $chech_exist = DB::table('teacher')
-    ->where('name', $request->name)
-    ->exists();
+    // 2. Check if Teacher already exists by Name
+    $check_exist = DB::table('teacher')
+        ->where('name', $name)
+        ->exists();
 
-    if($chech_exist){
-        return redirect()->back()->with('errorMessage', 'Teacher already exist');
+    if ($check_exist) {
+        return redirect()->back()->with('errorMessage', 'Teacher already exists');
     }
 
+    // 3. Image Handling
+    if ($request->hasFile('profile_image')) {
+        $profile = $request->file('profile_image')->store('images', 'public');
+    } else {
+        return redirect()->back()->with('errorMessage', 'Profile image is required.');
+    }
 
-        // 3. Image Handling: Store the uploaded file
-        if ($request->hasFile('profile_image')) {
-            $profile = $request->file('profile_image')->store('images', 'public');
-        } else {
-            // Should be caught by validation, but safe to check
-            return redirect()->back()->with('errorMessage', 'Profile image is required.');
-        }
+    // 4. Save to Database
+    DB::table('teacher')->insert([
+        'email'         => $email,
+        'password'      => Hash::make($pass),
+        'name'          => $name,
+        'phone'         => $phone,
+        't_status'      => $t_status,
+        'gender'        => $gender,
+        'age'           => $age,
+        'teacher_major' => $teacher_major,
+        'role'          => $role,
+        'profile'       => $profile,
+    ]);
 
-        // 4. Save the new user to the 'admin' table
-        $save = DB::table('teacher')->insert([
-            // 'profile' => $profile,
-            'email' => $email,
-            'password' => Hash::make($pass),
-            'name' => $name,
-            'phone' => $phone,
-            't_status' => $t_status,
-            'gender' => $gender,
-            'age' => $age,
-            'teacher_major' => $teacher_major,
-            'role' => $role,
-            'profile' => $profile,
-        ]);
+    // 5. Create Activity Log
+    // This uses the $name variable to ensure "Added Teacher for Name: superman" appears in Recent Activity
+    $this->logActivity(
+        'added',
+        'Added Teacher for Name: ' . $name 
+    );
 
+    // 6. Success Feedback
+    session()->flash('save', 'Teacher added successfully!');
 
- $this->logActivity(
-    'added',
-    'Added Teacher for Name: ' . $name 
- );
-    //  session()->flash('successMessage','Teacher added successfully');
-     session()->flash('save','Teacher added successfully');
-
-      // 3. Redirect back with success message
-    return redirect()->back()->with('save', 'Teacher added successfully!');
+    return redirect()->back();
 }
 
 
@@ -609,28 +619,36 @@ public function deact_teacher(Request $request) {
 public function update_teacher(Request $request) {
     $teachers_id = $request->teachers_id;
 
+    // 1. Start with the basic data everyone has
+    $updateData = [
+        'email'         => $request->email,
+        'name'          => $request->name,
+        'teacher_major' => $request->major,  
+        'gender'        => $request->gender,
+        'age'           => $request->age,
+        'phone'         => $request->phone,
+    ];
 
+    // 2. Only add password to the update list if a new one was typed
+    // This prevents overwriting the existing password with an empty string or a double-hash
+    if ($request->filled('password')) {
+        $updateData['password'] = Hash::make($request->password);
+    }
 
+    // 3. Perform the update using the merged array
     DB::table('teacher')
         ->where('teachers_id', $teachers_id)
-        ->update([
+        ->update($updateData);
 
-            'email'    => $request->email,
-            'name'     => $request->name,
-            'teacher_major'   => $request->major,  
-            'gender'     => $request->gender,
-            'age'      => $request->age,
-            'phone'    => $request->phone,
-        ]);
-
-         $this->logActivity(
+    // 4. Log the activity with the teacher's name
+    $this->logActivity(
         'updated',
-        'Updated teacher ID ' . $teachers_id . ': ' . $request->name
+        'Updated teacher info for: ' . $request->name . ' (ID: ' . $teachers_id . ')'
     );
+
     session()->flash('save', 'Teacher updated successfully.');
     return redirect()->back();
 }
-
 
 
 
@@ -656,7 +674,8 @@ public function update_teacher(Request $request) {
             'status.status_name',
             'teacher.gender',
             'teacher.profile',
-            'teacher.role'
+            'teacher.role',
+            'teacher.password'
         )
             ->get();
 
@@ -861,6 +880,8 @@ public function save_schedule(Request $request){
 // --- Success Logic (Outside the Try Block) ---
 
 // Fetch names for the activity log
+
+
 $subject = DB::table('subject')->where('subject_id', $subject_id)->first();
 $subject_name = $subject ? $subject->subject_name : 'unassigned';
 
@@ -880,53 +901,68 @@ return redirect()->back();
 
 
 public function update_schedule(Request $request) {
-    // 1. Validate the incoming data
     $request->validate([
         'schedule_id'   => 'required',
         'subject_id'    => 'required|integer',
-        'teachers_id'   => 'required|integer',
+        'teachers_id'   => 'required|integer', // The NEW teacher ID
         'section_id'    => 'required|integer',
-        'schoolyear_id' => 'required|integer', // This ensures you are sending an ID, not "2025-2026"
+        'schoolyear_id' => 'required|integer',
         'days'          => 'required|array',
         'sub_Stime'     => 'required',
         'sub_Etime'     => 'required',
     ]);
 
     $schedule_id = $request->schedule_id;
-    
-    // 2. Format the days array into a string
+    $new_teacher_id = $request->teachers_id;
+
+    // 1. Get the OLD teacher ID before updating the schedule
+    $old_schedule = DB::table('schedules')->where('schedule_id', $schedule_id)->first();
+    $old_teacher_id = $old_schedule ? $old_schedule->teachers_id : null;
+
+    // 2. Perform the update
     $days = implode('-', $request->days);
+    DB::table('schedules')
+        ->where('schedule_id', $schedule_id)
+        ->update([
+            'subject_id'    => $request->subject_id,
+            'teachers_id'   => $new_teacher_id,
+            'section_id'    => $request->section_id,
+            'sub_date'      => $days,
+            'sub_Stime'     => $request->sub_Stime,
+            'sub_Etime'     => $request->sub_Etime,
+            'schoolyear_id' => $request->schoolyear_id,
+        ]);
 
-    // 3. Perform the update
-      // 1. Update the schedule
-$updated = DB::table('schedules')
-    ->where('schedule_id', $schedule_id)
-    ->update([
-        'subject_id'    => $request->subject_id,
-        'teachers_id'   => $request->teachers_id,
-        'section_id'    => $request->section_id,
-        'sub_date'      => $days,
-        'sub_Stime'     => $request->sub_Stime,
-        'sub_Etime'     => $request->sub_Etime,
-        'schoolyear_id' => $request->schoolyear_id,
-    ]);
+    // 3. Update status for the NEW teacher (Set to 'Assigned')
+    DB::table('teacher')
+        ->where('teachers_id', $new_teacher_id)
+        ->update(['status' => 'Assigned']);
 
-        // 2. Fetch the teacher's name from the 'teacher' table
-        $teacher = DB::table('teacher')
-            ->where('teachers_id', $request->teachers_id)
-            ->first();
+    // 4. Check if the OLD teacher still has other classes
+    if ($old_teacher_id && $old_teacher_id != $new_teacher_id) {
+        $remaining_classes = DB::table('schedules')
+            ->where('teachers_id', $old_teacher_id)
+            ->count();
 
-        // 3. Set a fallback name in case the teacher is not found or unassigned
-        $teacher_name = $teacher ? $teacher->name : '';
+        // If they have 0 classes left, set them back to 'Unassigned'
+        if ($remaining_classes == 0) {
+            DB::table('teacher')
+                ->where('teachers_id', $old_teacher_id)
+                ->update(['status' => 'Unassigned']);
+        }
+    }
 
-        // 4. Log the activity with the actual Name
-        $this->logActivity(
-            'updated',
-            'Updated schedule ID ' . $schedule_id . ' for teacher name ' . $teacher_name
-        );
+    // 5. Log the activity
+    $teacher = DB::table('teacher')->where('teachers_id', $new_teacher_id)->first();
+    $teacher_name = $teacher ? $teacher->name : 'Unknown';
 
-session()->flash('save', 'Schedule updated successfully!');
-return redirect()->back();
+    $this->logActivity(
+        'updated',
+        'Updated schedule ID ' . $schedule_id . ' for teacher name ' . $teacher_name
+    );
+
+    session()->flash('save', 'Schedule updated successfully!');
+    return redirect()->back();
 }
 
 public function delete_schedule(Request $request) {
@@ -951,7 +987,7 @@ public function delete_schedule(Request $request) {
                 ->where('teachers_id', $teacher_id)
                 ->update(['t_status' => 0]);
                 
-            session()->flash('warning', 'Schedule deleted. Teacher has 0 classes left and is now unassigned.');
+            session()->flash('deletschedule', 'Schedule deleted. Teacher has 0 classes left and is now unassigned.');
         } else {
             // Still has classes? Keep them active
             session()->flash('save', 'Schedule deleted. Teacher still has ' . $remainingSchedules . ' classes.');
@@ -1151,16 +1187,14 @@ public function print_teacher_load($id, $year)
         // VIEW SCHEDULES
 
 public function view_schedule() {
-
+    // 1. Fetch existing schedules for the table
     $view_schedule = DB::table('schedules')
         ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
         ->leftJoin('grade_level', 'schedules.grade_id', '=', 'grade_level.grade_id')
         ->leftJoin('subject', 'schedules.subject_id', '=', 'subject.subject_id')
-        ->leftJoin ('status', 'status.status_id', '=', 'schedules.sched_status')
-        ->leftJoin ('section', 'schedules.section_id', '=', 'section.section_id')
-        ->leftJoin ('school_year', 'schedules.schoolyear_id', '=', 'school_year.schoolyear_ID')
-        
-
+        ->leftJoin('status', 'status.status_id', '=', 'schedules.sched_status')
+        ->leftJoin('section', 'schedules.section_id', '=', 'section.section_id')
+        ->leftJoin('school_year', 'schedules.schoolyear_id', '=', 'school_year.schoolyear_ID')
         ->select(
             'schedules.*',
             'teacher.name as teacher_name',
@@ -1169,29 +1203,25 @@ public function view_schedule() {
             'section.section_name as sec_name',
             'status.status_name',
             'school_year.schoolyear_name'
-
         )
         ->get();
 
-    // 3. AUTO-UPDATE TEACHER STATUS → Assigned
-  $teachers = DB::table('teacher')
-    ->whereRaw('(SELECT COUNT(*) FROM schedules WHERE schedules.teachers_id = teacher.teachers_id) < 5')
-    ->get();
-
-
+    // 2. Fetch Subjects JOINED with Grade Level for the Dropdown
     $subject = DB::table('subject')
-        ->select('subject_id', 'subject_name') // All subject
+        ->join('grade_level', 'subject.grade_id', '=', 'grade_level.grade_id')
+        ->select('subject.subject_id', 'subject.subject_name', 'grade_level.grade_title as grade_name')
         ->get();
 
-      $section = DB::table('section')
-        ->select('section_id', 'section_name') // All subject
+    // 3. Fetch other dropdown data
+    $teachers = DB::table('teacher')
+        ->whereRaw('(SELECT COUNT(*) FROM schedules WHERE schedules.teachers_id = teacher.teachers_id) < 5')
         ->get();
 
-     $school_year = DB::table('school_year')
-        ->select('schoolyear_ID', 'schoolyear_name') // All year
-        ->get();
+    $grade = DB::table('grade_level')->get();
+    $section = DB::table('section')->get();
+    $school_year = DB::table('school_year')->get();
 
-    return view('schedule', compact('view_schedule','subject', 'teachers','section', 'school_year'));
+    return view('schedule', compact('view_schedule', 'subject', 'teachers', 'section', 'school_year', 'grade'));
 }
 
 

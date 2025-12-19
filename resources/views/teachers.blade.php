@@ -60,7 +60,7 @@
                                                     </div>
                                                     <div class="col-md-6">
                                                         <label class="form-label">Phone Number:</label>
-                                                        <input type="text" name="phone" class="form-control"
+                                                        <input type="number" name="phone" class="form-control"
                                                             value="{{ old('phone') }}" required>
                                                     </div>
                                                 </div>
@@ -98,14 +98,16 @@
                                                             value="Teacher">
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <label class="form-label">Profile Image:</label>
-                                                        <input type="file" name="profile_image" class="form-control"
-                                                            required>
+                                                        <label class="form-label">Password:</label>
+                                                        <input type="password" name="password" class="form-control"
+                                                            value="{{ old('password') }}" required>
                                                     </div>
                                                     <input type="hidden" name="t_status" value="0">
                                                 </div>
-
-                                                <button type="submit" class="btn btn-primary w-100 mt-3">Register</button>
+                                                <label class="form-label">Profile Image:</label>
+                                                <input type="file" name="profile_image" class="form-control" required>
+                                                <button type="submit"
+                                                    class="btn btn-primary w-100 mt-3">Register</button>
                                             </form>
                                         </div>
                                     </div>
@@ -255,6 +257,14 @@
                                                                     value="{{ $teacher->teacher_major }}"
                                                                     class="form-control" required>
                                                             </div>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Password</label>
+                                                                <input type="password" name="password"
+                                                                    {{-- value="{{ $teacher->password }}" --}} class="form-control"
+                                                                    placeholder="••••••••••">
+                                                            </div>
+
 
                                                             <input type="hidden" name="age"
                                                                 value="{{ $teacher->age }}">

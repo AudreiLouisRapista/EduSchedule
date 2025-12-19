@@ -69,7 +69,7 @@
                                                         <option value="">-- Select Subject --</option>
                                                         @foreach ($subject as $sub)
                                                             <option value="{{ $sub->subject_id }}">
-                                                                {{ $sub->subject_name }}
+                                                                {{ $sub->subject_name }} - {{ $sub->grade_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -235,7 +235,7 @@
                                                 <div>
                                                     <span class="badge rounded-pill bg-light text-dark border">
                                                         <i class="bi bi-mortarboard-fill me-1 text-secondary"></i>
-                                                        Grade {{ $sched->grade_name }}
+                                                        {{ $sched->grade_name }}
                                                     </span>
                                                 </div>
                                             </td>

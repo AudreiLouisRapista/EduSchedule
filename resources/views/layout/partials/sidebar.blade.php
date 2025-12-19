@@ -1,4 +1,81 @@
 <style>
+    /* 1. MAIN CONTAINER: Full height flexbox */
+    .main-sidebar {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100vh !important;
+        background: linear-gradient(135deg, #2427e3ff, #6b22baff) !important;
+        overflow: hidden !important;
+        /* Prevents the whole sidebar from scrolling */
+    }
+
+    /* 2. ZONE 1 (Boundary): Scrollable Menu Area */
+    .main-sidebar .sidebar {
+        flex: 1 !important;
+        /* Fills available space */
+        overflow-y: auto !important;
+        /* Only this part scrolls */
+        display: flex !important;
+        flex-direction: column !important;
+        padding-bottom: 20px !important;
+        background: transparent !important;
+    }
+
+    /* 3. ZONE 2: Locked Logout Container */
+    .logout-container {
+        flex-shrink: 0 !important;
+        /* Prevents button from being squashed */
+        width: 100%;
+        padding: 15px 10px;
+        background: rgba(0, 0, 0, 0.1);
+        /* Subtle visual boundary line */
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 99;
+    }
+
+    .logout-btn-styled {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 90%;
+        margin: 0 auto;
+        padding: 12px;
+        color: #fff !important;
+        background: #ff4757;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        transition: 0.3s ease;
+    }
+
+    /* --- Collapsed State Fixes --- */
+    .sidebar-collapse .logout-text {
+        display: none !important;
+    }
+
+    .sidebar-collapse .logout-btn-styled {
+        width: 45px;
+        height: 45px;
+        padding: 0;
+        border-radius: 50%;
+        /* Circle icon when collapsed */
+    }
+
+    /* Restore on Hover while Collapsed */
+    .sidebar-collapse .main-sidebar:hover .logout-btn-styled {
+        width: 90%;
+        border-radius: 12px;
+        padding-left: 15px;
+        justify-content: flex-start;
+    }
+
+    .sidebar-collapse .main-sidebar:hover .logout-text {
+        display: inline !important;
+    }
+
     /* Hide the title text when collapsed */
     /* Hide brand text when collapsed */
     .sidebar-collapse .brand-text {
@@ -14,7 +91,7 @@
         /* height: auto; Or match expanded height if needed */
     }
 
-    /* Hide menu text when collapsed - Keep icons left-aligned and prevent vertical movement */
+    /* Hide menu text when collapsed - Keep icons left-alignedx` and prevent vertical movement */
     .sidebar-collapse .nav-sidebar .nav-link {
         justify-content: flex-start;
         /* Keeps icons aligned to the left */
@@ -49,52 +126,6 @@
         /* Restore gap on sidebar hover */
     }
 
-    /* Collapse Logout text — keep design consistent, only hide text */
-    /* 1. Hide the text when sidebar is collapsed */
-    /* Base Button Styling */
-    .logout-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        /* Centers icon and text */
-        gap: 8px;
-        padding: 10px 15px;
-        background: #ff4757;
-        color: white;
-        border-radius: 12px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        width: 100%;
-    }
-
-    /* When sidebar is COLLAPSED */
-    .sidebar-collapse .logout-text {
-        display: none !important;
-        /* Completely removes text so icon can center */
-    }
-
-    .sidebar-collapse .logout-btn {
-        width: 45px;
-        /* Shrink to a circle/square when collapsed */
-        margin: 0 auto;
-        padding: 10px;
-    }
-
-    /* When sidebar is HOVERED (Expanded) */
-    .sidebar-collapse .main-sidebar:hover .logout-text {
-        display: inline-block !important;
-        font-size: 14px !important;
-    }
-
-    .sidebar-collapse .main-sidebar:hover .logout-btn {
-        width: 90%;
-        /* Return to full width on hover */
-        justify-content: flex-start;
-        /* Align left when expanded */
-        padding-left: 20px;
-    }
-
-    /* Position the logout button container at the bottom in collapsed state */
     .sidebar-collapse .sidebar>div:last-child {
         position: absolute;
         bottom: 20px;
@@ -156,11 +187,9 @@
 
 <aside id="mainSidebar" class="main-sidebar sidebar-light-primary elevation-4">
 
-    <!-- Brand / User -->
     <div class="sidebar-brand d-flex align-items-center justify-content-center py-3">
         <div class="brand-logo"
             style="width:50px; height:50px; border-radius:50%; overflow:hidden; box-shadow:rgba(88, 10, 121, 0.847)">
-
             <img src="{{ session('profile') ? asset('storage/' . session('profile')) : asset('dist/img/default.png') }}"
                 style="width:100%; height:100%; object-fit:cover;">
         </div>
@@ -168,297 +197,112 @@
     <h5>
         {{ session('user_role') }}
         <hr style="border-top: 3px solid rgb(255, 255, 255); margin-top:10px;">
-
     </h5>
 
-    <!-- Sidebar -->
-    <div class="sidebar" style="font-size:16px; font-weight:700; color:#999;">
-        <!-- Sidebar Menu -->
+    <div class="sidebar">
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                data-accordion="false" style= " padding-right:15px; gap:10px;">
+                data-accordion="false" style="padding-right:15px; gap:10px;">
 
                 {{-- Dashboard --}}
                 <li class="nav-item">
                     <a href="{{ route('admin.dashboard') }}"
                         class="nav-link {{ Route::is('admin.dashboard') ? 'active' : '' }}"
-                        style="
-                     display:flex; 
-                     align-items:center; 
-                     gap:10px; 
-                     padding:10px 15px;
-                     border-radius:30px;
-                     font-weight:500;
-                     color:{{ Route::is('admin.dashboard') ? '#333' : '#fff' }}; 
-                     background:{{ Route::is('admin.dashboard') ? '#fff' : 'transparent' }}; 
-                     box-shadow:{{ Route::is('admin.dashboard') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
-                   ">
-                        <i class="fas fa-th-large"></i>
-                        Dashboard
+                        style="display:flex; align-items:center; gap:10px; padding:10px 15px; border-radius:30px; font-weight:500; color:{{ Route::is('admin.dashboard') ? '#333' : '#fff' }}; background:{{ Route::is('admin.dashboard') ? '#fff' : 'transparent' }}; box-shadow:{{ Route::is('admin.dashboard') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};">
+                        <i class="fas fa-th-large"></i> Dashboard
                     </a>
                 </li>
 
-                {{-- adpin profile --}}
+                {{-- Admin Profile --}}
                 <li class="nav-item">
                     <a href="{{ route('admin_profile') }}"
                         class="nav-link {{ Route::is('admin_profile') ? 'active' : '' }}"
-                        style="
-                     display:flex; 
-                     align-items:center; 
-                     gap:10px; 
-                     padding:10px 15px;
-                     border-radius:30px;
-                     font-weight:500;
-                     color:{{ Route::is('admin_profile') ? '#333' : '#fff' }}; /* Suggested: Dark text for active, white for inactive */
-                     background:{{ Route::is('admin_profile') ? '#fff' : 'transparent' }}; /* Changed active to white */
-                     box-shadow:{{ Route::is('admin_profile') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
-                   ">
-                        <i class="fas fa-user-cog"></i>
-                        Admin Profile
+                        style="display:flex; align-items:center; gap:10px; padding:10px 15px; border-radius:30px; font-weight:500; color:{{ Route::is('admin_profile') ? '#333' : '#fff' }}; background:{{ Route::is('admin_profile') ? '#fff' : 'transparent' }}; box-shadow:{{ Route::is('admin_profile') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};">
+                        <i class="fas fa-user-cog"></i> Admin Profile
                     </a>
                 </li>
 
-                {{-- Start PHP Block: DEFINE VARIABLES FIRST --}}
+                {{-- Teachers Dropdown --}}
                 @php
-                    // 1. Check if the parent item should be active/open (User is on any related page)
                     $teacher_parent_active = Route::is('view_teachers') || Route::is('admin_teacher_loads');
-
-                    // 2. Define custom styling variables for cleaner HTML
                     $active_bg_style =
                         'background: #fff; color: #333; box-shadow: 0 5px 12px rgba(99, 101, 241, 0.67);';
                     $inactive_style = 'background: transparent; color: #fff; box-shadow: none;';
                     $sub_active_style = 'background: rgba(255, 255, 255, 0.3); color: #333;';
                 @endphp
-                {{-- End PHP Block --}}
-
-
-                {{-- TEACHERS Dropdown Parent Item --}}
                 <li class="nav-item">
-
-                    {{-- Main Toggle Link (Parent) --}}
                     <a href="#teachersCollapse" data-bs-toggle="collapse" role="button"
-                        aria-expanded="{{ $teacher_parent_active ? 'true' : 'false' }}"
                         class="nav-link {{ $teacher_parent_active ? 'active' : '' }}"
-                        style="
-                                    display:flex; 
-                                    align-items:center; 
-                                    gap:10px; 
-                                    padding:10px 15px;
-                                    border-radius:30px;
-                                    font-weight:500;
-                                    {{ $teacher_parent_active ? $active_bg_style : $inactive_style }}
-                                ">
-                        <i class="fas fa-user-tie"></i>
-                        Teachers
-                        <i class="fas fa-caret-down ms-auto"></i>
+                        style="display:flex; align-items:center; gap:10px; padding:10px 15px; border-radius:30px; font-weight:500; {{ $teacher_parent_active ? $active_bg_style : $inactive_style }}">
+                        <i class="fas fa-user-tie"></i> Teachers <i class="fas fa-caret-down ms-auto"></i>
                     </a>
-
-                    {{-- Collapsible Child Links --}}
                     <div id="teachersCollapse" class="collapse {{ $teacher_parent_active ? 'show' : '' }}"
                         style="margin-left: 15px;">
                         <ul class="nav flex-column">
-
-                            {{-- 1. View All Teachers --}}
                             <li class="nav-item">
-                                <a href="{{ route('view_teachers') }}"
-                                    class="nav-link {{ Route::is('view_teachers') ? 'active' : '' }}"
-                                    style="
-                                            display:block; 
-                                            padding:8px 0 8px 10px;
-                                            font-weight:400;
-                                            border-radius:15px;
-                                            {{ Route::is('view_teachers') ? $sub_active_style : $inactive_style }}
-                                        ">
-                                    View All Teachers
-                                </a>
+                                <a href="{{ route('view_teachers') }}" class="nav-link"
+                                    style="display:block; padding:8px 0 8px 10px; font-weight:400; border-radius:15px; {{ Route::is('view_teachers') ? $sub_active_style : $inactive_style }}">View
+                                    All Teachers</a>
                             </li>
-
-                            {{-- 2. Teacher Load View --}}
                             <li class="nav-item">
-                                @php
-                                    // Check active state for the Teacher Load link
-                                    $is_teacher_load_active = Route::is('teacher_loads') || Route::is('teacher_loads');
-                                @endphp
-                                <a href="{{ route('teacher_loads') }}"
-                                    class="nav-link {{ $is_teacher_load_active ? 'active' : '' }}"
-                                    style="
-                                            display:block;
-                                            padding:8px 0 8px 10px;
-                                            font-weight:400;
-                                            border-radius:15px;
-                                            {{ $is_teacher_load_active ? $sub_active_style : $inactive_style }}
-                                        ">
-                                    Teacher Load
-                                </a>
+                                <a href="{{ route('teacher_loads') }}" class="nav-link"
+                                    style="display:block; padding:8px 0 8px 10px; font-weight:400; border-radius:15px; {{ Route::is('teacher_loads') ? $sub_active_style : $inactive_style }}">Teacher
+                                    Load</a>
                             </li>
-
                         </ul>
                     </div>
                 </li>
 
-
-                {{-- Start PHP Block: DEFINE VARIABLES FIRST --}}
-                @php
-                    // 1. Check if the parent item should be active/open (User is on any related page)
-                    $section_parent_active = Route::is('view_section') || Route::is('section_loads');
-
-                    // 2. Define custom styling variables for cleaner HTML
-                    $active_bg_style =
-                        'background: #fff; color: #333; box-shadow: 0 5px 12px rgba(99, 101, 241, 0.67);';
-                    $inactive_style = 'background: transparent; color: #fff; box-shadow: none;';
-                    $sub_active_style = 'background: rgba(255, 255, 255, 0.3); color: #333;';
-                @endphp
-                {{-- End PHP Block --}}
-                {{-- SECTION Dropdown Parent Item --}}
+                {{-- Section Dropdown --}}
+                @php $section_parent_active = Route::is('view_section') || Route::is('section_loads'); @endphp
                 <li class="nav-item">
-
-                    {{-- Main Toggle Link (Parent) --}}
                     <a href="#sectionCollapse" data-bs-toggle="collapse" role="button"
-                        aria-expanded="{{ $section_parent_active ? 'true' : 'false' }}"
                         class="nav-link {{ $section_parent_active ? 'active' : '' }}"
-                        style="
-                                    display:flex; 
-                                    align-items:center; 
-                                    gap:10px; 
-                                    padding:10px 15px;
-                                    border-radius:30px;
-                                    font-weight:500;
-                                    {{ $section_parent_active ? $active_bg_style : $inactive_style }}
-                                ">
-                        <i class="bi bi-house-add-fill"></i>
-
-                        Section
-                        <i class="fas fa-caret-down ms-auto"></i>
+                        style="display:flex; align-items:center; gap:10px; padding:10px 15px; border-radius:30px; font-weight:500; {{ $section_parent_active ? $active_bg_style : $inactive_style }}">
+                        <i class="bi bi-house-add-fill"></i> Section <i class="fas fa-caret-down ms-auto"></i>
                     </a>
-
-                    {{-- Collapsible Child Links --}}
                     <div id="sectionCollapse" class="collapse {{ $section_parent_active ? 'show' : '' }}"
                         style="margin-left: 15px;">
                         <ul class="nav flex-column">
-
-                            {{-- 1. View All Teachers --}}
                             <li class="nav-item">
-                                <a href="{{ route('view_section') }}"
-                                    class="nav-link {{ Route::is('view_section') ? 'active' : '' }}"
-                                    style="
-                                            display:block; 
-                                            padding:8px 0 8px 10px;
-                                            font-weight:400;
-                                            border-radius:15px;
-                                            {{ Route::is('view_section') ? $sub_active_style : $inactive_style }}
-                                        ">
-                                    View All Section
-                                </a>
+                                <a href="{{ route('view_section') }}" class="nav-link"
+                                    style="display:block; padding:8px 0 8px 10px; font-weight:400; border-radius:15px; {{ Route::is('view_section') ? $sub_active_style : $inactive_style }}">View
+                                    All Section</a>
                             </li>
-
-                            {{-- 2. Teacher Load View --}}
                             <li class="nav-item">
-                                @php
-                                    // Check active state for the Teacher Load link
-                                    $is_section_load_active = Route::is('section_loads') || Route::is('teacher_loads');
-                                @endphp
-                                <a href="{{ route('section_loads') }}"
-                                    class="nav-link {{ $is_section_load_active ? 'active' : '' }}"
-                                    style="
-                                            display:block;
-                                            padding:8px 0 8px 10px;
-                                            font-weight:400;
-                                            border-radius:15px;
-                                            {{ $is_section_load_active ? $sub_active_style : $inactive_style }}
-                                        ">
-                                    Section Load
-                                </a>
+                                <a href="{{ route('section_loads') }}" class="nav-link"
+                                    style="display:block; padding:8px 0 8px 10px; font-weight:400; border-radius:15px; {{ Route::is('section_loads') ? $sub_active_style : $inactive_style }}">Section
+                                    Load</a>
                             </li>
-
                         </ul>
                     </div>
                 </li>
 
-
-
-
-                {{-- Schedules  --}}
+                {{-- Schedules --}}
                 <li class="nav-item">
                     <a href="{{ route('view_schedule') }}"
                         class="nav-link {{ Route::is('view_schedule') ? 'active' : '' }}"
-                        style="
-                     display:flex; 
-                     align-items:center; 
-                     gap:10px; 
-                     padding:10px 15px;
-                     border-radius:30px;
-                     font-weight:500;
-                     color:{{ Route::is('view_schedule') ? '#333' : '#fff' }}; /* Suggested: Dark text for active, white for inactive */
-                     background:{{ Route::is('view_schedule') ? '#fff' : 'transparent' }}; /* Changed active to white */
-                     box-shadow:{{ Route::is('view_schedule') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
-                   ">
-                        <i class="bi bi-calendar4-range"></i>
-                        Schedules
+                        style="display:flex; align-items:center; gap:10px; padding:10px 15px; border-radius:30px; font-weight:500; color:{{ Route::is('view_schedule') ? '#333' : '#fff' }}; background:{{ Route::is('view_schedule') ? '#fff' : 'transparent' }}; box-shadow:{{ Route::is('view_schedule') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};">
+                        <i class="bi bi-calendar4-range"></i> Schedules
                     </a>
                 </li>
 
-
-                {{-- Subjects  --}}
+                {{-- Subjects --}}
                 <li class="nav-item">
                     <a href="{{ route('view_subject') }}"
                         class="nav-link {{ Route::is('view_subject') ? 'active' : '' }}"
-                        style="
-                     display:flex; 
-                     align-items:center; 
-                     gap:10px; 
-                     padding:10px 15px;
-                     border-radius:30px;
-                     font-weight:500;
-                     color:{{ Route::is('view_subject') ? '#333' : '#fff' }}; /* Suggested: Dark text for active, white for inactive */
-                     background:{{ Route::is('view_subject') ? '#fff' : 'transparent' }}; /* Changed active to white */
-                     box-shadow:{{ Route::is('view_subject') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};
-                   ">
-                        <i class="bi bi-journals"></i>
-                        Subjects
+                        style="display:flex; align-items:center; gap:10px; padding:10px 15px; border-radius:30px; font-weight:500; color:{{ Route::is('view_subject') ? '#333' : '#fff' }}; background:{{ Route::is('view_subject') ? '#fff' : 'transparent' }}; box-shadow:{{ Route::is('view_subject') ? '0 5px 12px rgba(99, 101, 241, 0.67)' : 'none' }};">
+                        <i class="bi bi-journals"></i> Subjects
                     </a>
                 </li>
-
-
-
-
             </ul>
         </nav>
-
-
-        {{-- Logout Button --}}
-        <div style="padding:5px; margin-top: auto;">
-
-            <a href="{{ route('logout') }}"
-                style="
-                  display: flex;
-                  align-items: center;
-                  justify-content: center; 
-                gap: 10px;               
-                width: 90%;              
-                  padding: 8px 20px;
-                  color: #fff;
-                  background: #ff4757;
-                  border-radius: 12px;
-                  font-size: 13px;
-                  font-weight: 600;
-                  text-decoration: none;
-                  transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
-                  margin-top:200px;
-                 
-               "
-                onmouseover="this.style.transform='scale(1.05)'; this.style.backgroundColor='#ff6b81';"
-                onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#ff4757';">
-                <i class="bi bi-box-arrow-left"></i>
-                <span class="logout-text">Logout</span>
-            </a>
-        </div>
-
-
-
-        <!-- </ul>
-        </nav> -->
-        <!-- /.sidebar-menu -->
     </div>
-    <!-- /.sidebar -->
+    <div class="logout-container">
+        <a href="{{ route('logout') }}" class="logout-btn-styled">
+            <i class="bi bi-box-arrow-left"></i>
+            <span class="logout-text">Logout</span>
+        </a>
+    </div>
+
 </aside>

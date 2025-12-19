@@ -231,7 +231,8 @@
                                                                 <select type="text" class="form-control"
                                                                     id="section_strand" name="section_strand"
                                                                     placeholder="Section Strand" required>
-                                                                    <option value="">{{ $sec->section_strand }}
+                                                                    <option value="{{ $sec->section_strand }}">
+                                                                        {{ $sec->section_strand }}
                                                                     </option>
                                                                     <option value="None">None</option>
                                                                     <option value="AMB">AMB</option>

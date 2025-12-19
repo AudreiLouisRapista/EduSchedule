@@ -44,7 +44,7 @@
                                             @csrf
 
                                             <div class="mb-3">
-                                                <label class="form-label">JHS, SHS</label>
+                                                <label class="form-label">Academic Level</label>
                                                 <select class="form-control" name="sub_yearlevel" id="levelDropdown"
                                                     required>
                                                     <option value="">-- JHS or SHS --</option>
@@ -197,7 +197,7 @@
                             <table id="example2" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Year Level</th>
+                                        <th>Academic Level</th>
                                         <th>Strand</th>
                                         <th>Subject Name</th>
                                         <th>Grade Level</th>

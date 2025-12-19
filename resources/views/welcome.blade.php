@@ -287,30 +287,98 @@
             cursor: pointer;
         }
 
-        /* --- Media Queries for Responsiveness --- */
+        /* --- Media Queries for Mobile Responsiveness --- */
         @media (max-width: 768px) {
+            body {
+                padding: 0;
+                /* Remove padding for a flush mobile look */
+                align-items: flex-start;
+                /* Start from the top on mobile */
+                background-color: #fff;
+                /* Match the card background */
+            }
+
             .login-container {
                 flex-direction: column;
-                min-height: auto;
+                /* Stack vertically */
+                min-height: 100vh;
+                border-radius: 0;
+                /* Full screen width on mobile */
+                box-shadow: none;
             }
 
+            /* --- Top Section with Background --- */
             .left-panel {
                 max-width: 100%;
-                /* Optional: Keep a small height for the image on mobile */
-                min-height: 200px;
+                min-height: 250px;
+                /* Reduced height for header */
+                flex: none;
             }
 
+            .left-panel-content {
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 0 0 40px 40px;
+                /* Rounded bottom corners */
+            }
+
+            .left-panel h1 {
+                position: absolute;
+                width: 100%;
+                left: 0;
+                top: 60%;
+                /* Center the text vertically */
+                text-align: center;
+                margin: 0;
+                font-size: 32px;
+                left: 0;
+                /* Reset previous desktop left value */
+            }
+
+            /* --- Form Section --- */
             .right-panel {
                 max-width: 100%;
-                padding: 40px 20px;
+                padding: 40px 25px;
+                flex: 1;
+                background: #fff;
             }
 
-            /* Remove the curved effect on mobile to save space */
             .right-panel::before {
                 display: none;
+                /* Hide the desktop curve */
             }
 
+            .login-form-content {
+                max-width: 100%;
+            }
 
+            .login-form-content h2 {
+                font-size: 32px;
+                /* Large "Welcome" */
+                margin-bottom: 8px;
+            }
+
+            /* --- UI Elements --- */
+            .form-control {
+                background-color: #f8f9fa;
+                /* Slightly gray input background */
+                border: 1px solid #eee;
+                height: 55px;
+                /* Taller inputs for easier tapping */
+            }
+
+            .login-btn {
+                height: 55px;
+                font-size: 18px;
+                margin-top: 10px;
+            }
+
+            /* Hide subtext from the left panel content on mobile if it blocks the title */
+            .left-panel-content .sub-text {
+                display: none;
+            }
         }
     </style>
 </head>
