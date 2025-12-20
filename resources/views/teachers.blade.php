@@ -132,6 +132,7 @@
                                     @foreach ($view_teachers as $teacher)
                                         <tr>
                                             <td>
+                                                {{-- email --}}
                                                 <img src="{{ $teacher->profile ? asset('storage/' . $teacher->profile) : asset('dist/img/default.png') }}"
                                                     style="width:30px; height:30px; object-fit:cover; border-radius:50%; margin-right:10px;">
                                                 {{ $teacher->email }}
