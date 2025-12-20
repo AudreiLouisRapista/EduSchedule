@@ -10,10 +10,12 @@
                         <div class="row no-gutters">
                             <div class="col-md-4 d-flex flex-column justify-content-center align-items-center py-5"
                                 style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); border-right: 1px solid #f0f0f0;">
-
                                 <div class="position-relative">
-                                    <img class="rounded-circle shadow-sm" src="{{ asset('storage/' . session('profile')) }}"
-                                        style="width:160px; height:160px; object-fit:cover; border:5px solid white;">
+                                    <img class="rounded-circle shadow-sm"
+                                        src="{{ session('profile') ? asset(session('profile')) . '?' . time() : asset('dist/img/avatar.png') }}"
+                                        style="width:160px; height:160px; object-fit:cover; border:5px solid white;"
+                                        onerror="this.onerror=null; this.src='{{ asset('dist/img/avatar.png') }}';">
+
                                     <div class="position-absolute shadow-sm"
                                         style="bottom: 5px; right: 10px; background: #2ecc71; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;">
                                     </div>
@@ -40,7 +42,7 @@
                                             </div>
 
                                             @foreach ($teachers as $teacher)
-                                                <form method="POST" <form method="POST"
+                                                <form method="POST"
                                                     action="{{ route('Update_teacherProfile', ['id' => $teacher->teachers_id]) }}"
                                                     enctype="multipart/form-data">
                                                     @csrf
@@ -49,20 +51,22 @@
                                                         <div class="text-center mb-4">
                                                             <label for="teacherPicUpload" style="cursor: pointer;"
                                                                 class="position-relative">
-                                                                <img src="{{ !empty($teacher->teacher_profile) && file_exists(public_path('storage/' . $teacher->teacher_profile))
-                                                                    ? asset('storage/' . $teacher->teacher_profile)
-                                                                    : asset('images/default-avatar.png') }}"
+                                                                <img src="{{ session('profile') ? asset(session('profile')) . '?' . time() : asset('dist/img/avatar.png') }}"
                                                                     class="rounded-circle border shadow-sm"
                                                                     style="width: 110px; height: 110px; object-fit: cover;"
-                                                                    id="teacherPreview">
+                                                                    id="teacherPreview"
+                                                                    onerror="this.onerror=null; this.src='{{ asset('dist/img/avatar.png') }}';">
+
                                                                 <div class="position-absolute"
                                                                     style="bottom: 0; right: 0; background: #4e73df; color: #fff; border-radius: 50%; padding: 4px 8px; font-size: 12px; border: 3px solid #fff;">
                                                                     <i class="fas fa-camera"></i>
                                                                 </div>
                                                             </label>
-                                                            <input type="file" name="profile" id="teacherPicUpload"
+
+                                                            <input type="file" name="profile_image" id="teacherPicUpload"
                                                                 class="d-none" accept="image/*"
                                                                 onchange="previewTeacherFile(this)">
+
                                                             <p class="small text-muted mt-2 mb-0">Click the photo to change
                                                             </p>
                                                         </div>

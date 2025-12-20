@@ -132,10 +132,14 @@
                                     @foreach ($view_teachers as $teacher)
                                         <tr>
                                             <td>
-                                                {{-- email --}}
-                                                <img src="{{ $teacher->profile ? asset('storage/' . $teacher->profile) : asset('dist/img/default.png') }}"
-                                                    style="width:30px; height:30px; object-fit:cover; border-radius:50%; margin-right:10px;">
-                                                {{ $teacher->email }}
+                                                <div class="d-flex align-items-center">
+                                                    <img src="{{ $teacher->profile ? asset($teacher->profile) : asset('dist/img/avatar.png') }}"
+                                                        style="width:30px; height:30px; object-fit:cover; border-radius:50%; margin-right:10px;"
+                                                        {{-- /* 2. Prevents infinite loading loops if both images fail */ --}}
+                                                        onerror="this.onerror=null; this.src='{{ asset('dist/img/avatar.png') }}';">
+
+                                                    <span>{{ $teacher->email }}</span>
+                                                </div>
                                             </td>
                                             <td>{{ $teacher->name }}</td>
                                             <td>{{ $teacher->phone }}</td>

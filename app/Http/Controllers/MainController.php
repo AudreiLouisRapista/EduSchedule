@@ -12,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Session; // For session usage
 use Exception;
 use DateTime;
+use Illuminate\Support\Facades\File;
 class MainController extends Controller
 {
     /**
@@ -54,8 +55,10 @@ public function auth_user(Request $request) {
     if(!Hash::check($pass, $user->password)){
         return back()->with('errorMessage', 'Invalid password.');
     }
+
     // Clear old session data first to prevent role mixing
     Session::flush();
+
     // Store common data
     // Session::put('id', $user->id ?? $user->teachers_id);
     Session::put('name', $user->name);
@@ -64,8 +67,10 @@ public function auth_user(Request $request) {
     Session::put('profile', $user->profile);
     Session::put('phone', $user->phone);
     Session::put('gender', $user->gender);
-     
-    // This saves 'admin' or 'teacher
+    
+    
+    // This saves 'admin' or 'teacher'
+
     if($role == 'admin'){
         Session::put('id', $user->id);
         Session::put('user_role', $role); 
@@ -103,35 +108,10 @@ private function logActivity($action, $description)
     return view('admin_profile', compact('admins','logs'));
 }
 
-    public function adminProfile(Request $request, $id) { 
-        // Now $request is argument #1 and $id is argument #2
-        
-        $updateData = [
-            'email'  => $request->email,
-            'name'   => $request->name,
-            'gender' => $request->gender,
-            'phone'  => $request->phone,
-        ];
-
-        if ($request->hasFile('profile')) {
-            $path = $request->file('profile')->store('profiles', 'public');
-            $updateData['profile'] = $path;
-            session(['profile' => $path]);
-        }
-
-        DB::table('admin')->where('id', $id)->update($updateData);
-
-        session(['name' => $request->name]);
-
-        $this->logActivity('updated', 'Updated Admin Profile: ' . $request->name);
-
-        session()->flash('save', 'Admin Info updated successfully.');
-        return redirect()->back();
-    }
-
-public function Update_teacherProfile(Request $request, $id) {
+  public function adminProfile(Request $request, $id) { 
+    // 1. Get the current admin record to find the old image path
+    $admin = DB::table('admin')->where('id', $id)->first();
     
-    // 1. Prepare basic update data
     $updateData = [
         'email'  => $request->email,
         'name'   => $request->name,
@@ -139,24 +119,87 @@ public function Update_teacherProfile(Request $request, $id) {
         'phone'  => $request->phone,
     ];
 
-    // 2. Handle Password Change
-    // Only update the password if the user actually typed something in the field
+    // 2. Handle Profile Image Update
+    if ($request->hasFile('profile')) {
+        $image = $request->file('profile');
+        
+        // Generate a unique filename
+        $filename = 'admin_' . time() . '.' . $image->getClientOriginalExtension();
+        
+        // Move directly to public/images
+        $image->move(public_path('images'), $filename);
+        $new_path = 'images/' . $filename;
+
+        // Cleanup: Delete the old image file if it exists in the public/images folder
+        if ($admin->profile && File::exists(public_path($admin->profile))) {
+            File::delete(public_path($admin->profile));
+        }
+
+        $updateData['profile'] = $new_path;
+        
+        // Update the session to show the new image immediately
+        session(['profile' => $new_path]);
+    }
+
+    // 3. Update Database
+    DB::table('admin')->where('id', $id)->update($updateData);
+
+    session(['name' => $request->name]);
+    $this->logActivity('updated', 'Updated Admin Profile: ' . $request->name);
+
+    session()->flash('save', 'Admin Info updated successfully.');
+    return redirect()->back();
+}
+
+public function Update_teacherProfile(Request $request, $id) {
+    // 1. Fetch current teacher data
+    $teacher = DB::table('teacher')->where('teachers_id', $id)->first();
+
+    if (!$teacher) {
+        return redirect()->back()->with('errorMessage', 'Teacher not found.');
+    }
+
+    // 2. Prepare update data
+    $updateData = [
+        'email'  => $request->email,
+        'name'   => $request->name,
+        'gender' => $request->gender,
+        'phone'  => $request->phone,
+    ];
+
     if ($request->filled('password')) {
         $updateData['password'] = Hash::make($request->password);
     }
 
-    // 3. Handle Profile Image Update
-    if ($request->hasFile('profile')) {
-        $path = $request->file('profile')->store('profiles', 'public');
-        $updateData['profile'] = $path;
-        session(['profile' => $path]);
+    // 3. Handle Image Upload
+    if ($request->hasFile('profile_image')) {
+        $image = $request->file('profile_image');
+        $filename = time() . '_' . $image->getClientOriginalName();
+        
+        // Save to public/images
+        $image->move(public_path('images'), $filename);
+        $new_path = 'images/' . $filename;
+
+        // Delete old file if it's not the default avatar
+        if ($teacher->profile && $teacher->profile !== 'dist/img/avatar.png') {
+            $old_file_path = public_path($teacher->profile);
+            if (File::exists($old_file_path)) {
+                File::delete($old_file_path);
+            }
+        }
+
+        $updateData['profile'] = $new_path;
+        
+        // Update session immediately for UI refresh
+        session(['profile' => $new_path]);
     }
 
-    // 4. Perform Database Update using the correct ID column
+    // 4. Update Database
     DB::table('teacher')->where('teachers_id', $id)->update($updateData);
 
-    // 5. Update Session and Log Activity
+    // 5. Update session name & Log activity
     session(['name' => $request->name]);
+    session()->save(); // Force session to save changes
 
     $logMessage = 'Updated Teacher Profile: ' . $request->name;
     if ($request->filled('password')) {
@@ -165,8 +208,7 @@ public function Update_teacherProfile(Request $request, $id) {
 
     $this->logActivity('updated', $logMessage);
 
-    session()->flash('save', 'Information updated successfully.');
-    return redirect()->back();
+    return redirect()->back()->with('save', 'Information updated successfully.');
 }
 
 
@@ -250,7 +292,7 @@ public function TeacherUI(Request $request) {
     $grade5Count = DB::table('schedules')->where('grade_id', '11')->count();
     $grade6Count = DB::table('schedules')->where('grade_id', '12')->count();
 
-    //  $schoolYears = DB::table('school_year')->orderBy('schoolyear_name', 'desc')->get();
+//  $schoolYears = DB::table('school_year')->orderBy('schoolyear_name', 'desc')->get();
 
    $view_grade1 = DB::table('schedules')
     ->join('teacher', 'teacher.teachers_id', '=', 'schedules.teachers_id')
@@ -266,7 +308,7 @@ public function TeacherUI(Request $request) {
 
     ->get();
 
-    //  dd(DB::table('schedules')->first());
+//  dd(DB::table('schedules')->first());
    $view_grade2 = DB::table('schedules')
         ->leftJoin('teacher', 'schedules.teachers_id', '=', 'teacher.teachers_id')
         ->Join('subject', 'schedules.subject_id', '=', 'subject.subject_id')
@@ -371,6 +413,16 @@ public function TeacherUI(Request $request) {
 public function save_section(Request $request){
 
 
+       // 1. Validate input
+    // $request->validate([
+    //     'subject_code' => 'required|string|max:255',
+    //     'subject_name' => 'required|string|max:255',
+    //     'subject_gradelevel' => 'required|string|max:255',
+    //     // 'subject_status' => 'required|exists:teacher,teachers_id',
+    // ]);
+
+
+
     // 2. Save the new subject
    $save_section = DB::table('section')->insert([
         'section_name' => $request->section_name,
@@ -380,12 +432,14 @@ public function save_section(Request $request){
 
     ]);
 
+
  session()->flash('save', 'Section ADDED successfully.');
     return redirect()->back();
 
 }
 
 public function view_section() {
+
 
        $view_section = DB::table('section')
             ->leftJoin('grade_level', 'grade_level.grade_id', '=', 'section.grade_id')
@@ -400,7 +454,11 @@ public function view_section() {
             ->get();
 
 
+
+
+
  return view('section', compact('view_section'));
+
 
 }
 
@@ -435,6 +493,18 @@ public function update_section(Request $request) {
     // SUBJECTS
 
 public function save_subjects(Request $request){
+
+
+       // 1. Validate input
+    // $request->validate([
+    //     'subject_code' => 'required|string|max:255',
+    //     'subject_name' => 'required|string|max:255',
+    //     'subject_gradelevel' => 'required|string|max:255',
+    //     // 'subject_status' => 'required|exists:teacher,teachers_id',
+    // ]);
+
+
+
     // 2. Save the new subject
    $save_subjects = DB::table('subject')->insert([
         'subject_name' => $request->sub_name,
@@ -448,15 +518,14 @@ public function save_subjects(Request $request){
     $this->logActivity(
     'added',
     'Added subject: ' . $request->sub_name . ' for Grade ' . $request->grade_id
-    );
+);
 
     return redirect()->back()->with('success', 'Subject added and teacher status updated!');
 
 
-}
+    }
 
-
-public function view_subject() {
+     public function view_subject() {
 
 
        $view_subject = DB::table('subject')
@@ -470,6 +539,10 @@ public function view_subject() {
             'status.status_name'
         )
             ->get();
+
+
+
+
 
     return view('subject', compact('view_subject'));
 
@@ -489,6 +562,7 @@ public function view_subject() {
 
 public function save_teacher(Request $request)
 {
+//   dd($request->all(), $request->file());
     // 1. Capture Input Data
     $email = $request->input('email');
     $pass = $request->input('password');
@@ -498,26 +572,16 @@ public function save_teacher(Request $request)
     $phone = $request->input('phone');
     $gender = $request->input('gender');
     $role = $request->input('role');
-    
-    // Default to 0 (Unassigned) if not provided in the request
     $t_status = $request->input('t_status', 0);
+    
 
-    // 2. Check if Teacher already exists by Name
-    $check_exist = DB::table('teacher')
-        ->where('name', $name)
-        ->exists();
-
+    // 2. Check if Teacher already exists
+    $check_exist = DB::table('teacher')->where('name', $name)->exists();
     if ($check_exist) {
         return redirect()->back()->with('errorMessage', 'Teacher already exists');
     }
 
-    // 3. Image Handling
-    if ($request->hasFile('profile_image')) {
-        $profile = $request->file('profile_image')->store('images', 'public');
-    } else {
-        return redirect()->back()->with('errorMessage', 'Profile image is required.');
-    }
-
+  
     // 4. Save to Database
     DB::table('teacher')->insert([
         'email'         => $email,
@@ -529,22 +593,16 @@ public function save_teacher(Request $request)
         'age'           => $age,
         'teacher_major' => $teacher_major,
         'role'          => $role,
-        'profile'       => $profile,
+      'profile' => 'dist/img/avatar.png', // Now this variable exists!
     ]);
 
     // 5. Create Activity Log
-    // This uses the $name variable to ensure "Added Teacher for Name: superman" appears in Recent Activity
-    $this->logActivity(
-        'added',
-        'Added Teacher for Name: ' . $name 
-    );
+    $this->logActivity('added', 'Added Teacher for Name: ' . $name);
 
     // 6. Success Feedback
     session()->flash('save', 'Teacher added successfully!');
-
     return redirect()->back();
 }
-
 
 
 
@@ -621,8 +679,10 @@ public function update_teacher(Request $request) {
 
 
 
-public function view_teachers() {
+    public function view_teachers() {
     // Get all records from 'teacher' table
+
+
 
     $view_teachers = DB::table('teacher')
             ->leftJoin('status', 'status.status_id', '=', 'teacher.t_status')
@@ -641,7 +701,11 @@ public function view_teachers() {
             'teacher.password'
         )
             ->get();
-            
+
+
+
+
+
     return view('teachers', compact('view_teachers'));
 }
 
@@ -832,28 +896,28 @@ public function save_schedule(Request $request){
             ->update(['t_status' => 1]);
     }
 
-    } catch (\Exception $e) {
+} catch (\Exception $e) {
     return back()->with('error', 'Failed to save schedule: ' . $e->getMessage());
-    }
+}
 
-    // --- Success Logic (Outside the Try Block) ---
+// --- Success Logic (Outside the Try Block) ---
 
-    // Fetch names for the activity log
+// Fetch names for the activity log
 
 
-    $subject = DB::table('subject')->where('subject_id', $subject_id)->first();
-    $subject_name = $subject ? $subject->subject_name : 'unassigned';
+$subject = DB::table('subject')->where('subject_id', $subject_id)->first();
+$subject_name = $subject ? $subject->subject_name : 'unassigned';
 
-    $teacher_data = DB::table('teacher')->where('teachers_id', $teacher_id)->first();
-    $teacher_name = $teacher_data ? $teacher_data->name : 'Unassigned';
+$teacher_data = DB::table('teacher')->where('teachers_id', $teacher_id)->first();
+$teacher_name = $teacher_data ? $teacher_data->name : 'Unassigned';
 
-    $this->logActivity(
-        'added',
-        'Added schedule for teacher name ' . $teacher_name . ', subject name ' . $subject_name
-    );
+$this->logActivity(
+    'added',
+    'Added schedule for teacher name ' . $teacher_name . ', subject name ' . $subject_name
+);
 
-    session()->flash('save', 'Schedule saved successfully!');
-    return redirect()->back();
+session()->flash('save', 'Schedule saved successfully!');
+return redirect()->back();
 }
 
   
@@ -874,11 +938,16 @@ public function update_schedule(Request $request) {
     $schedule_id = $request->schedule_id;
     $new_teacher_id = $request->teachers_id;
 
-    // 1. Get the OLD teacher ID before updating the schedule
+    // 1. Get the OLD teacher ID before we perform the update
     $old_schedule = DB::table('schedules')->where('schedule_id', $schedule_id)->first();
-    $old_teacher_id = $old_schedule ? $old_schedule->teachers_id : null;
+    
+    if (!$old_schedule) {
+        return redirect()->back()->with('error', 'Schedule not found.');
+    }
 
-    // 2. Perform the update
+    $old_teacher_id = $old_schedule->teachers_id;
+
+    // 2. Perform the update on the schedule
     $days = implode('-', $request->days);
     DB::table('schedules')
         ->where('schedule_id', $schedule_id)
@@ -892,38 +961,40 @@ public function update_schedule(Request $request) {
             'schoolyear_id' => $request->schoolyear_id,
         ]);
 
-    // 3. Update status for the NEW teacher (Set to 'Assigned')
+    // 3. Set the NEW teacher to 'Assigned' (1)
     DB::table('teacher')
         ->where('teachers_id', $new_teacher_id)
-        ->update(['status' => 'Assigned']);
+        ->update(['t_status' => 1]);
 
-    // 4. Check if the OLD teacher still has other classes
+    // 4. Update the OLD teacher's status if the teacher was changed
+    // We only need to check this if the ID actually changed
     if ($old_teacher_id && $old_teacher_id != $new_teacher_id) {
-        $remaining_classes = DB::table('schedules')
+        
+        // Count how many schedules the OLD teacher still has
+        $remaining_count = DB::table('schedules')
             ->where('teachers_id', $old_teacher_id)
             ->count();
 
-        // If they have 0 classes left, set them back to 'Unassigned'
-        if ($remaining_classes == 0) {
+        // If they have no more schedules, set status to Unassigned (0)
+        if ($remaining_count === 0) {
             DB::table('teacher')
                 ->where('teachers_id', $old_teacher_id)
-                ->update(['status' => 'Unassigned']);
+                ->update(['t_status' => 0]);
         }
     }
 
-    // 5. Log the activity
-    $teacher = DB::table('teacher')->where('teachers_id', $new_teacher_id)->first();
-    $teacher_name = $teacher ? $teacher->name : 'Unknown';
+    // 5. Activity Logging
+    $new_teacher = DB::table('teacher')->where('teachers_id', $new_teacher_id)->first();
+    $teacher_name = $new_teacher ? ($new_teacher->name) : 'Unknown';
 
     $this->logActivity(
         'updated',
-        'Updated schedule ID ' . $schedule_id . ' for teacher name ' . $teacher_name
+        'Updated schedule ID ' . $schedule_id . '. Assigned to: ' . $teacher_name
     );
 
     session()->flash('save', 'Schedule updated successfully!');
     return redirect()->back();
 }
-
 
 public function delete_schedule(Request $request) {
     $teacher_id = $request->teachers_id;
@@ -979,7 +1050,7 @@ public function delete_schedule(Request $request) {
 
 
 
-public function updateTeacherStatus($teachers_id) {
+    public function updateTeacherStatus($teachers_id) {
 
         $count = DB::table('schedules')
         ->where('teachers_id', $teachers_id)
@@ -991,8 +1062,7 @@ public function updateTeacherStatus($teachers_id) {
             't_status' => ($count > 0) ? 1 : 0 // 1 = Assigned, 0 = Unassigned
         ]);
 
-}
-
+    }
 
 
 public function teacher_loads(Request $request)
@@ -1265,7 +1335,41 @@ public function update_subject(Request $request) {
 
 
 
-  
+        
+   public function save_student(Request $request){
+
+
+
+
+
+    // 2. Save the new subject
+   $save_student = DB::table('students')->insert([
+        'student_firstname' => $request->student_firstname,
+        'student_lastname' => $request-> student_lastname,
+
+    ]);
+
+
+
+    return redirect()->back()->with('success', 'Student added successfully!');
+
+
+    }
+
+     public function view_student() {
+
+
+       $view_student = DB::table('students') ->get();
+
+
+
+
+
+    return view('student', compact('view_student'));
+
+
+}
+
    
 
         // LOG OUT
