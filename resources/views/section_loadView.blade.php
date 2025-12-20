@@ -149,6 +149,7 @@
 
 
 @section('scripts')
+
     <script>
         $(document).ready(function() {
             $('#schoolYearSelect1').change(function() {
