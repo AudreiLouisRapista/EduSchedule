@@ -86,7 +86,7 @@
                                                         <option value="">-- Select Section --</option>
                                                         @foreach ($section as $sec)
                                                             <option value="{{ $sec->section_id }}">
-                                                                {{ $sec->section_name }}
+                                                                {{ $sec->section_name }} - {{ $sec->grade_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>

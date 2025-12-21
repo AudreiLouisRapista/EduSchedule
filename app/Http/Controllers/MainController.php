@@ -1243,13 +1243,18 @@ public function view_schedule() {
         ->select('subject.subject_id', 'subject.subject_name', 'grade_level.grade_title as grade_name')
         ->get();
 
+         $section = DB::table('section')
+        ->join('grade_level', 'section.grade_id', '=', 'grade_level.grade_id')
+        ->select('section.section_id', 'section.section_name', 'grade_level.grade_title as grade_name')
+        ->get();
+
     // 3. Fetch other dropdown data
     $teachers = DB::table('teacher')
         ->whereRaw('(SELECT COUNT(*) FROM schedules WHERE schedules.teachers_id = teacher.teachers_id) < 5')
         ->get();
 
     $grade = DB::table('grade_level')->get();
-    $section = DB::table('section')->get();
+    // $section = DB::table('section')->get();
     $school_year = DB::table('school_year')->get();
 
     return view('schedule', compact('view_schedule', 'subject', 'teachers', 'section', 'school_year', 'grade'));
